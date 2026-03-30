@@ -1,0 +1,70 @@
+{
+  "header": {
+    "searchPlaceholder1": "Search...",
+    "searchPlaceholder2": "Places to go, things to do, hotels...",
+    "searchButton": "Search",
+    "planWithAi": "Plan with AI",
+    "discover": "Discover",
+    "review": "Review",
+    "signIn": "Sign in"
+  },
+  "searchHero": {
+    "whereTo": "Where to?",
+    "searchAll": "Search All",
+    "hotels": "Hotels",
+    "thingsToDo": "Things to Do",
+    "restaurants": "Restaurants"
+  },
+  "home": {
+    "iconicSpots": "Iconic spots you need to visit",
+    "youMightLike": "You might like these",
+    "inspiration": "Inspiration to get you started",
+    "from": "from",
+    "night": "night",
+    "reviews": "reviews"
+  },
+  "hotelDetail": {
+    "placesToStay": "Places to stay",
+    "showMoreHotels": "Show more hotels",
+    "viewHotel": "View hotel",
+    "allReviews": "All reviews",
+    "writeReview": "Write a review",
+    "filters": "Filters",
+    "sortBy": "Sort by: Most recent",
+    "searchReviews": "Search reviews",
+    "from": "from",
+    "night": "night",
+    "freeCancellation": "Free cancellation",
+    "breakfastIncluded": "Breakfast included",
+    "quickBooking": "Quick and easy booking",
+    "earnCoins": "Earn Trip Coins after your stay",
+    "viewDeal": "View deal",
+    "roomsGuests": "Rooms/Guests",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "selectDate": "Select date",
+    "viewPrices": "View prices for your travel dates",
+    "priceDisclaimer": "Prices are the average nightly price provided by our partners and may not include all taxes and fees. Taxes and fees that are shown are estimates only. Please see our partners for more details.",
+    "similarHotels": "Most booked properties",
+    "seeAll": "See all"
+  },
+  "modals": {
+    "planWithAiTitle": "Plan your trip with AI",
+    "planWithAiDesc": "Let our AI assistant help you create the perfect itinerary.",
+    "whereTo": "Where do you want to go?",
+    "whereToPlaceholder": "e.g., A romantic weekend in Paris",
+    "howManyDays": "How many days?",
+    "generate": "Generate Itinerary",
+    "welcome": "Welcome to NabTravel",
+    "continueGoogle": "Continue with Google",
+    "terms": "By continuing, you agree to our Terms of Use and Privacy Policy."
+  },
+  "searchPage": {
+    "filterResults": "Filter Results",
+    "hotelClass": "Hotel Class",
+    "pricePerNight": "Price per night",
+    "topResults": "Top results matching",
+    "moreResults": "More results matching",
+    "reviewsOpinions": "reviews and opinions"
+  }
+}

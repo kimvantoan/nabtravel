@@ -1,0 +1,70 @@
+{
+  "header": {
+    "searchPlaceholder1": "Tìm kiếm...",
+    "searchPlaceholder2": "Địa điểm, việc cần làm, khách sạn...",
+    "searchButton": "Tìm kiếm",
+    "planWithAi": "Lên lịch với AI",
+    "discover": "Khám phá",
+    "review": "Đánh giá",
+    "signIn": "Đăng nhập"
+  },
+  "searchHero": {
+    "whereTo": "Bạn muốn đi đâu?",
+    "searchAll": "Tìm tất cả",
+    "hotels": "Khách sạn",
+    "thingsToDo": "Hoạt động",
+    "restaurants": "Nhà hàng"
+  },
+  "home": {
+    "iconicSpots": "Những điểm đến mang tính biểu tượng",
+    "youMightLike": "Có thể bạn sẽ thích",
+    "inspiration": "Cảm hứng cho chuyến đi của bạn",
+    "from": "từ",
+    "night": "đêm",
+    "reviews": "đánh giá"
+  },
+  "hotelDetail": {
+    "placesToStay": "Nơi lưu trú",
+    "showMoreHotels": "Xem thêm khách sạn",
+    "viewHotel": "Xem khách sạn",
+    "allReviews": "Tất cả đánh giá",
+    "writeReview": "Viết đánh giá",
+    "filters": "Bộ lọc",
+    "sortBy": "Sắp xếp: Mới nhất",
+    "searchReviews": "Tìm kiếm đánh giá",
+    "from": "từ",
+    "night": "đêm",
+    "freeCancellation": "Hủy miễn phí",
+    "breakfastIncluded": "Bao gồm bữa sáng",
+    "quickBooking": "Đặt phòng nhanh chóng và dễ dàng",
+    "earnCoins": "Nhận Trip Coins sau kỳ lưu trú",
+    "viewDeal": "Xem ưu đãi",
+    "roomsGuests": "Phòng/Khách",
+    "checkIn": "Nhận phòng",
+    "checkOut": "Trả phòng",
+    "selectDate": "Chọn ngày",
+    "viewPrices": "Xem giá cho ngày du lịch của bạn",
+    "priceDisclaimer": "Giá là giá trung bình mỗi đêm mà các đối tác của chúng tôi cung cấp và có thể không bao gồm tất cả thuế và phí. Thuế và phí được trình bày chỉ là giá trị ước tính. Vui lòng xem các đối tác của chúng tôi để biết thêm chi tiết.",
+    "similarHotels": "Các khách sạn được đặt nhiều nhất",
+    "seeAll": "Xem tất cả"
+  },
+  "modals": {
+    "planWithAiTitle": "Lên kế hoạch với AI",
+    "planWithAiDesc": "Để trợ lý AI của chúng tôi giúp bạn tạo ra một lịch trình hoàn hảo.",
+    "whereTo": "Bạn muốn đi đâu?",
+    "whereToPlaceholder": "VD: Kỳ nghỉ lãng mạn cuối tuần ở Paris",
+    "howManyDays": "Bao nhiêu ngày?",
+    "generate": "Lên lịch trình",
+    "welcome": "Chào mừng đến với NabTravel",
+    "continueGoogle": "Tiếp tục bằng Google",
+    "terms": "Bằng cách tiếp tục, bạn đồng ý với Điều khoản Sử dụng và Chính sách Bảo mật của chúng tôi."
+  },
+  "searchPage": {
+    "filterResults": "Lọc kết quả",
+    "hotelClass": "Hạng khách sạn",
+    "pricePerNight": "Giá mỗi đêm",
+    "topResults": "Kết quả hàng đầu cho",
+    "moreResults": "Các kết quả khác cho",
+    "reviewsOpinions": "nhận xét và đánh giá"
+  }
+}
