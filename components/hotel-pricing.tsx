@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { format, addDays } from "date-fns";
-import { enUS } from "date-fns/locale";
+import { enUS, vi } from "date-fns/locale";
 import { Calendar as CalendarIcon, Users, Check } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -10,7 +10,8 @@ import { DateRange } from "react-day-picker";
 import { useLanguage } from "@/app/providers";
 
 export function HotelPricing() {
-  const { dict } = useLanguage();
+  const { dict, locale } = useLanguage();
+  const dateLocale = locale === "vi" ? vi : enUS;
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(),
     to: addDays(new Date(), 1),
@@ -34,7 +35,7 @@ export function HotelPricing() {
                 <div className="text-left">
                   <div className="text-[13px] text-gray-600 font-medium">{dict.hotelDetail.checkIn}</div>
                   <div className="text-[15px] font-bold text-black mt-0.5">
-                    {date?.from ? format(date.from, "E, MMM d", { locale: enUS }) : dict.hotelDetail.selectDate}
+                    {date?.from ? format(date.from, "E, d MMM", { locale: dateLocale }) : dict.hotelDetail.selectDate}
                   </div>
                 </div>
               </div>
@@ -43,7 +44,7 @@ export function HotelPricing() {
                 <div className="text-left">
                   <div className="text-[13px] text-gray-600 font-medium">{dict.hotelDetail.checkOut}</div>
                   <div className="text-[15px] font-bold text-black mt-0.5">
-                    {date?.to ? format(date.to, "E, MMM d", { locale: enUS }) : dict.hotelDetail.selectDate}
+                    {date?.to ? format(date.to, "E, d MMM", { locale: dateLocale }) : dict.hotelDetail.selectDate}
                   </div>
                 </div>
               </div>
@@ -57,7 +58,7 @@ export function HotelPricing() {
               selected={date}
               onSelect={setDate}
               numberOfMonths={2}
-              locale={enUS}
+              locale={dateLocale}
               showOutsideDays={false}
             />
           </PopoverContent>
@@ -68,7 +69,7 @@ export function HotelPricing() {
           <Users className="w-5 h-5 text-gray-600 shrink-0" strokeWidth={1.5} />
           <div className="text-left">
             <div className="text-[13px] text-gray-600 font-medium">{dict.hotelDetail.roomsGuests}</div>
-            <div className="text-[15px] font-bold text-black mt-0.5">1 room, 2 guests</div>
+            <div className="text-[15px] font-bold text-black mt-0.5">{locale === "vi" ? "1 phòng, 2 khách" : "1 room, 2 guests"}</div>
           </div>
         </button>
       </div>
@@ -84,7 +85,7 @@ export function HotelPricing() {
           <div className="w-full md:w-1/2 flex flex-col gap-2">
             <div className="flex items-start gap-2 text-[15px] text-gray-700">
               <Check className="w-4 h-4 mt-0.5 shrink-0 text-gray-400" strokeWidth={2} />
-              <span>{dict.hotelDetail.freeCancellation} until Mon, Apr 6</span>
+              <span>{dict.hotelDetail.freeCancellation} {locale === "vi" ? "đến T2, 6 Thg 4" : "until Mon, Apr 6"}</span>
             </div>
             <div className="flex items-start gap-2 text-[15px] text-gray-700">
               <Check className="w-4 h-4 mt-0.5 shrink-0 text-gray-400" strokeWidth={2} />
@@ -112,7 +113,7 @@ export function HotelPricing() {
           <div className="w-full md:w-1/2 flex flex-col gap-2">
             <div className="flex items-start gap-2 text-[15px] text-gray-700">
               <Check className="w-4 h-4 mt-0.5 shrink-0 text-gray-400" strokeWidth={2} />
-              <span>{dict.hotelDetail.freeCancellation} until Tue, Apr 7</span>
+              <span>{dict.hotelDetail.freeCancellation} {locale === "vi" ? "đến T3, 7 Thg 4" : "until Tue, Apr 7"}</span>
             </div>
             <div className="flex items-start gap-2 text-[15px] text-gray-700">
               <Check className="w-4 h-4 mt-0.5 shrink-0 text-gray-400" strokeWidth={2} />
@@ -139,7 +140,7 @@ export function HotelPricing() {
           <div className="w-full md:w-1/2 flex flex-col gap-2">
             <div className="flex items-start gap-2 text-[15px] text-gray-700">
               <Check className="w-4 h-4 mt-0.5 shrink-0 text-gray-400" strokeWidth={2} />
-              <span>{dict.hotelDetail.freeCancellation} until Wed, Apr 8</span>
+              <span>{dict.hotelDetail.freeCancellation} {locale === "vi" ? "đến T4, 8 Thg 4" : "until Wed, Apr 8"}</span>
             </div>
             <div className="flex items-start gap-2 text-[15px] text-gray-700">
               <Check className="w-4 h-4 mt-0.5 shrink-0 text-gray-400" strokeWidth={2} />

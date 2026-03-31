@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ArrowLeft, ArrowRight } from "lucide-react";
+import { useLanguage } from "@/app/providers";
 
 const HOTELS = [
   {
@@ -57,28 +58,60 @@ const HOTELS = [
 ];
 
 function HotelCard({ hotel }: { hotel: typeof HOTELS[0] }) {
+  const { dict } = useLanguage();
   const [imgIndex, setImgIndex] = useState(0);
 
-  const nextImg = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const nextImg = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     setImgIndex((p) => (p === hotel.images.length - 1 ? 0 : p + 1));
   };
 
-  const prevImg = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const prevImg = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     setImgIndex((p) => (p === 0 ? hotel.images.length - 1 : p - 1));
+  };
+
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > 50) {
+      nextImg();
+    }
+    if (distance < -50) {
+      prevImg();
+    }
   };
 
   return (
     <Link href={`/hotel/${hotel.id}`} className="group flex flex-col cursor-pointer">
-      <div className="relative w-full h-[240px] rounded-xl overflow-hidden mb-3 border border-gray-100 bg-gray-50 shadow-sm">
-        <Image 
-          src={hotel.images[imgIndex]} 
-          alt={hotel.name} 
-          fill 
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
+      <div 
+        className="relative w-full h-[240px] rounded-xl overflow-hidden mb-3 border border-gray-100 bg-gray-900 shadow-sm"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {hotel.images.map((imgSrc, i) => (
+          <Image 
+            key={i}
+            src={imgSrc} 
+            alt={`${hotel.name} - ${i}`} 
+            fill 
+            className={`object-cover transition-all duration-300 group-hover:scale-105 ${i === imgIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        ))}
         
         {/* Dark gradient for dots visibility */}
         <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
@@ -88,13 +121,13 @@ function HotelCard({ hotel }: { hotel: typeof HOTELS[0] }) {
           <>
             <button 
               onClick={prevImg}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer hidden md:flex"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
             <button 
               onClick={nextImg}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer hidden md:flex"
             >
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -140,7 +173,7 @@ function HotelCard({ hotel }: { hotel: typeof HOTELS[0] }) {
         </div>
 
         <div className="text-[14px] text-gray-700 mt-1">
-          from <span className="font-bold text-black text-[15px]">${hotel.price}</span>/night
+          {dict.destination?.from || "from"} <span className="font-bold text-black text-[15px]">${hotel.price}</span>/{dict.destination?.night || "night"}
         </div>
       </div>
     </Link>
@@ -148,11 +181,12 @@ function HotelCard({ hotel }: { hotel: typeof HOTELS[0] }) {
 }
 
 export function DestinationHotels() {
+  const { dict } = useLanguage();
   return (
     <div className="w-full max-w-6xl mx-auto px-4 lg:px-6 py-8">
       <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-3">
-        <h2 className="text-[22px] font-extrabold text-[#004f32] tracking-tight">Places to stay</h2>
-        <a href="#" className="text-[15px] font-bold text-black hover:underline underline-offset-2 hover:text-[#004f32] transition-colors">See all</a>
+        <h2 className="text-[22px] font-extrabold text-[#004f32] tracking-tight">{dict.destination?.placesToStay || "Places to stay"}</h2>
+        <a href="#" className="text-[15px] font-bold text-black hover:underline underline-offset-2 hover:text-[#004f32] transition-colors">{dict.hotelDetail?.seeAll || "See all"}</a>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
@@ -163,7 +197,7 @@ export function DestinationHotels() {
       
       <div className="mt-12 flex justify-center mb-8">
         <button className="bg-white border-2 border-black hover:bg-gray-50 text-black font-bold px-8 py-3.5 rounded-full transition-colors w-full sm:w-auto min-w-[300px] shadow-[0_2px_8px_rgba(0,0,0,0.05)] text-[16px]">
-          Show more hotels
+          {dict.destination?.showMoreHotels || "Show more hotels"}
         </button>
       </div>
     </div>

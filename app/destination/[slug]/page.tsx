@@ -1,5 +1,26 @@
 import { DestinationHero } from "@/components/destination-hero";
 import { DestinationHotels } from "@/components/destination-hotels";
+import { Metadata } from "next";
+import { getLocale } from "@/lib/i18n";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const locale = await getLocale();
+  const destName = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  
+  const desc = locale === 'vi' 
+    ? `Khám phá các điểm đến, khách sạn và cẩm nang du lịch tại ${destName}. Đặt phòng giá ưu đãi tại NabTravel.`
+    : `Explore destinations, hotels, and travel guides in ${destName}. Book at best rates on NabTravel.`;
+
+  return {
+    title: `${destName} - NabTravel`,
+    description: desc,
+    openGraph: {
+      title: `Travel ${destName} | NabTravel`,
+      description: desc,
+    }
+  };
+}
 
 export default async function DestinationPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

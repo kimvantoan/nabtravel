@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Share, Pencil, Heart, Phone, MapPin, ImageIcon } from "lucide-react";
+import { useLanguage } from "@/app/providers";
 
 function RatingBubbles() {
   return (
@@ -16,6 +17,12 @@ function RatingBubbles() {
 }
 
 export function HotelGallery() {
+  const { dict } = useLanguage();
+  const scrollToReviews = (e: React.MouseEvent) => {
+    e.preventDefault();
+    document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="w-full pb-8">
       {/* Hotel Header Section */}
@@ -29,23 +36,19 @@ export function HotelGallery() {
           <div className="flex flex-wrap items-center gap-2 text-sm text-gray-700">
             <span className="font-bold text-base">4,9</span>
             <RatingBubbles />
-            <a href="#" className="hover:underline text-gray-700 underline-offset-2">
-              (40 đánh giá)
-            </a>
+            <button onClick={scrollToReviews} className="hover:underline text-gray-700 underline-offset-2">
+              (40 {dict.hotelGallery?.reviews || "đánh giá"})
+            </button>
             <span className="text-gray-400 mx-1">•</span>
             <a href="#" className="hover:underline text-gray-700 underline-offset-2">
-              Số 8 trong 14 khách sạn tại Ngu Hanh Son
+              #8 {dict.header?.hotels || "Khách sạn"} Ngu Hanh Son
             </a>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-700 mt-1">
-            <a href="tel:0905685986" className="flex items-center gap-1.5 hover:underline">
+            <a href="tel:0905685986" className="flex items-center gap-1.5 hover:underline shrink-0">
               <Phone className="w-4 h-4" />
               090 568 59 86
-            </a>
-            <a href="#" className="flex items-center gap-1.5 hover:underline">
-              <MapPin className="w-4 h-4" />
-              Xem địa điểm
             </a>
           </div>
         </div>
@@ -55,20 +58,20 @@ export function HotelGallery() {
           <div className="flex items-center gap-4 text-sm font-semibold text-gray-900">
             <button className="flex items-center gap-1.5 hover:text-green-800 transition-colors">
               <Share className="w-4 h-4" strokeWidth={2} />
-              Chia sẻ
+              {dict.hotelGallery?.share || "Chia sẻ"}
             </button>
-            <button className="flex items-center gap-1.5 hover:text-green-800 transition-colors">
+            <button onClick={scrollToReviews} className="flex items-center gap-1.5 hover:text-green-800 transition-colors">
               <Pencil className="w-4 h-4" strokeWidth={2} />
-              Đánh giá
+              {dict.hotelDetail?.writeReview || "Đánh giá"}
             </button>
             <button className="flex items-center gap-1.5 hover:text-green-800 transition-colors">
               <Heart className="w-4 h-4" strokeWidth={2} />
-              Lưu
+              {dict.hotelGallery?.save || "Lưu"}
             </button>
           </div>
           
           <button className="bg-[#0cf688] hover:bg-[#00aa6c] text-black hover:text-white font-bold px-6 py-2.5 rounded-full transition-colors shadow-sm w-full md:w-auto mt-2 text-[15px]">
-            Kiểm tra tình trạng phòng trống
+            {dict.hotelDetail?.viewPrices || "Kiểm tra phòng trống"}
           </button>
         </div>
       </div>
@@ -101,7 +104,7 @@ export function HotelGallery() {
             {/* Dark gradient overlay for text */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
             <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between text-white font-bold text-[15px]">
-              <span>Khách du lịch</span>
+              <span>{dict.hotelGallery?.tourists || "Khách du lịch"}</span>
               <span>72</span>
             </div>
             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -117,7 +120,7 @@ export function HotelGallery() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
             <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between text-white font-bold text-[15px]">
-              <span>Phòng & Phòng Suite</span>
+              <span>{dict.hotelGallery?.suites || "Phòng Suite"}</span>
               <span>9</span>
             </div>
             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -133,7 +136,7 @@ export function HotelGallery() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
             <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between text-white font-bold text-[15px]">
-              <span>Ăn uống</span>
+              <span>{dict.hotelGallery?.dining || "Nhà hàng"}</span>
               <span>7</span>
             </div>
             

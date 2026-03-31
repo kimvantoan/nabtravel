@@ -67,7 +67,7 @@ function ReviewRating({ score }: { score: number }) {
 export function HotelReviews() {
   const { dict } = useLanguage();
   return (
-    <div className="w-full mt-10 border-t border-gray-200 py-10 px-4">
+    <div id="reviews" className="w-full mt-10 border-t border-gray-200 py-10 px-4">
       {/* Header section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <h2 className="text-[24px] font-extrabold text-black tracking-tight">
@@ -80,7 +80,7 @@ export function HotelReviews() {
       </div>
 
       <p className="text-[13px] text-gray-500 leading-relaxed max-w-5xl mb-8">
-        Reviews are the subjective opinion of Tripadvisor members and not of Tripadvisor LLC. Tripadvisor performs checks on reviews as part of our industry-leading trust & safety standards. Read our <a href="#" className="underline hover:text-black font-medium">transparency report</a> to learn more.
+        {dict.hotelReviews?.disclaimer || "Reviews are the subjective opinion of Tripadvisor members and not of Tripadvisor LLC."} <a href="#" className="underline hover:text-black font-medium">{dict.hotelReviews?.transparency || "Review transparency"}</a>.
       </p>
 
       {/* Filters and search */}
@@ -119,7 +119,7 @@ export function HotelReviews() {
                 </div>
                 <div className="flex flex-col">
                   <div className="text-[15px] font-bold text-gray-900 leading-tight">
-                    {review.user.name} <span className="font-normal text-gray-500 text-[14px]">wrote a review {review.dateWritten}</span>
+                    {review.user.name} <span className="font-normal text-gray-500 text-[14px]">{dict.hotelReviews?.wroteReview || "wrote a review"} {review.dateWritten}</span>
                   </div>
                   <div className="text-[13px] text-gray-500 mt-1">
                     {review.user.location} • <span className="font-bold text-black">{review.user.contributions}</span> contributions • <span className="font-bold text-black">{review.user.helpfulVotes}</span> helpful votes
@@ -145,15 +145,15 @@ export function HotelReviews() {
 
             <div className="flex flex-col gap-1 text-[13px] text-gray-600 mb-6">
               <div>
-                <span className="font-bold text-gray-900">Date of stay:</span> {review.dateOfStay}
+                <span className="font-bold text-gray-900">{dict.hotelReviews?.dateOfStay || "Date of stay"}:</span> {review.dateOfStay}
               </div>
               <div>
-                <span className="font-bold text-gray-900">Trip type:</span> {review.tripType}
+                <span className="font-bold text-gray-900">{dict.hotelReviews?.tripType || "Trip type"}:</span> {review.tripType}
               </div>
             </div>
 
             <p className="text-[11px] text-gray-500 leading-relaxed max-w-4xl border-b border-gray-100 pb-6 mb-4">
-              This review is the subjective opinion of an individual traveler and not of Tripadvisor LLC nor of its partners. Tripadvisor performs checks on reviews as part of our industry-leading trust & safety standards. Read our <a href="#" className="underline hover:text-black font-medium">transparency report</a> to learn more.
+              {dict.hotelReviews?.disclaimer || "This review is the subjective opinion of an individual traveler and not of Tripadvisor LLC."} <a href="#" className="underline hover:text-black font-medium">{dict.hotelReviews?.transparency || "Review transparency"}</a>.
             </p>
 
             <div className="flex justify-end mt-2">

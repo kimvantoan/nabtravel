@@ -1,19 +1,18 @@
 {
   "header": {
-    "searchPlaceholder1": "Tìm kiếm...",
-    "searchPlaceholder2": "Địa điểm, việc cần làm, khách sạn...",
+    "searchPlaceholder1": "Tìm khách sạn, bài viết...",
+    "searchPlaceholder2": "Khách sạn, resort, cẩm nang...",
     "searchButton": "Tìm kiếm",
     "planWithAi": "Lên lịch với AI",
-    "discover": "Khám phá",
-    "review": "Đánh giá",
+    "hotels": "Khách sạn",
+    "articles": "Bài viết",
     "signIn": "Đăng nhập"
   },
   "searchHero": {
     "whereTo": "Bạn muốn đi đâu?",
     "searchAll": "Tìm tất cả",
     "hotels": "Khách sạn",
-    "thingsToDo": "Hoạt động",
-    "restaurants": "Nhà hàng"
+    "articles": "Bài viết"
   },
   "home": {
     "iconicSpots": "Những điểm đến mang tính biểu tượng",
@@ -66,5 +65,132 @@
     "topResults": "Kết quả hàng đầu cho",
     "moreResults": "Các kết quả khác cho",
     "reviewsOpinions": "nhận xét và đánh giá"
+  },
+  "footer": {
+    "sections": [
+      {
+        "title": "Giới thiệu về Tripadvisor",
+        "links": ["Về chúng tôi", "Báo chí", "Tài nguyên và chính sách", "Tin cậy & An toàn", "Liên hệ với chúng tôi"]
+      },
+      {
+        "title": "Khám phá",
+        "links": ["Viết đánh giá", "Thêm địa điểm", "Tham gia", "Travellers' Choice", "Trung tâm trợ giúp"]
+      },
+      {
+        "title": "Hợp tác với chúng tôi",
+        "links": ["Chủ sở hữu", "Chiến lược doanh nghiệp", "Vị trí tài trợ", "Quảng cáo với chúng tôi", "Truy cập API nội dung của chúng tôi"]
+      },
+      {
+        "title": "Tải ứng dụng",
+        "links": ["Ứng dụng iPhone", "Ứng dụng Android"]
+      }
+    ],
+    "copyright": "© 2026 Tripadvisor LLC Bảo lưu mọi quyền",
+    "terms": "Điều khoản sử dụng",
+    "privacy": "Tuyên bố về quyền riêng tư và cookie",
+    "cookieConsent": "Chấp thuận cookie",
+    "howItWorks": "Cách thức hoạt động của trang web",
+    "contact": "Liên hệ với chúng tôi",
+    "accessibility": "Tuyên bố về trợ năng",
+    "regionalDisclaimer": "Đây là phiên bản trang web dành cho người sử dụng Tiếng Việt tại Việt Nam. Nếu bạn ở tại quốc gia hoặc vùng lãnh thổ khác, vui lòng chọn phiên bản Tripadvisor phù hợp với quốc gia hoặc vùng lãnh thổ của mình trong menu thả xuống.",
+    "readMore": "Đọc thêm",
+    "country": "Việt Nam"
+  },
+  "hotelsPage": {
+    "title": "Tìm khách sạn hoàn hảo cho bạn",
+    "subtitle": "Khám phá hàng ngàn lựa chọn lưu trú tuyệt vời với giá tốt nhất",
+    "heroTitle": "Tìm khách sạn du khách yêu thích",
+    "searchPlaceholder": "Tên khách sạn hoặc điểm đến",
+    "filters": "Bộ lọc",
+    "priceRange": "Khoảng giá (Mỗi đêm)",
+    "starRating": "Hạng sao",
+    "guestRating": "Đánh giá của khách",
+    "amenities": "Tiện nghi",
+    "clearAll": "Xóa bộ lọc",
+    "sortBy": "Sắp xếp theo",
+    "recommended": "Đề xuất",
+    "priceLowToHigh": "Giá: Thấp đến Cao",
+    "priceHighToLow": "Giá: Cao đến Thấp",
+    "topReviewed": "Đánh giá cao nhất",
+    "night": "đêm",
+    "viewDeal": "Xem ưu đãi",
+    "reviews": "đánh giá",
+    "freeCancellation": "Hủy miễn phí",
+    "breakfastIncluded": "Bao gồm bữa sáng",
+    "hotelClass": "Hạng sao",
+    "5star": "5 Sao",
+    "4star": "4 Sao",
+    "3star": "3 Sao",
+    "style": "Phong cách",
+    "midRange": "Tầm trung",
+    "luxury": "Sang trọng",
+    "familyFriendly": "Thân thiện với gia đình",
+    "business": "Công tác",
+    "romantic": "Lãng mạn",
+    "modern": "Hiện đại",
+    "excellent": "Tuyệt vời",
+    "veryGood": "Rất tốt",
+    "good": "Tốt"
+  },
+  "articlesPage": {
+    "title": "Cẩm nang Khách sạn & Nghỉ dưỡng",
+    "subtitle": "Khám phá thế giới qua những bài đánh giá khách sạn chân thực, gợi ý resort siêu đẹp và kinh nghiệm nghỉ dưỡng độc quyền.",
+    "categories": {
+      "all": "Tất cả",
+      "reviews": "Review Khách sạn",
+      "resorts": "Top Resort",
+      "tips": "Kinh nghiệm",
+      "offers": "Ưu đãi & Khuyến mãi"
+    },
+    "featured": "Bài viết nổi bật",
+    "latest": "Mới nhất",
+    "readMore": "Đọc tiếp",
+    "by": "Bởi",
+    "minRead": "phút đọc"
+  },
+  "seo": {
+    "defaultDescription": "Đặt phòng khách sạn giá rẻ, vé máy bay và cẩm nang kinh nghiệm nghỉ dưỡng 5 sao chất lượng hàng đầu Việt Nam.",
+    "homeTitle": "Du lịch thế giới trong tầm tay",
+    "hotelsTitle": "Tìm khách sạn hoàn hảo",
+    "hotelsDescription": "Tổng hợp danh sách các khách sạn, resort, và nhà nghỉ lý tưởng đang có khuyến mãi tốt nhất hiện nay.",
+    "articlesTitle": "Cẩm nang Du lịch & Resort",
+    "articlesDescription": "Bí kíp vi vu khắp thế giới với các bài đánh giá khách sạn, thủ thuật săn voucher phòng cực kỳ hữu ích."
+  },
+  "hotelGallery": {
+    "reviews": "đánh giá",
+    "share": "Chia sẻ",
+    "save": "Lưu",
+    "tourists": "Khách du lịch",
+    "suites": "Phòng Suite",
+    "dining": "Nhà hàng",
+    "viewAll": "Xem tất cả ảnh"
+  },
+  "hotelAmenities": {
+    "about": "Giới thiệu",
+    "amenitiesTitle": "Tiện ích khu nghỉ",
+    "roomFeatures": "Đặc điểm phòng",
+    "roomTypes": "Loại phòng",
+    "languages": "Ngôn ngữ hỗ trợ",
+    "showMore": "Xem tất cả",
+    "readMore": "Đọc thêm",
+    "readLess": "Rút gọn"
+  },
+  "destination": {
+    "planYourTrip": "Lên lịch trình tới",
+    "placesToStay": "Nơi lưu trú",
+    "showMoreHotels": "Xem thêm khách sạn",
+    "bestOf": "Tuyệt đỉnh",
+    "byManagement": "Quản lý bởi",
+    "from": "từ",
+    "night": "đêm"
+  },
+  "hotelReviews": {
+    "disclaimer": "Các đánh giá này là ý kiến chủ quan của các thành viên NabTravel và không phải của Công ty TNHH NabTravel. NabTravel luôn kiểm duyệt đánh giá.",
+    "transparency": "Tính minh bạch của đánh giá",
+    "wroteReview": "đã viết đánh giá",
+    "dateOfStay": "Ngày đi",
+    "tripType": "Loại điểm chuyến đi",
+    "readMore": "Đọc thêm",
+    "helpful": "Đánh giá này hữu ích"
   }
 }

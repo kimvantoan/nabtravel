@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ParkingCircle, Wifi, Utensils, GlassWater, Snowflake, Archive, BoxSelect, MountainSnow, Building2, Ban, Users, Waves, Landmark, ChevronUp, ChevronDown } from "lucide-react";
+import { useLanguage } from "@/app/providers";
 
 function RatingBubbles() {
   return (
@@ -28,6 +29,7 @@ function RatingBar({ label, score, percent }: { label: string; score: string; pe
 }
 
 export function HotelDetailsAmenities() {
+  const { dict } = useLanguage();
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -36,16 +38,16 @@ export function HotelDetailsAmenities() {
       {/* LEFT COLUMN: Overview & Ratings */}
       <div className="w-full md:w-1/3 flex flex-col gap-6">
         <div>
-          <h2 className="text-xl font-bold text-black mb-4">Giới thiệu</h2>
+          <h2 className="text-xl font-bold text-black mb-4">{dict.hotelAmenities?.about || "Giới thiệu"}</h2>
 
           <div className="flex items-center gap-3 mb-2">
             <span className="text-[48px] font-black tracking-tighter leading-none text-black">4,9</span>
             <div className="flex flex-col gap-1">
-              <span className="font-bold text-[15px] text-black leading-none">Xuất sắc</span>
+              <span className="font-bold text-[15px] text-black leading-none">{dict.hotelsPage?.excellent || "Xuất sắc"}</span>
               <div className="flex items-center gap-1">
                 <RatingBubbles />
                 <a href="#" className="text-[13px] text-gray-600 hover:text-black hover:underline ml-1">
-                  (40 đánh giá)
+                  (40 {dict.hotelGallery?.reviews || "đánh giá"})
                 </a>
               </div>
             </div>
@@ -77,7 +79,7 @@ export function HotelDetailsAmenities() {
               onClick={() => setIsExpanded(!isExpanded)}
               className="cursor-pointer flex items-center gap-1 font-bold text-[15px] text-black underline underline-offset-2 decoration-8 decoration-transparent hover:opacity-80 transition-opacity w-fit mt-1"
             >
-              {isExpanded ? "Read less" : "Read more"}
+              {isExpanded ? (dict.hotelAmenities?.readLess || "Read less") : (dict.hotelAmenities?.readMore || "Read more")}
               {isExpanded ? (
                 <ChevronUp className="w-5 h-5 ml-0.5" strokeWidth={2} />
               ) : (
@@ -93,7 +95,7 @@ export function HotelDetailsAmenities() {
 
         {/* Tiện nghi của khách sạn */}
         <div>
-          <h3 className="text-[17px] font-bold text-black mb-4">Tiện nghi của khách sạn</h3>
+          <h3 className="text-[17px] font-bold text-black mb-4">{dict.hotelAmenities?.amenitiesTitle || "Tiện nghi của khách sạn"}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
             <div className="flex items-center gap-3 text-[15px] text-gray-800">
               <ParkingCircle className="w-5 h-5 text-gray-600 shrink-0" strokeWidth={1.5} />
@@ -120,7 +122,7 @@ export function HotelDetailsAmenities() {
 
         {/* Tiện nghi trong phòng */}
         <div>
-          <h3 className="text-[17px] font-bold text-black mb-4">Tiện nghi trong phòng</h3>
+          <h3 className="text-[17px] font-bold text-black mb-4">{dict.hotelAmenities?.roomFeatures || "Tiện nghi trong phòng"}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
             <div className="flex items-center gap-3 text-[15px] text-gray-800">
               <Snowflake className="w-5 h-5 text-gray-600 shrink-0" strokeWidth={1.5} />
@@ -139,7 +141,7 @@ export function HotelDetailsAmenities() {
 
         {/* Loại phòng */}
         <div>
-          <h3 className="text-[17px] font-bold text-black mb-4">Loại phòng</h3>
+          <h3 className="text-[17px] font-bold text-black mb-4">{dict.hotelAmenities?.roomTypes || "Loại phòng"}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
             <div className="flex items-center gap-3 text-[15px] text-gray-800">
               <MountainSnow className="w-5 h-5 text-gray-600 shrink-0" strokeWidth={1.5} />

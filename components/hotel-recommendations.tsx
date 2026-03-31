@@ -84,7 +84,7 @@ export function HotelRecommendations() {
   };
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 py-8 mt-4 border-t border-gray-200">
+    <section className="w-full max-w-6xl mx-auto px-4 py-6 md:py-8 mt-2 md:mt-4 border-t border-gray-200">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-[#004f32] tracking-tight">
           {dict.home.youMightLike}

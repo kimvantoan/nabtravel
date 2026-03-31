@@ -1,63 +1,27 @@
+"use client";
+
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { Logo } from "./logo";
-
-const FOOTER_LINKS = [
-  {
-    title: "Giới thiệu về Tripadvisor",
-    links: [
-      { label: "Về chúng tôi", href: "#" },
-      { label: "Báo chí", href: "#" },
-      { label: "Tài nguyên và chính sách", href: "#" },
-      { label: "Tin cậy & An toàn", href: "#" },
-      { label: "Liên hệ với chúng tôi", href: "#" },
-    ],
-  },
-  {
-    title: "Khám phá",
-    links: [
-      { label: "Viết đánh giá", href: "#" },
-      { label: "Thêm địa điểm", href: "#" },
-      { label: "Tham gia", href: "#" },
-      { label: "Travellers' Choice", href: "#" },
-      { label: "Trung tâm trợ giúp", href: "#" },
-    ],
-  },
-  {
-    title: "Hợp tác với chúng tôi",
-    links: [
-      { label: "Chủ sở hữu", href: "#" },
-      { label: "Chiến lược doanh nghiệp", href: "#" },
-      { label: "Vị trí tài trợ", href: "#" },
-      { label: "Quảng cáo với chúng tôi", href: "#" },
-      { label: "Truy cập API nội dung của chúng tôi", href: "#" },
-    ],
-  },
-  {
-    title: "Tải ứng dụng",
-    links: [
-      { label: "Ứng dụng iPhone", href: "#" },
-      { label: "Ứng dụng Android", href: "#" },
-    ],
-  },
-];
+import { useLanguage } from "@/app/providers";
 
 export function SiteFooter() {
+  const { dict } = useLanguage();
   return (
     <footer className="bg-[#faf1ed] py-12 px-4 md:px-6 lg:px-8 text-sm text-gray-700">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {FOOTER_LINKS.map((section, idx) => (
+          {dict.footer.sections.map((section: any, idx: number) => (
             <div key={idx}>
               <h4 className="font-semibold text-gray-900 mb-4">{section.title}</h4>
               <ul className="space-y-3">
-                {section.links.map((link, linkIdx) => (
+                {section.links.map((linkStr: string, linkIdx: number) => (
                   <li key={linkIdx}>
                     <Link
-                      href={link.href}
+                      href="#"
                       className="hover:underline underline-offset-4 hover:text-black transition-colors"
                     >
-                      {link.label}
+                      {linkStr}
                     </Link>
                   </li>
                 ))}
@@ -72,18 +36,18 @@ export function SiteFooter() {
             <Logo />
             
             <div className="text-xs space-y-2 max-w-2xl">
-              <p>© 2026 Tripadvisor LLC Bảo lưu mọi quyền</p>
+              <p>{dict.footer.copyright}</p>
               <div className="flex flex-wrap gap-x-4 gap-y-2 font-medium text-gray-900">
-                <Link href="#" className="hover:underline">Điều khoản sử dụng</Link>
-                <Link href="#" className="hover:underline">Tuyên bố về quyền riêng tư và cookie</Link>
-                <Link href="#" className="hover:underline">Chấp thuận cookie</Link>
-                <Link href="#" className="hover:underline">Cách thức hoạt động của trang web</Link>
-                <Link href="#" className="hover:underline">Liên hệ với chúng tôi</Link>
-                <Link href="#" className="hover:underline">Tuyên bố về trợ năng</Link>
+                <Link href="#" className="hover:underline">{dict.footer.terms}</Link>
+                <Link href="#" className="hover:underline">{dict.footer.privacy}</Link>
+                <Link href="#" className="hover:underline">{dict.footer.cookieConsent}</Link>
+                <Link href="#" className="hover:underline">{dict.footer.howItWorks}</Link>
+                <Link href="#" className="hover:underline">{dict.footer.contact}</Link>
+                <Link href="#" className="hover:underline">{dict.footer.accessibility}</Link>
               </div>
               <p className="text-gray-500 mt-4 leading-relaxed">
-                Đây là phiên bản trang web dành cho người sử dụng Tiếng Việt tại Việt Nam. Nếu bạn ở tại quốc gia hoặc vùng lãnh thổ khác, vui lòng chọn phiên bản Tripadvisor phù hợp với quốc gia hoặc vùng lãnh thổ của mình trong menu thả xuống.
-                <button className="font-semibold text-black ml-1 hover:underline">Đọc thêm <ChevronDown className="inline w-3 h-3" /></button>
+                {dict.footer.regionalDisclaimer}
+                <button className="font-semibold text-black ml-1 hover:underline">{dict.footer.readMore} <ChevronDown className="inline w-3 h-3" /></button>
               </p>
             </div>
           </div>
@@ -94,7 +58,7 @@ export function SiteFooter() {
                 <span className="font-bold">₫</span> VND <ChevronDown className="w-4 h-4" />
               </button>
               <button className="flex items-center gap-4 border border-black rounded-xl px-4 py-2 bg-white font-semibold hover:bg-gray-50 transition-colors">
-                Việt Nam <ChevronDown className="w-4 h-4" />
+                {dict.footer.country} <ChevronDown className="w-4 h-4" />
               </button>
             </div>
             <div className="flex items-center gap-4 mt-2">

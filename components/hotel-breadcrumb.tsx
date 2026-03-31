@@ -1,13 +1,18 @@
+"use client";
+
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { useLanguage } from "@/app/providers";
 
 export function HotelBreadcrumb() {
+  const { locale, dict } = useLanguage();
+  
   const breadcrumbs = [
-    { label: "Châu Á", href: "#" },
-    { label: "Việt Nam", href: "#" },
-    { label: "Đà Nẵng", href: "#" },
+    { label: locale === "vi" ? "Châu Á" : "Asia", href: "#" },
+    { label: locale === "vi" ? "Việt Nam" : "Vietnam", href: "#" },
+    { label: locale === "vi" ? "Đà Nẵng" : "Da Nang", href: "#" },
     { label: "Ngu Hanh Son", href: "#" },
-    { label: "Khách sạn tại Ngu Hanh Son", href: "#" },
+    { label: `${dict.header?.hotels || "Khách sạn"} Ngu Hanh Son`, href: "#" },
   ];
 
   const current = "PĀMA Boutique Hotel";

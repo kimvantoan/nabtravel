@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, Heart, Image as ImageIcon } from "lucide-react";
+import { useLanguage } from "@/app/providers";
 
 const HERO_IMAGES = [
   "/images/da_nang.png",
@@ -11,6 +12,7 @@ const HERO_IMAGES = [
 ];
 
 export function DestinationHero({ name }: { name: string }) {
+  const { dict, locale } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const prevImage = () => {
@@ -21,25 +23,55 @@ export function DestinationHero({ name }: { name: string }) {
     setCurrentIndex((prev) => (prev === HERO_IMAGES.length - 1 ? 0 : prev + 1));
   };
 
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    if (isLeftSwipe) nextImage();
+    if (isRightSwipe) prevImage();
+  };
+
   return (
     <div className="w-full max-w-6xl mx-auto px-4 lg:px-6 pt-6">
       <div className="text-[13px] text-gray-500 mb-4 flex items-center gap-1.5 flex-wrap">
-        <a href="/" className="hover:underline">Asia</a>
+        <a href="/" className="hover:underline">{locale === 'vi' ? 'Châu Á' : 'Asia'}</a>
         <span>›</span>
-        <a href="/" className="hover:underline">Vietnam</a>
+        <a href="/" className="hover:underline">{locale === 'vi' ? 'Việt Nam' : 'Vietnam'}</a>
         <span>›</span>
         <span className="text-black font-semibold">{name}</span>
-        <span className="text-gray-500 ml-auto hidden sm:block">Plan Your Trip to {name}: Best of {name} Tourism</span>
+        <span className="text-gray-500 ml-auto hidden sm:block">{dict.destination?.planYourTrip || "Plan Your Trip to"} {name}: {dict.destination?.bestOf || "Best of"} {name}</span>
       </div>
 
-      <div className="relative w-full h-[300px] md:h-[400px] lg:h-[450px] rounded-2xl overflow-hidden mb-8 group bg-gray-100 shadow-sm border border-gray-100">
-        <Image 
-          src={HERO_IMAGES[currentIndex]} 
-          alt={name} 
-          fill 
-          className="object-cover transition-transform duration-700 ease-in-out"
-          priority
-        />
+      <div 
+        className="relative w-full h-[300px] md:h-[400px] lg:h-[450px] rounded-2xl overflow-hidden mb-8 group bg-gray-900 shadow-sm border border-gray-100"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {HERO_IMAGES.map((imgSrc, idx) => (
+          <Image 
+            key={idx}
+            src={imgSrc} 
+            alt={`${name} - ${idx}`} 
+            fill 
+            className={`object-cover transition-opacity duration-300 ${idx === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+            priority={idx === currentIndex}
+          />
+        ))}
         
         {/* Gradients */}
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
@@ -47,13 +79,13 @@ export function DestinationHero({ name }: { name: string }) {
         {/* Prev/Next Buttons */}
         <button 
           onClick={prevImage}
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer hidden md:flex"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <button 
           onClick={nextImage}
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer hidden md:flex"
         >
           <ArrowRight className="w-5 h-5" />
         </button>
@@ -74,7 +106,7 @@ export function DestinationHero({ name }: { name: string }) {
           <div className="w-6 h-6 rounded-full bg-orange-500 border border-white/20 flex justify-center items-center text-xs font-bold shadow-sm">
             M
           </div>
-          <span className="text-[14px] font-medium drop-shadow-md">By Management</span>
+          <span className="text-[14px] font-medium drop-shadow-md">{dict.destination?.byManagement || "By Management"}</span>
         </div>
         
         <div className="absolute bottom-4 right-6 bg-black/60 border border-white/10 text-white text-[13px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-2 z-10 backdrop-blur-sm">
@@ -88,7 +120,7 @@ export function DestinationHero({ name }: { name: string }) {
           {name}
         </h1>
         <button className="flex items-center gap-2 border border-black rounded-full px-5 py-2.5 hover:bg-gray-50 font-bold text-[15px] transition-colors w-fit shadow-sm">
-          <Heart className="w-4 h-4" /> Save
+          <Heart className="w-4 h-4" /> {dict.hotelGallery?.save || "Save"}
         </button>
       </div>
     </div>

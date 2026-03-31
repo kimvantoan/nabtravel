@@ -5,25 +5,11 @@ import { ArrowLeft, ArrowRight, Heart } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import { useLanguage } from "@/app/providers";
 
-const INSPIRATIONS = [
-  {
-    id: "stargazing",
-    title: "Stargazing spots around the world, from Utah to Dubai",
-    image: "/images/stargazing.png",
-  },
-  {
-    id: "art",
-    title: "Engage with art in Paris, NYC, and other cultural hotspots",
-    image: "/images/art.png",
-  },
-  {
-    id: "food",
-    title: "13 cities, 13 amazing culinary journeys",
-    image: "/images/food.png",
-  },
-];
+import Link from "next/link";
+import { MOCK_ARTICLES } from "@/lib/mock-articles";
 
 export function InspirationSection() {
+  const INSPIRATIONS = MOCK_ARTICLES.slice(0, 4);
   const { dict } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeft, setShowLeft] = useState(false);
@@ -56,7 +42,7 @@ export function InspirationSection() {
   };
 
   return (
-    <section className="w-full bg-[#f9f9f9] py-16 mt-8">
+    <section className="w-full bg-[#f9f9f9] py-10 md:py-16 mt-4 md:mt-8">
       <div className="max-w-6xl mx-auto px-4">
         <h2 className="text-2xl font-bold text-[#004f32] mb-6 tracking-tight">
           {dict.home.inspiration}
@@ -82,9 +68,10 @@ export function InspirationSection() {
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {INSPIRATIONS.map((item) => (
-              <div
+              <Link
+                href={`/article/${item.slug}`}
                 key={item.id}
-                className="relative w-[340px] md:w-[360px] flex flex-col gap-4 flex-shrink-0 snap-center cursor-pointer group/card"
+                className="relative w-[280px] md:w-[360px] flex flex-col gap-4 flex-shrink-0 snap-center cursor-pointer group/card block"
               >
                 {/* Image Area */}
                 <div className="w-full aspect-[4/3] relative rounded-xl overflow-hidden shadow-sm">
@@ -97,7 +84,10 @@ export function InspirationSection() {
                   />
 
                   {/* Save Heart Button */}
-                  <button className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm shadow-sm rounded-full flex items-center justify-center hover:bg-white transition-colors z-10 group/heart">
+                  <button 
+                    className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm shadow-sm rounded-full flex items-center justify-center hover:bg-white transition-colors z-10 group/heart"
+                    onClick={(e) => e.preventDefault()}
+                  >
                     <Heart className="w-4 h-4 text-gray-700 group-hover/heart:text-rose-500 transition-colors" />
                   </button>
                 </div>
@@ -106,7 +96,7 @@ export function InspirationSection() {
                 <h3 className="text-[#004f32] text-base md:text-[17px] font-bold leading-snug text-center px-1  decoration-2 underline-offset-2">
                   {item.title}
                 </h3>
-              </div>
+              </Link>
             ))}
           </div>
 

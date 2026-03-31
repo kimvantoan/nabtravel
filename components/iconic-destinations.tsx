@@ -79,7 +79,7 @@ export function IconicDestinations() {
   };
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 py-12">
+    <section className="w-full max-w-6xl mx-auto px-4 py-8 md:py-12">
       <h2 className="text-2xl font-bold text-[#004f32] mb-6 tracking-tight">
         {dict.home.iconicSpots}
       </h2>

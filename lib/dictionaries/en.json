@@ -1,19 +1,18 @@
 {
   "header": {
-    "searchPlaceholder1": "Search...",
-    "searchPlaceholder2": "Places to go, things to do, hotels...",
+    "searchPlaceholder1": "Search hotels, articles...",
+    "searchPlaceholder2": "Hotels, resorts, guides...",
     "searchButton": "Search",
     "planWithAi": "Plan with AI",
-    "discover": "Discover",
-    "review": "Review",
+    "hotels": "Hotels",
+    "articles": "Articles",
     "signIn": "Sign in"
   },
   "searchHero": {
     "whereTo": "Where to?",
     "searchAll": "Search All",
     "hotels": "Hotels",
-    "thingsToDo": "Things to Do",
-    "restaurants": "Restaurants"
+    "articles": "Articles"
   },
   "home": {
     "iconicSpots": "Iconic spots you need to visit",
@@ -66,5 +65,132 @@
     "topResults": "Top results matching",
     "moreResults": "More results matching",
     "reviewsOpinions": "reviews and opinions"
+  },
+  "footer": {
+    "sections": [
+      {
+        "title": "About Tripadvisor",
+        "links": ["About us", "Press", "Resources and policies", "Trust & Safety", "Contact us"]
+      },
+      {
+        "title": "Explore",
+        "links": ["Write a review", "Add a place", "Join", "Travellers' Choice", "Help center"]
+      },
+      {
+        "title": "Do business with us",
+        "links": ["Owners", "Business advantage", "Sponsored placements", "Advertise with us", "Access our content API"]
+      },
+      {
+        "title": "Get the app",
+        "links": ["iPhone app", "Android app"]
+      }
+    ],
+    "copyright": "© 2026 Tripadvisor LLC All rights reserved",
+    "terms": "Terms of Use",
+    "privacy": "Privacy and cookie statement",
+    "cookieConsent": "Cookie consent",
+    "howItWorks": "How the site works",
+    "contact": "Contact us",
+    "accessibility": "Accessibility statement",
+    "regionalDisclaimer": "This is the version of our website addressed to speakers of English. If you are a resident of another country or region, please select the appropriate version of Tripadvisor for your country or region in the drop-down menu.",
+    "readMore": "Read more",
+    "country": "Vietnam"
+  },
+  "hotelsPage": {
+    "title": "Find your perfect hotel",
+    "subtitle": "Discover thousands of amazing stays at the best prices",
+    "heroTitle": "Find hotels travelers love",
+    "searchPlaceholder": "Hotel name or destination",
+    "filters": "Filters",
+    "priceRange": "Price range (Per night)",
+    "starRating": "Star rating",
+    "guestRating": "Guest rating",
+    "amenities": "Amenities",
+    "clearAll": "Clear all",
+    "sortBy": "Sort by",
+    "recommended": "Recommended",
+    "priceLowToHigh": "Price: Low to High",
+    "priceHighToLow": "Price: High to Low",
+    "topReviewed": "Top reviewed",
+    "night": "night",
+    "viewDeal": "View deal",
+    "reviews": "reviews",
+    "freeCancellation": "Free cancellation",
+    "breakfastIncluded": "Breakfast included",
+    "hotelClass": "Hotel class",
+    "5star": "5 Star",
+    "4star": "4 Star",
+    "3star": "3 Star",
+    "style": "Style",
+    "midRange": "Mid-range",
+    "luxury": "Luxury",
+    "familyFriendly": "Family-friendly",
+    "business": "Business",
+    "romantic": "Romantic",
+    "modern": "Modern",
+    "excellent": "Excellent",
+    "veryGood": "Very Good",
+    "good": "Good"
+  },
+  "articlesPage": {
+    "title": "Travel Articles & Reviews",
+    "subtitle": "Explore the world through the most fascinating hotel reviews, resort recommendations and travel tips.",
+    "categories": {
+      "all": "All",
+      "reviews": "Hotel Reviews",
+      "resorts": "Top Resorts",
+      "tips": "Staycation Tips",
+      "offers": "Offers & Deals"
+    },
+    "featured": "Featured",
+    "latest": "Latest",
+    "readMore": "Read more",
+    "by": "By",
+    "minRead": "min read"
+  },
+  "seo": {
+    "defaultDescription": "Book cheap hotels, flight tickets, and read top-notch 5-star resort travel guides in Vietnam and worldwide.",
+    "homeTitle": "Explore the World with Ease",
+    "hotelsTitle": "Find your perfect stay",
+    "hotelsDescription": "A comprehensive list of ideal hotels, resorts, and homestays with the best promotions available right now.",
+    "articlesTitle": "Travel Guides & Resort Reviews",
+    "articlesDescription": "Tips to travel the world with incredibly useful hotel reviews and flight hunting tricks."
+  },
+  "hotelGallery": {
+    "reviews": "reviews",
+    "share": "Share",
+    "save": "Save",
+    "tourists": "tourists",
+    "suites": "Suites",
+    "dining": "Dining",
+    "viewAll": "View all photos"
+  },
+  "hotelAmenities": {
+    "about": "About",
+    "amenitiesTitle": "Property amenities",
+    "roomFeatures": "Room features",
+    "roomTypes": "Room types",
+    "languages": "Languages spoken",
+    "showMore": "Show more",
+    "readMore": "Read more",
+    "readLess": "Read less"
+  },
+  "destination": {
+    "planYourTrip": "Plan your trip to",
+    "placesToStay": "Places to stay",
+    "showMoreHotels": "Show more hotels",
+    "bestOf": "Best of",
+    "byManagement": "By Management",
+    "from": "from",
+    "night": "night"
+  },
+  "hotelReviews": {
+    "disclaimer": "Reviews are the subjective opinion of NabTravel members and not of NabTravel LLC. NabTravel checks reviews.",
+    "transparency": "Review transparency",
+    "wroteReview": "wrote a review",
+    "dateOfStay": "Date of stay",
+    "tripType": "Trip type",
+    "readMore": "Read more",
+    "helpful": "This review was helpful"
   }
 }

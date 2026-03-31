@@ -5,7 +5,7 @@ import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/app/providers";
-import { Globe, Search, MapPin, Sparkles, Menu, UserCircle } from "lucide-react";
+import { Globe, Search, Sparkles, Menu, UserCircle } from "lucide-react";
 import { Logo } from "./logo";
 import { AiPlannerModal } from "./ai-planner-modal";
 import { LoginModal } from "./login-modal";
@@ -17,9 +17,12 @@ export function SiteHeader() {
   const searchParams = useSearchParams();
   const query = searchParams?.get("q") || "";
   const isHotelPage = pathname?.startsWith("/hotel");
+  const isDestinationPage = pathname?.startsWith("/destination");
+  const isArticlePage = pathname?.startsWith("/article");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [lang, setLang] = useState(locale.toUpperCase());
 
   const handleLanguageChange = (newLocal: string) => {
@@ -38,7 +41,7 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const showSearch = isHotelPage || isScrolled;
+  const showSearch = isHotelPage || isDestinationPage || isArticlePage || isScrolled;
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-gray-100">
@@ -47,7 +50,7 @@ export function SiteHeader() {
       <div className="md:hidden flex h-16 items-center justify-between px-4 w-full relative">
         {/* Left Side: Menu + optional Logo Icon */}
         <div className="flex items-center gap-3">
-          <button className="p-1 -ml-1 text-gray-900 transition-colors">
+          <button onClick={() => setIsMobileMenuOpen(true)} className="p-1 -ml-1 text-gray-900 hover:bg-gray-100 rounded-md transition-colors cursor-pointer">
             <Menu className="w-6 h-6" />
           </button>
           {showSearch && (
@@ -84,14 +87,14 @@ export function SiteHeader() {
           {/* We keep the AI button as an icon on mobile */}
           <button
             onClick={() => setIsAiModalOpen(true)}
-            className="p-1.5 text-green-700 bg-green-50 hover:bg-green-100 rounded-full transition-colors mr-1"
+            className="p-1.5 text-green-700 bg-green-50 hover:bg-green-100 rounded-full transition-colors mr-1 cursor-pointer"
             title={dict.header.planWithAi}
           >
             <Sparkles className="w-5 h-5" />
           </button>
           <button 
             onClick={() => setIsLoginModalOpen(true)}
-            className="p-1 text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1 text-gray-900 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
           >
             <UserCircle className="w-[28px] h-[28px] stroke-[1.5]" />
           </button>
@@ -136,22 +139,22 @@ export function SiteHeader() {
           <nav className="flex items-center gap-6 pr-2">
             <button
               onClick={() => setIsAiModalOpen(true)}
-              className="flex items-center gap-2 text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors"
+              className="flex items-center gap-2 text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors cursor-pointer"
             >
               <Sparkles className="w-4 h-4" />
               {dict.header.planWithAi}
             </button>
             <Link
-              href="/discover"
+              href="/hotels"
               className="text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors"
             >
-              {dict.header.discover}
+              {dict.header.hotels}
             </Link>
             <Link
-              href="/reviews"
+              href="/articles"
               className="text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors"
             >
-              {dict.header.review}
+              {dict.header.articles}
             </Link>
           </nav>
           
@@ -179,42 +182,94 @@ export function SiteHeader() {
           </div>
           <Button 
             onClick={() => setIsLoginModalOpen(true)}
-            className="rounded-full bg-green-950 text-white hover:bg-green-900 px-6 py-5 font-bold text-[15px]"
+            className="rounded-full bg-green-950 text-white hover:bg-green-900 px-6 py-5 font-bold text-[15px] cursor-pointer"
           >
             {dict.header.signIn}
           </Button>
         </div>
       </div>
 
-      {/* Sub Navigation Bar for Hotel Page */}
-      {isHotelPage && (
-        <div className="border-t border-gray-200">
-          <div className="container mx-auto px-4 lg:px-6 hidden md:flex items-center gap-8 overflow-x-auto">
-            <Link
-              href="#"
-              className="flex items-center gap-1.5 text-black font-extrabold text-[15px] pb-3 pt-4 border-b-[3px] border-transparent hover:border-gray-900 transition-colors shrink-0"
-            >
-              <MapPin className="w-5 h-5 text-black" />
-              Da Nang
+
+
+      {/* --- MOBILE FULLSCREEN MENU --- */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[100] bg-white flex flex-col md:hidden animate-in slide-in-from-left-4 duration-200">
+          <div className="flex items-center justify-between h-16 px-4 border-b border-gray-100">
+            <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
+              <Logo />
             </Link>
-            <Link
-              href="#"
-              className="text-green-900 font-extrabold text-[15px] pb-3 pt-4 border-b-[3px] border-green-900 shrink-0"
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-2 -mr-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
             >
-              {dict.searchHero.hotels}
-            </Link>
-            <Link
-              href="#"
-              className="text-gray-800 font-extrabold text-[15px] pb-3 pt-4 border-b-[3px] border-transparent hover:border-gray-900 hover:text-black transition-colors shrink-0"
-            >
-              {dict.searchHero.thingsToDo}
-            </Link>
-            <Link
-              href="#"
-              className="text-gray-800 font-extrabold text-[15px] pb-3 pt-4 border-b-[3px] border-transparent hover:border-gray-900 hover:text-black transition-colors shrink-0"
-            >
-              {dict.searchHero.restaurants}
-            </Link>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 py-6 flex flex-col gap-6">
+            <nav className="flex flex-col gap-4">
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsAiModalOpen(true);
+                }}
+                className="flex items-center gap-2 text-[17px] font-bold text-gray-900"
+              >
+                <Sparkles className="w-5 h-5 text-green-700" />
+                {dict.header.planWithAi}
+              </button>
+              <Link
+                href="/hotels"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-[17px] font-bold text-gray-900"
+              >
+                {dict.header.hotels}
+              </Link>
+              <Link
+                href="/articles"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-[17px] font-bold text-gray-900"
+              >
+                {dict.header.articles}
+              </Link>
+            </nav>
+            <div className="h-px bg-gray-100 w-full my-2" />
+            <div className="flex flex-col gap-6">
+              <button 
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsLoginModalOpen(true);
+                }}
+                className="w-full text-left text-[17px] font-bold text-gray-900"
+              >
+                {dict.header.signIn}
+              </button>
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2 text-[15px] font-bold text-gray-900 mb-1">
+                  <Globe className="w-5 h-5" />
+                  <span>Ngôn ngữ / Language</span>
+                </div>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => {
+                      handleLanguageChange("en");
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`flex-1 py-2.5 text-center rounded-xl border ${lang === "EN" ? "border-green-600 bg-green-50 text-green-700" : "border-gray-200 text-gray-600 hover:bg-gray-50"} font-bold text-[15px] transition-colors`}
+                  >
+                    English
+                  </button>
+                  <button 
+                    onClick={() => {
+                      handleLanguageChange("vi");
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`flex-1 py-2.5 text-center rounded-xl border ${lang === "VI" ? "border-green-600 bg-green-50 text-green-700" : "border-gray-200 text-gray-600 hover:bg-gray-50"} font-bold text-[15px] transition-colors`}
+                  >
+                    Tiếng Việt
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
