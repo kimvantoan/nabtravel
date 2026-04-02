@@ -5,59 +5,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { Heart, ArrowLeft, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/app/providers";
+import { LiveListPrice } from "./live-list-price";
 
-const HOTELS = [
-  {
-    id: "marron",
-    name: "The Marron Hotel",
-    images: ["/images/hotel1.png", "/images/hotel2.png"], // Reusing mock images from public folder
-    rating: 4.9,
-    reviews: 113,
-    price: 23,
-  },
-  {
-    id: "vanchai",
-    name: "Van Chai Resort",
-    images: ["/images/stella.png", "/images/ha_long.png"],
-    rating: 4.4,
-    reviews: 75,
-    price: 53,
-  },
-  {
-    id: "flcgolf",
-    name: "FLC Samson Beach & Golf Resort",
-    images: ["/images/hoi_an.png", "/images/da_nang.png"],
-    rating: 3.8,
-    reviews: 47,
-    price: 119,
-  },
-  {
-    id: "dragonsea",
-    name: "Dragon Sea Hotel",
-    images: ["/images/art.png", "/images/stargazing.png"],
-    rating: 4.2,
-    reviews: 32,
-    price: 40,
-  },
-  {
-    id: "flcgrand",
-    name: "FLC Grand Hotel Samson",
-    images: ["/images/haian.png", "/images/sala.png"],
-    rating: 4.0,
-    reviews: 27,
-    price: 55,
-  },
-  {
-    id: "flcluxury",
-    name: "FLC Luxury Hotel Samson",
-    images: ["/images/ninh_binh.png", "/images/hue.png"],
-    rating: 3.4,
-    reviews: 76,
-    price: 115,
-  },
-];
+export interface DestinationHotelData {
+  id: string;
+  name: string;
+  images: string[];
+  rating: number;
+  reviews: number;
+  price: number;
+  price_updated_at?: string;
+}
 
-function HotelCard({ hotel }: { hotel: typeof HOTELS[0] }) {
+function HotelCard({ hotel }: { hotel: DestinationHotelData }) {
   const { dict } = useLanguage();
   const [imgIndex, setImgIndex] = useState(0);
 
@@ -95,9 +55,9 @@ function HotelCard({ hotel }: { hotel: typeof HOTELS[0] }) {
   };
 
   return (
-    <Link href={`/hotel/${hotel.id}`} className="group flex flex-col cursor-pointer">
+    <Link href={`/hotel/${encodeURIComponent(hotel.name)}`} className="group flex flex-col cursor-pointer">
       <div 
-        className="relative w-full h-[240px] rounded-xl overflow-hidden mb-3 border border-gray-100 bg-gray-900 shadow-sm"
+        className="relative w-full aspect-square sm:aspect-auto sm:h-[240px] rounded-xl overflow-hidden mb-3 border border-gray-100 bg-gray-900 shadow-sm"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -108,7 +68,7 @@ function HotelCard({ hotel }: { hotel: typeof HOTELS[0] }) {
             src={imgSrc} 
             alt={`${hotel.name} - ${i}`} 
             fill 
-            className={`object-cover transition-all duration-300 group-hover:scale-105 ${i === imgIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+            className={`object-cover object-center transition-all duration-300 group-hover:scale-105 ${i === imgIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ))}
@@ -172,16 +132,31 @@ function HotelCard({ hotel }: { hotel: typeof HOTELS[0] }) {
            <span className="text-[13px] text-gray-500">({hotel.reviews})</span>
         </div>
 
-        <div className="text-[14px] text-gray-700 mt-1">
-          {dict.destination?.from || "from"} <span className="font-bold text-black text-[15px]">${hotel.price}</span>/{dict.destination?.night || "night"}
+        <div className="flex items-center text-[14px] text-gray-700 mt-1 gap-1">
+          {dict.destination?.from || "from"} <LiveListPrice hotelName={hotel.name} fallbackPrice={hotel.price} priceUpdatedAt={hotel.price_updated_at} fontSize="15px" />/{dict.destination?.night || "night"}
         </div>
       </div>
     </Link>
   );
 }
 
-export function DestinationHotels() {
+export function DestinationHotels({ hotels }: { hotels: DestinationHotelData[] }) {
   const { dict } = useLanguage();
+  const [visibleCount, setVisibleCount] = useState(6);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleShowMore = () => {
+    setIsLoading(true);
+    // Add realistic simulated loading delay
+    setTimeout(() => {
+      setVisibleCount(prev => prev + 6);
+      setIsLoading(false);
+    }, 800);
+  };
+
+  const visibleHotels = hotels?.slice(0, visibleCount) || [];
+  const hasMore = hotels && visibleCount < hotels.length;
+
   return (
     <div className="w-full max-w-6xl mx-auto px-4 lg:px-6 py-8">
       <div className="flex items-center justify-between mb-8 border-b border-gray-200 pb-3">
@@ -189,17 +164,30 @@ export function DestinationHotels() {
         <a href="#" className="text-[15px] font-bold text-black hover:underline underline-offset-2 hover:text-[#004f32] transition-colors">{dict.hotelDetail?.seeAll || "See all"}</a>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
-        {HOTELS.map((hotel) => (
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-10">
+        {visibleHotels.map((hotel) => (
           <HotelCard key={hotel.id} hotel={hotel} />
         ))}
       </div>
       
-      <div className="mt-12 flex justify-center mb-8">
-        <button className="bg-white border-2 border-black hover:bg-gray-50 text-black font-bold px-8 py-3.5 rounded-full transition-colors w-full sm:w-auto min-w-[300px] shadow-[0_2px_8px_rgba(0,0,0,0.05)] text-[16px]">
-          {dict.destination?.showMoreHotels || "Show more hotels"}
-        </button>
-      </div>
+      {hasMore && (
+        <div className="mt-12 flex justify-center mb-8">
+          <button 
+            onClick={handleShowMore}
+            disabled={isLoading}
+            className="group relative bg-white border-2 border-black hover:bg-gray-50 disabled:bg-gray-50 text-black font-bold px-8 py-3.5 rounded-full transition-all w-full sm:w-auto min-w-[300px] shadow-[0_2px_8px_rgba(0,0,0,0.05)] text-[16px] overflow-hidden flex items-center justify-center"
+          >
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                {(dict.destination as any)?.loading || "Đang tải..."}
+              </span>
+            ) : (
+              dict.destination?.showMoreHotels || "Hiển thị thêm khách sạn"
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

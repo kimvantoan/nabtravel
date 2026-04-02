@@ -1,45 +1,33 @@
 "use client";
 
-import { Search, SlidersHorizontal, ChevronDown, Pencil, MoreHorizontal, ThumbsUp, Info } from "lucide-react";
-import Image from "next/image";
+import { useState } from "react";
+import { ChevronDown, Pencil, ThumbsUp } from "lucide-react";
 import { useLanguage } from "@/app/providers";
 
-const REVIEWS = [
-  {
-    id: 1,
-    user: {
-      name: "Chris T H",
-      avatar: "/images/stargazing.png", // Using existing image as placeholder
-      location: "Bournemouth, United Kingdom",
-      contributions: 152,
-      helpfulVotes: 79,
-    },
-    dateWritten: "Jun 2017",
-    rating: 4,
-    title: "High value hotel",
-    text: "Spacious and clean room. The staff were very friendly, including the guard, doorman, receptionist, etc. The view was not good at all with no balcony or window to the sea view. But I still recommend this hotel because of the warm and comfortable atmosphere there.",
-    dateOfStay: "June 2017",
-    tripType: "Traveled with family",
-    helpfulCount: 0,
-  },
-  {
-    id: 2,
-    user: {
-      name: "Alexey P",
-      avatar: "/images/art.png",
-      location: "Krasnaya Polyana, Russia",
-      contributions: 10,
-      helpfulVotes: 15,
-    },
-    dateWritten: "Oct 2016",
-    rating: 3,
-    title: "Good but can be better",
-    text: "The room isn't very clean. The window was dirty that affect view. No balcony in Delux room. The swimming is very small and actually under construction now. Staff isn't good in english. Breakfast menu is pretty poor. Almost impossible to find good places with european or russian food in this area.",
-    dateOfStay: "October 2016",
-    tripType: "Traveled as a couple",
-    helpfulCount: 0,
+function ExpandableText({ text, showMoreText, showLessText }: { text: string, showMoreText: string, showLessText: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const maxLength = 250;
+
+  if (!text || text.length <= maxLength) {
+    return <p className="text-[15px] text-gray-800 leading-relaxed mb-6 whitespace-pre-line">{text}</p>;
   }
-];
+
+  const displayText = expanded ? text : text.slice(0, maxLength) + "...";
+
+  return (
+    <div className="mb-6">
+      <p className="text-[15px] text-gray-800 leading-relaxed whitespace-pre-line">
+        {displayText}
+      </p>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="text-[#00aa6c] font-bold text-[14px] mt-1 hover:underline focus:outline-none"
+      >
+        {expanded ? showLessText : showMoreText}
+      </button>
+    </div>
+  );
+}
 
 function ReviewRating({ score }: { score: number }) {
   return (
@@ -64,14 +52,63 @@ function ReviewRating({ score }: { score: number }) {
   );
 }
 
-export function HotelReviews() {
-  const { dict } = useLanguage();
+export interface ReviewData {
+  id: string | number;
+  user: {
+    name: string;
+    avatar: string;
+    location: string;
+    contributions: number;
+    helpfulVotes: number;
+  };
+  dateWritten: string;
+  rating: number;
+  title: string;
+  text: string;
+  dateOfStay: string;
+  tripType: string;
+  helpfulCount: number;
+  timestamp?: number;
+}
+
+export function HotelReviews({ reviews }: { reviews?: ReviewData[] }) {
+  const { dict, locale } = useLanguage();
+  const [visibleCount, setVisibleCount] = useState(5);
+  const [sortBy, setSortBy] = useState<"newest" | "highest" | "lowest">("newest");
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+
+  const baseReviews = reviews?.length ? reviews : [];
+
+  const sortedReviews = [...baseReviews].sort((a, b) => {
+    if (sortBy === "highest") return b.rating - a.rating;
+    if (sortBy === "lowest") return a.rating - b.rating;
+    // Newest
+    const dateA = a.timestamp !== undefined ? a.timestamp : (a.dateWritten && a.dateWritten !== "Recent" ? new Date(a.dateWritten).getTime() : 0);
+    const dateB = b.timestamp !== undefined ? b.timestamp : (b.dateWritten && b.dateWritten !== "Recent" ? new Date(b.dateWritten).getTime() : 0);
+    return (dateB || 0) - (dateA || 0);
+  });
+
+  const currentReviews = sortedReviews.slice(0, visibleCount);
+  const hasMore = visibleCount < sortedReviews.length;
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + 5);
+  };
+
+  // Close dropdowns when clicking outside (simple approach for now)
+  const closeDropdowns = () => {
+    setShowSortDropdown(false);
+  };
+
+  const showMoreText = locale === 'vi' ? "Xem thêm" : "Show more";
+  const showLessText = locale === 'vi' ? "Ẩn bớt" : "Show less";
+
   return (
-    <div id="reviews" className="w-full mt-10 border-t border-gray-200 py-10 px-4">
+    <div id="reviews" className="w-full mt-10 border-t border-gray-200 py-10 px-4" onClick={() => { if (showSortDropdown) closeDropdowns() }}>
       {/* Header section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <h2 className="text-[24px] font-extrabold text-black tracking-tight">
-          {dict.hotelDetail.allReviews} (32)
+          {dict.hotelDetail.allReviews} ({sortedReviews.length})
         </h2>
         <button className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-full font-bold transition-colors w-fit">
           <Pencil className="w-4 h-4" />
@@ -79,56 +116,44 @@ export function HotelReviews() {
         </button>
       </div>
 
-      <p className="text-[13px] text-gray-500 leading-relaxed max-w-5xl mb-8">
-        {dict.hotelReviews?.disclaimer || "Reviews are the subjective opinion of Tripadvisor members and not of Tripadvisor LLC."} <a href="#" className="underline hover:text-black font-medium">{dict.hotelReviews?.transparency || "Review transparency"}</a>.
-      </p>
-
-      {/* Filters and search */}
+      {/* Filters and search removed */}
       <div className="flex flex-wrap items-center gap-3 mb-10">
-        <button className="flex items-center gap-2 border border-black rounded-full px-4 py-2 hover:bg-gray-50 transition-colors">
-          <SlidersHorizontal className="w-4 h-4" />
-          <span className="font-bold text-[14px]">{dict.hotelDetail.filters} (1)</span>
-        </button>
+        <div className="relative" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => { setShowSortDropdown(!showSortDropdown); }}
+            className="flex items-center gap-2 border border-gray-400 rounded-full px-4 py-2 hover:bg-gray-50 transition-colors text-[14px]">
+            {sortBy === 'newest' ? (locale === 'vi' ? "Mới nhất" : "Newest") : sortBy === 'highest' ? (locale === 'vi' ? "Đánh giá cao nhất" : "Highest Rating") : (locale === 'vi' ? "Đánh giá thấp nhất" : "Lowest Rating")}
+            <ChevronDown className="w-4 h-4 ml-1" />
+          </button>
 
-        <button className="flex items-center gap-2 border border-gray-400 rounded-full px-4 py-2 hover:bg-gray-50 transition-colors text-[14px]">
-          {dict.hotelDetail.sortBy}
-          <ChevronDown className="w-4 h-4 ml-1" />
-        </button>
-        
-        <Info className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
-
-        <div className="relative flex-1 min-w-[200px] max-w-sm ml-auto md:ml-2">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-          <input 
-            type="text" 
-            placeholder={dict.hotelDetail.searchReviews} 
-            className="w-full h-full border border-gray-400 rounded-full py-2.5 pl-11 pr-4 text-[14px] focus:outline-none focus:border-black focus:ring-1 focus:ring-black placeholder:text-gray-500"
-          />
+          {showSortDropdown && (
+            <div className="absolute top-12 left-0 bg-white border border-gray-200 rounded-xl shadow-lg z-10 w-48 overflow-hidden">
+              <button onClick={() => { setSortBy("newest"); setShowSortDropdown(false); setVisibleCount(5); }} className="w-full text-left px-4 py-3 hover:bg-gray-50 text-[14px]">{locale === 'vi' ? "Mới nhất" : "Newest"}</button>
+              <button onClick={() => { setSortBy("highest"); setShowSortDropdown(false); setVisibleCount(5); }} className="w-full text-left px-4 py-3 hover:bg-gray-50 text-[14px] border-t border-gray-100">{locale === 'vi' ? "Đánh giá cao nhất" : "Highest Rating"}</button>
+              <button onClick={() => { setSortBy("lowest"); setShowSortDropdown(false); setVisibleCount(5); }} className="w-full text-left px-4 py-3 hover:bg-gray-50 text-[14px] border-t border-gray-100">{locale === 'vi' ? "Đánh giá thấp nhất" : "Lowest Rating"}</button>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Review List */}
       <div className="flex flex-col gap-6">
-        {REVIEWS.map((review) => (
+        {currentReviews.map((review) => (
           <div key={review.id} className="w-full border border-gray-200 rounded-xl p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
             {/* User Header */}
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 relative rounded-full overflow-hidden shrink-0 border border-gray-100">
-                  <Image src={review.user.avatar} alt={review.user.name} fill className="object-cover" sizes="48px" />
-                </div>
+                {/* Avatar removed as requested */}
                 <div className="flex flex-col">
                   <div className="text-[15px] font-bold text-gray-900 leading-tight">
-                    {review.user.name} <span className="font-normal text-gray-500 text-[14px]">{dict.hotelReviews?.wroteReview || "wrote a review"} {review.dateWritten}</span>
+                    {review.user.name} <span className="font-normal text-gray-500 text-[14px]">{locale === 'vi' ? "đã viết đánh giá" : "wrote a review"} {review.dateWritten}</span>
                   </div>
                   <div className="text-[13px] text-gray-500 mt-1">
-                    {review.user.location} • <span className="font-bold text-black">{review.user.contributions}</span> contributions • <span className="font-bold text-black">{review.user.helpfulVotes}</span> helpful votes
+                    {review.user.location} • <span className="font-bold text-black">{review.user.contributions}</span> {locale === 'vi' ? "đóng góp" : "contributions"} • <span className="font-bold text-black">{review.user.helpfulVotes}</span> {locale === 'vi' ? "bài đánh giá hữu ích" : "helpful votes"}
                   </div>
                 </div>
               </div>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-600">
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
+
             </div>
 
             {/* Review Content */}
@@ -139,32 +164,38 @@ export function HotelReviews() {
               </h3>
             </div>
 
-            <p className="text-[15px] text-gray-800 leading-relaxed mb-6">
-              {review.text}
-            </p>
+            <ExpandableText text={review.text} showMoreText={showMoreText} showLessText={showLessText} />
 
             <div className="flex flex-col gap-1 text-[13px] text-gray-600 mb-6">
               <div>
-                <span className="font-bold text-gray-900">{dict.hotelReviews?.dateOfStay || "Date of stay"}:</span> {review.dateOfStay}
+                <span className="font-bold text-gray-900">{locale === 'vi' ? "Ngày lưu trú" : "Date of stay"}:</span> {review.dateOfStay}
               </div>
-              <div>
-                <span className="font-bold text-gray-900">{dict.hotelReviews?.tripType || "Trip type"}:</span> {review.tripType}
-              </div>
+              {/* Trip type removed as requested */}
             </div>
 
-            <p className="text-[11px] text-gray-500 leading-relaxed max-w-4xl border-b border-gray-100 pb-6 mb-4">
-              {dict.hotelReviews?.disclaimer || "This review is the subjective opinion of an individual traveler and not of Tripadvisor LLC."} <a href="#" className="underline hover:text-black font-medium">{dict.hotelReviews?.transparency || "Review transparency"}</a>.
-            </p>
-
-            <div className="flex justify-end mt-2">
-              <button className="flex items-center gap-2 hover:bg-gray-100 px-3 py-1.5 rounded-full transition-colors font-medium text-[13px] text-gray-800 border border-transparent hover:border-gray-200">
-                <ThumbsUp className="w-4 h-4" />
-                {review.helpfulCount}
-              </button>
-            </div>
+            {review.helpfulCount > 0 && (
+              <div className="flex justify-end mt-2">
+                <button className="flex items-center gap-2 hover:bg-gray-100 px-3 py-1.5 rounded-full transition-colors font-medium text-[13px] text-gray-800 border border-transparent hover:border-gray-200">
+                  <ThumbsUp className="w-4 h-4" />
+                  {review.helpfulCount}
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
+
+      {/* Load More Button */}
+      {hasMore && (
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={handleLoadMore}
+            className="border-2 border-black bg-white hover:bg-gray-50 text-black px-8 py-3 rounded-full font-bold transition-colors w-fit"
+          >
+            {locale === 'vi' ? "Xem thêm bình luận" : "Show more comments"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -45,6 +45,11 @@
     "viewPrices": "View prices for your travel dates",
     "priceDisclaimer": "Prices are the average nightly price provided by our partners and may not include all taxes and fees. Taxes and fees that are shown are estimates only. Please see our partners for more details.",
     "similarHotels": "Most booked properties",
+    "noPrepayment": "No prepayment needed \u2013 Pay at property",
+    "lunchIncluded": "Includes lunch",
+    "dinnerIncluded": "Includes dinner",
+    "allInclusive": "All-inclusive",
+    "freeParking": "Free parking available",
     "seeAll": "See all"
   },
   "modals": {
@@ -130,7 +135,26 @@
     "modern": "Modern",
     "excellent": "Excellent",
     "veryGood": "Very Good",
-    "good": "Good"
+    "good": "Good",
+    "filterTitle": "Filters",
+    "clearFilters": "Clear filters",
+    "budgetLabel": "Budget",
+    "propertyTypeLabel": "Property type",
+    "neighborhoodLabel": "Neighborhood",
+    "under1M": "Under 1M VND",
+    "1Mto2M": "1M - 2M VND",
+    "2Mto3_5M": "2M - 3.5M VND",
+    "over3_5M": "Over 3.5M VND",
+    "otherType": "Other",
+    "commonArea": "General area",
+    "noResults": "No hotels found",
+    "noResultsHint": "Try adjusting your filters or expanding the price range.",
+    "clearAllFilters": "Clear all filters",
+    "showResults": "Show results",
+    "filterBtn": "Filter",
+    "suitableHotels": "properties found",
+    "showMore": "Load more results",
+    "searchBtn": "Search"
   },
   "articlesPage": {
     "title": "Travel Articles & Reviews",
@@ -146,7 +170,9 @@
     "latest": "Latest",
     "readMore": "Read more",
     "by": "By",
-    "minRead": "min read"
+    "minRead": "min read",
+    "empty": "No articles found.",
+    "loadMore": "View more articles"
   },
   "seo": {
     "defaultDescription": "Book cheap hotels, flight tickets, and read top-notch 5-star resort travel guides in Vietnam and worldwide.",

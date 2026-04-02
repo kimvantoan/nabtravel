@@ -9,6 +9,7 @@ export interface ArticleData {
   excerpt: string;
   image: string;
   categoryKey: string;
+  content?: string;
   publishedAt: string;
   readTime: number;
 }
@@ -20,8 +21,17 @@ interface ArticleCardProps {
 }
 
 export function ArticleCard({ article, featured = false, dict }: ArticleCardProps) {
-  const categoryName = dict?.articlesPage?.categories?.[article.categoryKey] || article.categoryKey;
   const readTimeLabel = dict?.articlesPage?.minRead || "phút đọc";
+
+  let formattedDate = article.publishedAt;
+  try {
+    const d = new Date(article.publishedAt);
+    if (!isNaN(d.getTime())) {
+      const isVi = dict?.header?.hotels === "Khách sạn";
+      const locale = isVi ? "vi-VN" : "en-US";
+      formattedDate = d.toLocaleDateString(locale, { month: 'short', day: '2-digit', year: 'numeric' });
+    }
+  } catch(e) {}
 
   if (featured) {
     return (
@@ -37,11 +47,7 @@ export function ArticleCard({ article, featured = false, dict }: ArticleCardProp
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 flex flex-col justify-end h-full">
-          <div className="mb-4">
-            <span className="bg-[#004f32] text-white text-[13px] font-bold px-3.5 py-1.5 rounded-full tracking-wider shadow-sm">
-              {categoryName}
-            </span>
-          </div>
+
           <h2 className="text-white text-2xl md:text-3xl lg:text-4xl font-extrabold mb-3 leading-tight line-clamp-3">
             {article.title}
           </h2>
@@ -49,7 +55,7 @@ export function ArticleCard({ article, featured = false, dict }: ArticleCardProp
             {article.excerpt}
           </p>
           <div className="flex items-center gap-3 md:gap-4 text-gray-300 text-[13px] md:text-sm font-medium">
-            <span>{article.publishedAt}</span>
+            <span>{formattedDate}</span>
             <span className="w-1 h-1 rounded-full bg-gray-400" />
             <span className="flex items-center gap-1.5">
               <Clock className="w-4 h-4" /> {article.readTime} {readTimeLabel}
@@ -70,16 +76,11 @@ export function ArticleCard({ article, featured = false, dict }: ArticleCardProp
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        <div className="absolute top-4 left-4 z-10 transition-transform duration-300 group-hover:-translate-y-1">
-          <span className="bg-white/95 backdrop-blur-sm shadow-sm text-gray-900 text-[12px] font-extrabold px-3 py-1.5 rounded-full tracking-wider group-hover:bg-[#004f32] group-hover:text-white transition-colors">
-            {categoryName}
-          </span>
-        </div>
       </Link>
       
       <div className="flex flex-col flex-1 px-1">
         <div className="flex items-center gap-2.5 text-gray-500 text-[13px] font-medium mb-2.5">
-          <span>{article.publishedAt}</span>
+          <span>{formattedDate}</span>
           <span className="w-1 h-1 rounded-full bg-gray-300" />
           <span className="flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5" /> {article.readTime} {readTimeLabel}

@@ -45,6 +45,11 @@
     "viewPrices": "Xem giá cho ngày du lịch của bạn",
     "priceDisclaimer": "Giá là giá trung bình mỗi đêm mà các đối tác của chúng tôi cung cấp và có thể không bao gồm tất cả thuế và phí. Thuế và phí được trình bày chỉ là giá trị ước tính. Vui lòng xem các đối tác của chúng tôi để biết thêm chi tiết.",
     "similarHotels": "Các khách sạn được đặt nhiều nhất",
+    "noPrepayment": "Không cần thanh toán trước – Thanh toán tại chỗ",
+    "lunchIncluded": "Bao gồm bữa trưa",
+    "dinnerIncluded": "Bao gồm bữa tối",
+    "allInclusive": "Trọn gói (All-inclusive)",
+    "freeParking": "Cho phép đỗ xe miễn phí",
     "seeAll": "Xem tất cả"
   },
   "modals": {
@@ -130,7 +135,26 @@
     "modern": "Hiện đại",
     "excellent": "Tuyệt vời",
     "veryGood": "Rất tốt",
-    "good": "Tốt"
+    "good": "Tốt",
+    "filterTitle": "Bộ lọc",
+    "clearFilters": "Xóa bộ lọc",
+    "budgetLabel": "Mức ngân sách",
+    "propertyTypeLabel": "Loại chỗ nghỉ",
+    "neighborhoodLabel": "Khu vực (vị trí)",
+    "under1M": "Dưới 1 triệu",
+    "1Mto2M": "1 triệu - 2 triệu",
+    "2Mto3_5M": "2 triệu - 3.5 triệu",
+    "over3_5M": "Trên 3.5 triệu",
+    "otherType": "Khác",
+    "commonArea": "Khu vực chung",
+    "noResults": "Không tìm thấy khách sạn nào",
+    "noResultsHint": "Hãy thử thay đổi tiêu chí lọc hoặc điều chỉnh khoảng giá mở rộng hơn.",
+    "clearAllFilters": "Xóa tất cả bộ lọc",
+    "showResults": "Hiển thị kết quả",
+    "filterBtn": "Lọc",
+    "suitableHotels": "Khách sạn phù hợp",
+    "showMore": "Hiển thị thêm kết quả",
+    "searchBtn": "Tìm kiếm"
   },
   "articlesPage": {
     "title": "Cẩm nang Khách sạn & Nghỉ dưỡng",
@@ -146,7 +170,9 @@
     "latest": "Mới nhất",
     "readMore": "Đọc tiếp",
     "by": "Bởi",
-    "minRead": "phút đọc"
+    "minRead": "phút đọc",
+    "empty": "Chưa có bài viết nào.",
+    "loadMore": "Xem thêm bài viết"
   },
   "seo": {
     "defaultDescription": "Đặt phòng khách sạn giá rẻ, vé máy bay và cẩm nang kinh nghiệm nghỉ dưỡng 5 sao chất lượng hàng đầu Việt Nam.",

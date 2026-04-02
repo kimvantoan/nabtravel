@@ -1,145 +1,70 @@
 "use client";
 
 import Link from "next/link";
-
 import Image from "next/image";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
 import { useLanguage } from "@/app/providers";
 
-const DESTINATIONS = [
-  {
-    id: "hoian",
-    name: "Hoi An, Quang Nam",
-    image: "/images/hoi_an.png",
-  },
-  {
-    id: "halong",
-    name: "Ha Long Bay, Quang Ninh",
-    image: "/images/ha_long.png",
-  },
-  {
-    id: "sapa",
-    name: "Sapa, Lao Cai",
-    image: "/images/sapa.png",
-  },
-  {
-    id: "danang",
-    name: "Da Nang",
-    image: "/images/da_nang.png",
-  },
-  {
-    id: "phuquoc",
-    name: "Phu Quoc, Kien Giang",
-    image: "/images/phu_quoc.png",
-  },
-  {
-    id: "ninhbinh",
-    name: "Trang An, Ninh Binh",
-    image: "/images/ninh_binh.png",
-  },
-  {
-    id: "hue",
-    name: "Hue Imperial City",
-    image: "/images/hue.png",
-  },
-];
+export interface IconicDestination {
+  id: string;
+  name: string;
+  image: string;
+  properties_count?: number;
+}
 
-export function IconicDestinations() {
+interface IconicDestinationsProps {
+  destinations: IconicDestination[];
+}
+
+export function IconicDestinations({ destinations }: IconicDestinationsProps) {
   const { dict } = useLanguage();
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [showLeft, setShowLeft] = useState(false);
-  const [showRight, setShowRight] = useState(true);
-
-  const handleScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setShowLeft(scrollLeft > 0);
-      setShowRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
-    }
-  };
-
-  useEffect(() => {
-    // Initial check
-    handleScroll();
-    window.addEventListener("resize", handleScroll);
-    return () => window.removeEventListener("resize", handleScroll);
-  }, []);
-
-  const scrollLeftClick = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: -300, behavior: "smooth" });
-    }
-  };
-
-  const scrollRightClick = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
-    }
-  };
 
   return (
     <section className="w-full max-w-6xl mx-auto px-4 py-8 md:py-12">
-      <h2 className="text-2xl font-bold text-[#004f32] mb-6 tracking-tight">
-        {dict.home.iconicSpots}
-      </h2>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+          {dict.home.iconicSpots || "Điểm đến đang thịnh hành"}
+        </h2>
+        <p className="text-gray-500 text-sm mt-1">
+          Các lựa chọn phổ biến nhất cho du khách từ Việt Nam
+        </p>
+      </div>
 
-      <div className="relative group">
-        {/* Left Scroll Button */}
-        {showLeft && (
-          <button
-            onClick={scrollLeftClick}
-            className="absolute -left-5 top-1/2 -translate-y-1/2 w-10 h-10 bg-white border border-gray-200 shadow-md rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-50 hover:text-black hover:shadow-lg transition-all z-10 hidden md:flex"
-            aria-label="Scroll left"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-        )}
-
-        {/* Scrollable Container */}
-        <div
-          ref={scrollRef}
-          onScroll={handleScroll}
-          className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 relative"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {DESTINATIONS.map((dest) => (
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+        {destinations.slice(0, 5).map((dest, index) => {
+          // 2 items in first row (span-3), 3 items in second row (span-2)
+          const spanClass = index < 2 ? "md:col-span-3" : "md:col-span-2";
+          const searchSlug = dest.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-").toLowerCase();
+          
+          return (
             <Link
-              href={`/destination/${dest.id}`}
+              href={`/hotels?search=${searchSlug}`}
               key={dest.id}
-              className="relative w-[280px] h-[320px] flex-shrink-0 snap-center rounded-lg overflow-hidden cursor-pointer group/card block"
+              className={`relative h-[220px] md:h-[280px] rounded-xl overflow-hidden cursor-pointer group/card block ${spanClass}`}
             >
               <Image
                 src={dest.image}
                 alt={dest.name}
                 fill
-                className="object-cover transition-transform duration-500 group-hover/card:scale-105"
-                sizes="(max-width: 768px) 100vw, 280px"
+                className="object-cover transition-transform duration-700 group-hover/card:scale-105"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
               
-              {/* Dark Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+              {/* Top Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-transparent pointer-events-none" />
               
-              {/* Text */}
-              <div className="absolute bottom-4 left-4 right-4 text-left">
-                <h3 className="text-white text-xl font-bold drop-shadow-md">
+              {/* Text Top Left */}
+              <div className="absolute top-4 left-4 right-4 flex items-center gap-2">
+                <h3 className="text-white text-xl md:text-2xl font-bold drop-shadow-md leading-tight">
                   {dest.name}
                 </h3>
+                {/* Vietnamese Flag Icon */}
+                <div className="bg-red-600 w-6 h-5 flex items-center justify-center rounded-[2px] shadow-sm">
+                  <span className="text-yellow-400 text-[14px] leading-none mb-[2px]">★</span>
+                </div>
               </div>
             </Link>
-          ))}
-        </div>
-
-        {/* Right Scroll Button */}
-        {showRight && (
-          <button
-            onClick={scrollRightClick}
-            className="absolute -right-5 top-1/2 -translate-y-1/2 w-10 h-10 bg-white border border-gray-200 shadow-md rounded-full flex items-center justify-center text-gray-700 hover:bg-gray-50 hover:text-black hover:shadow-lg transition-all z-10 hidden md:flex"
-            aria-label="Scroll right"
-          >
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        )}
+          );
+        })}
       </div>
     </section>
   );

@@ -6,36 +6,11 @@ import { ArrowLeft, ArrowRight, Heart } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import { useLanguage } from "@/app/providers";
 
-const HOTELS = [
-  {
-    id: "haian",
-    name: "HAIAN Beach Hotel & Spa",
-    image: "/images/haian.png",
-    rating: "4,9",
-    reviews: "4.338",
-  },
-  {
-    id: "stella",
-    name: "Stella Maris Beach Đà Nẵng",
-    image: "/images/stella.png",
-    rating: "4,9",
-    reviews: "2.807",
-  },
-  {
-    id: "sala",
-    name: "Sala Danang Beach Hotel",
-    image: "/images/sala.png",
-    rating: "4,9",
-    reviews: "3.054",
-  },
-  {
-    id: "monarque",
-    name: "Monarque Hotel",
-    image: "/images/monarque.png",
-    rating: "5,0",
-    reviews: "3.735",
-  },
-];
+import { HotelData } from "@/app/page";
+
+interface HotelRecommendationsProps {
+  hotels: HotelData[];
+}
 
 // Tripadvisor style green rating bubbles
 function RatingBubbles() {
@@ -50,7 +25,7 @@ function RatingBubbles() {
   );
 }
 
-export function HotelRecommendations() {
+export function HotelRecommendations({ hotels }: HotelRecommendationsProps) {
   const { dict } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeft, setShowLeft] = useState(false);
@@ -110,9 +85,9 @@ export function HotelRecommendations() {
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 relative"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {HOTELS.map((hotel) => (
+          {hotels.map((hotel) => (
             <Link
-              href={`/hotel/${hotel.id}`}
+              href={`/hotel/${hotel.slug}`}
               key={hotel.id}
               className="relative w-[280px] flex-shrink-0 snap-center cursor-pointer group/card block"
             >

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Heart, MapPin } from "lucide-react";
 import { useLanguage } from "@/app/providers";
 import { useState } from "react";
+import { LiveListPrice } from "./live-list-price";
 
 export interface HotelGridData {
   id: string;
@@ -16,8 +17,12 @@ export interface HotelGridData {
   reviews: number;
   reviewWord: "excellent" | "veryGood" | "good";
   price: number;
+  price_updated_at?: string;
   originalPrice?: number;
-  badges?: string[];
+  stars?: number;
+  propertyType?: string;
+  priceLevel?: string;
+  neighborhood?: string;
 }
 
 export function HotelGridCard({ hotel }: { hotel: HotelGridData }) {
@@ -26,7 +31,7 @@ export function HotelGridCard({ hotel }: { hotel: HotelGridData }) {
 
   return (
     <div className="group bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col overflow-hidden h-full relative">
-      
+
       {/* Image Container */}
       <Link href={`/hotel/${hotel.slug}`} className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 flex-shrink-0 cursor-pointer block">
         <Image
@@ -36,37 +41,22 @@ export function HotelGridCard({ hotel }: { hotel: HotelGridData }) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover group-hover:scale-105 transition-transform duration-700 will-change-transform"
         />
-        
-        {/* Gradient Overlay for Top Badges */}
-        <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/50 to-transparent pointer-events-none" />
-
-        {/* Badges */}
-        {hotel.badges && hotel.badges.length > 0 && (
-          <div className="absolute top-2 left-2 md:top-4 md:left-4 flex flex-col gap-1.5 md:gap-2 z-10 pointer-events-none">
-            {hotel.badges.map((badge, idx) => (
-              <span key={idx} className="bg-white/95 backdrop-blur-md px-2 py-1 md:px-3 md:py-1.5 rounded-md md:rounded-lg text-[10px] md:text-xs font-extrabold text-[#004f32] shadow-sm tracking-wide">
-                {badge}
-              </span>
-            ))}
-          </div>
-        )}
       </Link>
-      
-      {/* Overlay Favorite Button (Absolute to Card, outside Link to prevent propagation) */}
-      <button 
+
+      <button
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsLiked(!isLiked); }}
         className="absolute top-2 right-2 md:top-4 md:right-4 p-1.5 md:p-2.5 rounded-full bg-black/20 hover:bg-white backdrop-blur-sm transition-all duration-300 shadow-sm group/btn z-20 cursor-pointer"
         aria-label="Save to favorites"
       >
-        <Heart 
-          className={`w-[18px] h-[18px] md:w-[22px] md:h-[22px] transition-colors duration-300 ${isLiked ? "fill-red-500 text-red-500" : "text-white group-hover/btn:text-gray-900"}`} 
+        <Heart
+          className={`w-[18px] h-[18px] md:w-[22px] md:h-[22px] transition-colors duration-300 ${isLiked ? "fill-red-500 text-red-500" : "text-white group-hover/btn:text-gray-900"}`}
           strokeWidth={isLiked ? 0 : 2}
         />
       </button>
 
       {/* Content Container */}
       <div className="p-3 md:p-5 flex flex-col flex-1">
-        
+
         {/* Title & Location */}
         <div className="mb-3 md:mb-4">
           <Link href={`/hotel/${hotel.slug}`} className="hover:text-green-700 transition-colors">
@@ -90,7 +80,7 @@ export function HotelGridCard({ hotel }: { hotel: HotelGridData }) {
               {dict.hotelsPage?.[hotel.reviewWord] || "Tuyệt vời"}
             </span>
             <span className="text-[11px] md:text-[13px] text-gray-500 font-medium leading-none">
-              {hotel.reviews.toLocaleString()} {dict.hotelsPage?.reviews || "đánh giá"}
+              {(hotel.reviews || 0).toLocaleString('vi-VN')} {dict.hotelsPage?.reviews || "đánh giá"}
             </span>
           </div>
         </div>
@@ -105,14 +95,14 @@ export function HotelGridCard({ hotel }: { hotel: HotelGridData }) {
             </span>
             {hotel.originalPrice && (
               <span className="text-[11px] md:text-[13px] text-gray-400 line-through font-semibold mb-0.5">
-                {hotel.originalPrice.toLocaleString()} ₫
+                {hotel.originalPrice.toLocaleString('vi-VN')} ₫
               </span>
             )}
             <span className="text-[16px] md:text-[22px] font-extrabold text-gray-900 leading-none tracking-tight">
-              {hotel.price.toLocaleString()} ₫
+              <LiveListPrice hotelName={hotel.name} fallbackPrice={hotel.price} priceUpdatedAt={hotel.price_updated_at} fontSize="22px" />
             </span>
           </div>
-          
+
           <Link
             href={`/hotel/${hotel.slug}`}
             className="w-full sm:w-auto text-center bg-[#34e065] text-black hover:bg-[#2fc458] font-bold text-[13px] md:text-[15px] px-3 py-2 md:px-5 md:py-3 rounded-lg md:rounded-xl transition-all shadow-sm hover:shadow-md active:scale-[0.98] shrink-0"

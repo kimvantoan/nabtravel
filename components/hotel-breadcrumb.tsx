@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { useLanguage } from "@/app/providers";
 
-export function HotelBreadcrumb() {
+export function HotelBreadcrumb({ name }: { name?: string }) {
   const { locale, dict } = useLanguage();
   
   const breadcrumbs = [
@@ -15,7 +15,7 @@ export function HotelBreadcrumb() {
     { label: `${dict.header?.hotels || "Khách sạn"} Ngu Hanh Son`, href: "#" },
   ];
 
-  const current = "PĀMA Boutique Hotel";
+  const current = name || "PĀMA Boutique Hotel";
 
   return (
     <nav className="flex flex-wrap items-center text-[13px] text-gray-600 gap-1.5 py-4 w-full" aria-label="Breadcrumb">

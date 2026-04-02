@@ -6,10 +6,10 @@ import { useRef, useState, useEffect } from "react";
 import { useLanguage } from "@/app/providers";
 
 import Link from "next/link";
-import { MOCK_ARTICLES } from "@/lib/mock-articles";
+import { ArticleData } from "@/components/article-card";
 
-export function InspirationSection() {
-  const INSPIRATIONS = MOCK_ARTICLES.slice(0, 4);
+export function InspirationSection({ articles }: { articles?: ArticleData[] }) {
+  const INSPIRATIONS = articles ? articles.slice(0, 4) : [];
   const { dict } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeft, setShowLeft] = useState(false);

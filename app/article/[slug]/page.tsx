@@ -2,9 +2,9 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Clock, ChevronRight, Home } from "lucide-react";
-import { MOCK_ARTICLES } from "@/lib/mock-articles";
-import { getCachedArticleBySlug } from "@/lib/data";
+import { getCachedArticleBySlug, getCachedArticles } from "@/lib/data";
 import { ArticleCard } from "@/components/article-card";
+import { getDictionary, getLocale } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 
 // Dynamic SEO
@@ -40,35 +40,21 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
     notFound();
   }
 
-  // Related articles (random 3 excluding current)
-  const relatedArticles = MOCK_ARTICLES.filter(a => a.id !== article.id).slice(0, 3);
+  // Related articles (random 3 excluding current) - Feteched dynamically via cached endpoint
+  const allArticles = await getCachedArticles();
+  const relatedArticles = allArticles.filter(a => a.id !== article.id).slice(0, 3);
 
-  // MOCK HTML content
-  const contentHTML = `
-    <p class="lead">Nằm ẩn mình trên những sườn đồi xanh mướt hướng ra vịnh biển xanh ngọc, khu nghỉ dưỡng là một ví dụ quyến rũ về kiến trúc nhiệt đới đương đại. Với sự kết hợp hoàn hảo giữa thiên nhiên hoang sơ và tiện ích sang trọng, không có gì lạ khi nơi đây luôn thuộc danh sách điểm đến trong mơ của mọi du khách.</p>
-    
-    <h2>1. Thiết kế Giao thoa giữa Truyền thống và Hiện đại</h2>
-    <p>Bước qua cánh cổng chào, bạn sẽ lập tức bị ấn tượng bởi mái ngói xám nhạt lấy cảm hứng từ những ngôi nhà cổ, cùng hệ thống cột kèo bằng gỗ tự nhiên nguyên khối. Khác với sự hào nhoáng của các khách sạn bê tông cốt thép, nơi đây mang lại sự tĩnh tại kỳ lạ.</p>
-    
-    <figure>
-      <img src="https://images.unsplash.com/photo-1542314831-c6a4d27486c8?auto=format&fit=crop&q=80&w=2000" alt="Resort Architecture" />
-      <figcaption>Kiến trúc mở đón nắng và gió biển tại sảnh chờ.</figcaption>
-    </figure>
+  const contentHTML = article.content || '<p>No content available.</p>';
+  const locale = await getLocale();
+  const dict = await getDictionary();
 
-    <p>Các phòng nghỉ được thiết kế dật cấp tinh tế, đảm bảo 100% các căn villa đều có ban công lớn nhìn thẳng ra đại dương. Điểm nhấn là bồn tắm đá mài nguyên khối ôm trọn vẻ đẹp hoang dã của thảm thực vật xung quanh.</p>
-
-    <h2>2. Bữa tiệc Ẩm thực Đánh thức Mọi Giác quan</h2>
-    <p>Nhà hàng La Plage - trái tim của khu nghỉ dưỡng, phục vụ từ những món hải sản tươi rói đánh bắt trong ngày đến nghệ thuật ẩm thực Fusion đỉnh cao. Đầu bếp Michelin của nhà hàng không chỉ nấu ăn, họ kể câu chuyện văn hóa thông qua từng chiếc đĩa gốm mộc mạc.</p>
-
-    <blockquote>
-      "Trải nghiệm nghỉ dưỡng thực thụ không chỉ dừng lại ở chiếc giường êm ái, mà là việc đánh thức ngũ quan: nghe tiếng sóng, ngửi mùi gió biển, và thưởng thức sơn hào hải vị cùng người thương."
-    </blockquote>
-
-    <h2>3. Dịch vụ Đặc quyền Đẳng cấp</h2>
-    <p>Thay vì sự vồn vã, dịch vụ ở đây được tính toán để bạn có cảm giác như đang ở nhà, nhưng với một "quản gia" túc trực mọi lúc. Từ bữa sáng khay nổi (Floating Breakfast) trên hồ bơi vô cực, đến các liệu trình Spa sử dụng thảo mộc địa phương, mọi thứ đều chạm đến sự hoàn hảo.</p>
-    
-    <p>Nếu bạn đang tìm kiếm một "nơi trốn" hoàn toàn xa rời khỏi khói bụi và nhịp sống số hối hả, thì đây đích thực là tấm vé hạng nhất để chữa lành tâm hồn.</p>
-  `;
+  let formattedDate = article.publishedAt;
+  try {
+    const d = new Date(article.publishedAt);
+    if (!isNaN(d.getTime())) {
+       formattedDate = d.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", { month: 'short', day: '2-digit', year: 'numeric' });
+    }
+  } catch(e) {}
 
   return (
     <div className="bg-white min-h-screen pb-0">
@@ -87,16 +73,12 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
       {/* Hero Header */}
       <div className="container mx-auto px-4 lg:px-6 mb-10 md:mb-12">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="mb-6 flex justify-center">
-             <span className="bg-green-50 text-green-800 font-extrabold text-[12px] uppercase tracking-widest px-4 py-1.5 rounded-full border border-green-200">
-               {article.categoryKey}
-             </span>
-          </div>
+
           <h1 className="text-[32px] md:text-[46px] lg:text-[56px] font-extrabold text-gray-900 leading-[1.15] tracking-tight mb-8">
             {article.title}
           </h1>
           <div className="flex items-center justify-center gap-3 text-[14px] text-gray-500 font-medium font-sans">
-            <span>{article.publishedAt}</span>
+            <span>{formattedDate}</span>
             <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
             <span className="flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-gray-400" />
@@ -148,7 +130,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
              {relatedArticles.map((relArticle) => (
-                <ArticleCard key={relArticle.id} article={relArticle} />
+                <ArticleCard key={relArticle.id} article={relArticle} dict={dict} />
              ))}
           </div>
           

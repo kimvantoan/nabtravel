@@ -47,7 +47,7 @@ export function SearchHero() {
         </div>
 
         {/* Search Input Container */}
-        <form action="/search" className="w-full relative flex items-center bg-white border border-gray-300 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-shadow duration-200 p-1 md:p-[6px]">
+        <form action="/hotels" className="w-full relative flex items-center bg-white border border-gray-300 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-shadow duration-200 p-1 md:p-[6px]">
           <div className="pl-3 md:pl-4 pr-1 md:pr-3 text-gray-700">
             <Search className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
           </div>
