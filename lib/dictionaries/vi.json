@@ -63,6 +63,24 @@
     "continueGoogle": "Tiếp tục bằng Google",
     "terms": "Bằng cách tiếp tục, bạn đồng ý với Điều khoản Sử dụng và Chính sách Bảo mật của chúng tôi."
   },
+  "aiChat": {
+    "title": "Trợ lý Du lịch AI",
+    "welcome": "Xin chào! 👋",
+    "welcomeDesc": "Tôi là trợ lý du lịch AI của NabTravel. Hãy hỏi tôi bất cứ điều gì về du lịch, khách sạn, hay lên kế hoạch chuyến đi!",
+    "placeholder": "Hỏi tôi về du lịch...",
+    "thinking": "Đang suy nghĩ...",
+    "suggestions": "Gợi ý cho bạn",
+    "disclaimer": "AI có thể đưa ra thông tin chưa chính xác. Hãy kiểm tra lại thông tin quan trọng.",
+    "newChat": "Cuộc trò chuyện mới",
+    "quickPrompts": [
+      "🏖️ Gợi ý resort 5 sao ở Đà Nẵng",
+      "💰 Khách sạn giá rẻ dưới 1 triệu",
+      "🗓️ Lên lịch du lịch Phú Quốc 3 ngày",
+      "🌄 Nơi nghỉ dưỡng tốt nhất ở Đà Lạt"
+    ],
+    "rateLimited": "⏳ AI đang bận do quá nhiều yêu cầu. Vui lòng thử lại sau **30 giây** nhé!",
+    "error": "❌ Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại!"
+  },
   "searchPage": {
     "filterResults": "Lọc kết quả",
     "hotelClass": "Hạng khách sạn",

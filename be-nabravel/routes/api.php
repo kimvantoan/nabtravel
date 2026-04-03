@@ -14,10 +14,12 @@ use App\Http\Controllers\ArticleGeneratorController;
 |
 */
 
-// Định tuyến để Frontend Next.js / Tools gọi vào sinh bài viết AI
+// Tạo bài viết AI (CHỈ POST — không cho GET để tránh crawler/trình duyệt tự trigger)
 Route::post('/generate-article', [ArticleGeneratorController::class, 'generate']);
-// Route dạng GET dùng tạm để bạn test dễ trên trình duyệt
-Route::get('/generate-article', [ArticleGeneratorController::class, 'generate']);
+// Batch generate: tạo nhiều bài 1 lúc (tối đa 3/batch)
+Route::post('/generate-article/batch', [ArticleGeneratorController::class, 'batchGenerate']);
+// Kiểm tra quota còn lại hôm nay
+Route::get('/generate-article/quota', [ArticleGeneratorController::class, 'quota']);
 
 // --- ROUTES MỚI CHO FRONTEND NEXT.JS ---
 use App\Http\Controllers\ArticleController;

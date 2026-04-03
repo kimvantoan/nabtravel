@@ -63,6 +63,24 @@
     "continueGoogle": "Continue with Google",
     "terms": "By continuing, you agree to our Terms of Use and Privacy Policy."
   },
+  "aiChat": {
+    "title": "AI Travel Assistant",
+    "welcome": "Hello! 👋",
+    "welcomeDesc": "I'm NabTravel's AI travel assistant. Ask me anything about travel, hotels, or trip planning!",
+    "placeholder": "Ask me about travel...",
+    "thinking": "Thinking...",
+    "suggestions": "Suggestions",
+    "disclaimer": "AI may provide inaccurate info. Please verify important details.",
+    "newChat": "New conversation",
+    "quickPrompts": [
+      "🏖️ Suggest 5-star resorts in Da Nang",
+      "💰 Budget hotels under 1 million VND",
+      "🗓️ Plan a 3-day trip to Phu Quoc",
+      "🌄 Best stays in Da Lat"
+    ],
+    "rateLimited": "⏳ AI is busy due to high demand. Please try again in **30 seconds**!",
+    "error": "❌ Sorry, something went wrong. Please try again!"
+  },
   "searchPage": {
     "filterResults": "Filter Results",
     "hotelClass": "Hotel Class",
