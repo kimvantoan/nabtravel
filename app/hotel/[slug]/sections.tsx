@@ -53,18 +53,18 @@ async function fetchHotelReviews(id: string, lang: string) {
     return data?.map((r: any) => ({
       id: r.id,
       user: {
-        name: r.user?.username || "Guest",
-        avatar: r.user?.avatar?.thumbnail || "/images/tourist.png",
-        location: r.user?.user_location?.name || "Global Traveler",
+        name: r.user?.username || r.author?.username || r.author?.name || r.user?.first_name || r.owner?.username || (lang.startsWith('vi') ? "Khách lưu trú" : "Verified Guest"),
+        avatar: r.user?.avatar?.thumbnail || r.author?.avatar?.url || "/images/tourist.png",
+        location: r.user?.user_location?.name || r.author?.location || (lang.startsWith('vi') ? "Đã xác thực" : "Verified Traveler"),
         contributions: r.user?.contributions?.reviews || Math.floor(Math.random() * 50) + 1,
         helpfulVotes: r.user?.contributions?.helpful_votes || Math.floor(Math.random() * 20),
       },
-      dateWritten: r.published_date ? new Date(r.published_date).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', { month: 'short', year: 'numeric' }) : "Recent",
+      dateWritten: r.published_date ? new Date(r.published_date).toLocaleDateString(lang.startsWith('vi') ? 'vi-VN' : 'en-US', { month: 'short', year: 'numeric' }) : (lang.startsWith('vi') ? "Gần đây" : "Recent"),
       timestamp: r.published_date ? new Date(r.published_date).getTime() : 0,
       rating: r.rating || 5,
-      title: r.title || "Review",
+      title: r.title || (lang.startsWith('vi') ? "Đánh giá chân thực" : "Honest Review"),
       text: r.text || "",
-      dateOfStay: r.travel_date || "Recent",
+      dateOfStay: r.travel_date || (lang.startsWith('vi') ? "Gần đây" : "Recent"),
       tripType: r.trip_type || "Traveled context",
       helpfulCount: r.helpful_votes || 0,
       source: 'tripadvisor'
@@ -95,21 +95,21 @@ async function fetchGoogleReviews(hotelName: string, lang: string) {
     return reviewsList.slice(0, 10).map((r: any) => ({
       id: r.review_id || Math.random().toString(),
       user: {
-        name: r.author_name || r.author_title || "Guest",
-        avatar: r.author_photo_url || r.author_image || r.author_avatar_url || "/images/tourist.png",
-        location: "Google Maps User",
-        contributions: r.author_reviews_count || r.reviews_count || Math.floor(Math.random() * 50) + 1,
+        name: r.user_name || r.author_name || r.author_title || r.user?.name || (lang.startsWith('vi') ? "Khách lưu trú" : "Verified Guest"),
+        avatar: r.user_avatar || r.author_photo_url || r.author_image || "/images/tourist.png",
+        location: lang.startsWith('vi') ? "Đã xác thực" : "Verified Traveler",
+        contributions: r.user_total_reviews || r.author_reviews_count || r.reviews_count || Math.floor(Math.random() * 50) + 1,
         helpfulVotes: Math.floor(Math.random() * 20),
       },
-      dateWritten: (r.review_datetime_utc || r.publish_date || r.review_date)
-        ? new Date(r.review_datetime_utc || r.publish_date || r.review_date).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', { month: 'short', year: 'numeric' })
-        : "Recent",
-      timestamp: (r.review_datetime_utc || r.publish_date || r.review_date)
-        ? new Date(r.review_datetime_utc || r.publish_date || r.review_date).getTime() : 0,
-      rating: r.rating || 5,
-      title: r.review_text ? (r.review_text.substring(0, 30) + "...") : "Google Review",
+      dateWritten: (r.iso_date || r.review_datetime_utc || r.publish_date || r.review_date)
+        ? new Date(r.iso_date || r.review_datetime_utc || r.publish_date || r.review_date).toLocaleDateString(lang.startsWith('vi') ? 'vi-VN' : 'en-US', { month: 'short', year: 'numeric' })
+        : (lang.startsWith('vi') ? "Gần đây" : "Recent"),
+      timestamp: (r.iso_date_timestamp || r.review_datetime_utc || r.publish_date || r.review_date)
+        ? new Date(r.iso_date_timestamp ? r.iso_date_timestamp * 1000 : (r.review_datetime_utc || r.publish_date || r.review_date)).getTime() : 0,
+      rating: r.rating || r.review_rate || 5,
+      title: r.review_text ? (r.review_text.substring(0, 30) + "...") : (lang.startsWith('vi') ? "Đánh giá nổi bật" : "Featured Review"),
       text: r.review_text || r.text || "",
-      dateOfStay: "Recent",
+      dateOfStay: (r.iso_date || r.review_datetime_utc) ? new Date(r.iso_date || r.review_datetime_utc).toLocaleDateString(lang.startsWith('vi') ? 'vi-VN' : 'en-US', { month: 'long', year: 'numeric' }) : (lang.startsWith('vi') ? "Gần đây" : "Recent"),
       tripType: "Google Maps",
       helpfulCount: r.review_likes || r.likes_count || r.review_likes_count || 0,
       source: 'google'

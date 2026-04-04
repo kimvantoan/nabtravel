@@ -146,10 +146,7 @@ export function HotelReviews({ reviews }: { reviews?: ReviewData[] }) {
                 {/* Avatar removed as requested */}
                 <div className="flex flex-col">
                   <div className="text-[15px] font-bold text-gray-900 leading-tight">
-                    {review.user.name} <span className="font-normal text-gray-500 text-[14px]">{locale === 'vi' ? "đã viết đánh giá" : "wrote a review"} {review.dateWritten}</span>
-                  </div>
-                  <div className="text-[13px] text-gray-500 mt-1">
-                    {review.user.location} • <span className="font-bold text-black">{review.user.contributions}</span> {locale === 'vi' ? "đóng góp" : "contributions"} • <span className="font-bold text-black">{review.user.helpfulVotes}</span> {locale === 'vi' ? "bài đánh giá hữu ích" : "helpful votes"}
+                    {review.user.name} <span className="font-normal text-gray-500 text-[14px]">{locale === 'vi' ? "đã viết đánh giá" : "wrote a review"} {review.dateWritten === 'Recent' && locale === 'vi' ? 'Gần đây' : review.dateWritten}</span>
                   </div>
                 </div>
               </div>
@@ -168,7 +165,7 @@ export function HotelReviews({ reviews }: { reviews?: ReviewData[] }) {
 
             <div className="flex flex-col gap-1 text-[13px] text-gray-600 mb-6">
               <div>
-                <span className="font-bold text-gray-900">{locale === 'vi' ? "Ngày lưu trú" : "Date of stay"}:</span> {review.dateOfStay}
+                <span className="font-bold text-gray-900">{locale === 'vi' ? "Ngày lưu trú" : "Date of stay"}:</span> {review.dateOfStay === 'Recent' && locale === 'vi' ? 'Gần đây' : review.dateOfStay}
               </div>
               {/* Trip type removed as requested */}
             </div>

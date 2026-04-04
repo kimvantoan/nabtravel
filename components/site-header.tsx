@@ -61,7 +61,7 @@ export function SiteHeader() {
         </div>
       )}
 
-      <header className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-gray-100">
+      <header className="sticky top-0 z-[60] w-full bg-white shadow-sm border-b border-gray-100">
 
         {/* --- MOBILE HEADER (md:hidden) --- */}
         <div className="md:hidden flex h-16 items-center justify-between px-4 w-full relative">
