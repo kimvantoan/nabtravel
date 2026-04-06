@@ -262,7 +262,9 @@ class HotelController extends Controller
         $data = $request->validate([
             'name' => 'nullable|string',
             'booking_id' => 'nullable|string',
-            'price' => 'required|numeric'
+            'agoda_id' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'agoda_price' => 'nullable|numeric',
         ]);
 
         $query = Hotel::query();
@@ -271,23 +273,38 @@ class HotelController extends Controller
             $query->where('name', $data['name']);
         } elseif (!empty($data['booking_id'])) {
             $query->where('booking_id', $data['booking_id']);
+        } elseif (!empty($data['agoda_id'])) {
+            $query->where('agoda_id', $data['agoda_id']);
         } else {
-            return response()->json(['error' => 'Need name or booking_id'], 400);
+            return response()->json(['error' => 'Need name, booking_id, or agoda_id'], 400);
         }
 
         $hotel = $query->first();
 
         if ($hotel) {
-            $updateData = [
-                'price' => $data['price'],
-                'price_updated_at' => now(),
-            ];
+            $updateData = [];
+
+            if (isset($data['price'])) {
+                $updateData['price'] = $data['price'];
+                $updateData['price_updated_at'] = now();
+            }
+
+            if (isset($data['agoda_price'])) {
+                $updateData['agoda_price'] = $data['agoda_price'];
+                $updateData['price_updated_at'] = now();
+            }
             
             if (!empty($data['booking_id']) && empty($hotel->booking_id)) {
                 $updateData['booking_id'] = $data['booking_id'];
             }
 
-            $hotel->update($updateData);
+            if (!empty($data['agoda_id']) && empty($hotel->agoda_id)) {
+                $updateData['agoda_id'] = $data['agoda_id'];
+            }
+
+            if (!empty($updateData)) {
+                $hotel->update($updateData);
+            }
 
             return response()->json([
                 'message' => 'Price synced successfully', 

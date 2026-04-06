@@ -52,7 +52,7 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
 
       try {
         const queryParams = new URLSearchParams({
-          hotel_id: hotelId,
+          hotel_id: hotelId || "",
           arrival_date: arr,
           departure_date: dep,
           adults: adults.toString(),
@@ -61,27 +61,35 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
           lang: locale === "vi" ? "vi" : "en-us"
         });
 
-        const res = await fetch(`/api/hotel-price?${queryParams.toString()}`);
-        if (res.ok) {
-          const data = await res.json();
+        const bookingReq = fetch(`/api/hotel-price?${queryParams.toString()}`).catch(() => null);
+
+        const res = await bookingReq;
+
+        let bookingPriceTotal = 0;
+        let bookingData = null;
+        if (res && res.ok) {
+          bookingData = await res.json();
           // Format based on currency
           const formatter = new Intl.NumberFormat(locale === "vi" ? 'vi-VN' : 'en-US', {
             style: 'currency',
-            currency: data.currency || 'VND',
+            currency: bookingData.currency || 'VND',
             maximumFractionDigits: 0
           });
-          setRealTimePrice(formatter.format(data.total_price || data.price_per_night));
-          setBookingUrl(data.url);
-          setHasBreakfast(!!data.has_breakfast);
-          setCancellationText(data.cancellation_text);
-          setIsFreeCancellable(!!data.is_free_cancellable);
-          setExtraBenefits({
-            has_lunch: data.has_lunch,
-            has_dinner: data.has_dinner,
-            all_inclusive: data.all_inclusive,
-            free_parking: data.free_parking,
-            no_prepayment: data.no_prepayment,
-            max_occupancy: data.max_occupancy
+
+          bookingPriceTotal = bookingData.total_price || bookingData.price_per_night || 0;
+
+          setRealTimePrice(formatter.format(bookingPriceTotal));
+          setBookingUrl(bookingData.url);
+          setHasBreakfast(!!bookingData.has_breakfast);
+          setCancellationText(bookingData.cancellation_text);
+          setIsFreeCancellable(!!bookingData.is_free_cancellable);
+          setExtraBenefits(bookingData.extra_benefits || {
+            has_lunch: bookingData.has_lunch,
+            has_dinner: bookingData.has_dinner,
+            all_inclusive: bookingData.all_inclusive,
+            free_parking: bookingData.free_parking,
+            no_prepayment: bookingData.no_prepayment,
+            max_occupancy: bookingData.max_occupancy
           });
         } else {
           setRealTimePrice(null);
@@ -91,10 +99,12 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
           setIsFreeCancellable(false);
           setExtraBenefits(null);
         }
+        setIsLoading(false);
+
+
       } catch (err) {
         setRealTimePrice(null);
-        setErrorStatus(locale === "vi" ? "Không thể tải giá" : "Could not load price");
-      } finally {
+        setErrorStatus(locale === "vi" ? "Không thể tải giá Booking" : "Could not load Booking price");
         setIsLoading(false);
       }
     }, 800);
@@ -195,7 +205,10 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
         {/* Booking.com Row */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-6 gap-4 relative">
           <div className="w-full md:w-1/4">
-            <div className="text-[#003580] font-bold text-[22px] tracking-tight">Booking.com</div>
+            <div className="flex items-center gap-2">
+              <img src="https://www.google.com/s2/favicons?domain=booking.com&sz=128" alt="Booking.com" className="w-8 h-8 object-contain" />
+              <span className="text-[#003B95] font-extrabold text-[22px] tracking-tight">Booking.com</span>
+            </div>
           </div>
 
           <div className="w-full md:w-1/2 flex flex-col gap-2 min-h-[48px]">
@@ -263,16 +276,20 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
             <button
               onClick={() => bookingUrl ? window.open(bookingUrl, '_blank') : null}
               disabled={isLoading || !!errorStatus}
-              className="bg-[#34e065] hover:bg-[#2bbb52] disabled:bg-gray-200 disabled:text-gray-500 text-black font-bold px-8 py-3 rounded-full shadow-sm text-[15px] transition-colors"
+              className="bg-[#003B95] hover:bg-[#0052cc] disabled:bg-gray-200 disabled:text-gray-500 text-white font-bold px-8 py-3 rounded-full shadow-sm text-[15px] transition-colors"
             >
               {dict.hotelDetail.viewDeal || "Xem ưu đãi"}
             </button>
           </div>
         </div>
+
+
       </div>
 
       <div className="mt-8 border-t border-gray-100 pt-6">
-        {dict.hotelDetail.priceDisclaimer || "Giá hiển thị là giá tổng cộng cuối cùng đã bao gồm thuế cho toàn bộ thời gian lưu trú và số lượng khách được chọn, cập nhật trong thời gian thực trên mạng lưới của NabTravel."}
+        <p className="text-[12px] text-gray-500 leading-relaxed max-w-5xl">
+          {dict.hotelDetail.priceDisclaimer || "Giá hiển thị là giá tổng cộng cuối cùng đã bao gồm thuế cho toàn bộ thời gian lưu trú và số lượng khách được chọn, cập nhật trong thời gian thực trên mạng lưới của NabTravel."}
+        </p>
       </div>
     </div>
   );

@@ -100,7 +100,7 @@ export async function POST(request: Request) {
     ];
 
     // Call Gemini API with streaming — try primary model, fallback to lite
-    const models = ['gemini-2.0-flash', 'gemini-2.0-flash-lite'];
+    const models = ['gemini-2.5-flash', 'gemini-2.5-pro'];
     let geminiRes: Response | null = null;
 
     for (const model of models) {
@@ -166,11 +166,16 @@ export async function POST(request: Request) {
         try {
           while (true) {
             const { done, value } = await reader.read();
-            if (done) break;
+            
+            if (value) {
+              buffer += decoder.decode(value, { stream: true });
+            }
+            if (done) {
+              buffer += decoder.decode(); // Flush any remaining bytes
+            }
 
-            buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split('\n');
-            buffer = lines.pop() || '';
+            buffer = done ? '' : (lines.pop() || '');
 
             for (const line of lines) {
               if (line.startsWith('data: ')) {
@@ -187,6 +192,8 @@ export async function POST(request: Request) {
                 }
               }
             }
+            
+            if (done) break;
           }
         } catch (e) {
           console.error('Stream error:', e);

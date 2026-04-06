@@ -116,16 +116,17 @@ function HotelCard({ hotel }: { hotel: DestinationHotelData }) {
         
         <div className="flex items-center gap-1.5 shrink-0 mt-1 mb-1.5 text-[14px] text-gray-700">
            <span className="font-bold text-[14px]">{Number.isInteger(hotel.rating) ? hotel.rating.toFixed(1) : hotel.rating}</span>
-           <div className="flex gap-0.5 items-center">
-             {[1, 2, 3, 4, 5].map((bubble) => {
-               const isFull = hotel.rating >= bubble;
-               const isHalf = hotel.rating >= bubble - 0.5 && hotel.rating < bubble;
-               return isFull ? (
-                 <svg key={bubble} width="14" height="14" viewBox="0 0 16 16" fill="#00aa6c" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="8" /></svg>
-               ) : isHalf ? (
-                 <svg key={bubble} width="14" height="14" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id={`half-${bubble}`}><rect x="0" y="0" width="8" height="16" /></clipPath></defs><circle cx="8" cy="8" r="7.5" fill="none" stroke="#00aa6c" strokeWidth="1" /><circle cx="8" cy="8" r="8" fill="#00aa6c" clipPath={`url(#half-${bubble})`} /></svg>
-               ) : (
-                 <svg key={bubble} width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#00aa6c" strokeWidth="1.5" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="7.25" /></svg>
+           <div className="flex gap-1 items-center">
+             {[1, 2, 3, 4, 5].map((star) => {
+               const isFull = hotel.rating >= star;
+               const isHalf = hotel.rating >= star - 0.5 && hotel.rating < star;
+               return (
+                 <div key={star} className="relative w-[16px] h-[16px]">
+                   <svg viewBox="0 0 24 24" fill="#E5E7EB" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                   {(isFull || isHalf) && (
+                     <svg viewBox="0 0 24 24" fill="#FFB800" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full" style={isHalf ? { clipPath: "inset(0 50% 0 0)" } : undefined}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                   )}
+                 </div>
                );
              })}
            </div>

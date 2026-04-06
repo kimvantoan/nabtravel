@@ -5,13 +5,15 @@ import { Share, Pencil, Heart, Phone, ChevronLeft, ChevronRight, X, Loader2 } fr
 import { useLanguage } from "@/app/providers";
 import { useState, useCallback, useEffect } from "react";
 import { fetchMorePhotosAction } from "@/app/hotel/[slug]/actions";
+import { useParams } from "next/navigation";
+import { useFavorites } from "@/hooks/use-favorites";
 
-function RatingBubbles() {
+function RatingStars() {
   return (
-    <div className="flex gap-0.5 mx-1 items-center">
-      {[1, 2, 3, 4, 5].map((bubble) => (
-        <svg key={bubble} width="14" height="14" viewBox="0 0 16 16" fill="#00aa6c" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="8" cy="8" r="8" />
+    <div className="flex gap-1 mx-1 items-center">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <svg key={star} width="16" height="16" viewBox="0 0 24 24" fill="#FFB800" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
         </svg>
       ))}
     </div>
@@ -46,7 +48,11 @@ export function HotelGallery({
   isBookingPhotos?: boolean;
   phone?: string;
 }) {
-  const { dict } = useLanguage();
+  const { dict, locale } = useLanguage();
+  const params = useParams();
+  const slug = params.slug as string;
+  const { toggleFavorite, isFavorite, isClient } = useFavorites();
+  const isLiked = isClient ? isFavorite(slug, 'hotel') : false;
 
   // Gallery Pagination States
   const [activePhotos, setActivePhotos] = useState<string[]>(photos?.length > 0 ? photos : DEFAULT_PHOTOS);
@@ -152,7 +158,7 @@ export function HotelGallery({
 
           <div className="flex flex-wrap items-center gap-2 text-sm text-gray-700">
             <span className="font-bold text-base">{rating || "4,9"}</span>
-            <RatingBubbles />
+            <RatingStars />
             <button onClick={scrollToReviews} className="hover:underline text-gray-700 underline-offset-2">
               ({reviewsCount || 40} {dict.hotelGallery?.reviews || "đánh giá"})
             </button>
@@ -183,15 +189,22 @@ export function HotelGallery({
               <Pencil className="w-4 h-4" strokeWidth={2} />
               {dict.hotelDetail?.writeReview || "Đánh giá"}
             </button>
-            <button className="flex items-center gap-1.5 hover:text-green-800 transition-colors">
-              <Heart className="w-4 h-4" strokeWidth={2} />
-              {dict.hotelGallery?.save || "Lưu"}
+            <button 
+              onClick={() => {
+                toggleFavorite({
+                  id: slug,
+                  type: 'hotel',
+                  title: name || "Khách sạn",
+                  image: displayPhotos[0] || "",
+                  url: `/hotel/${slug}`
+                });
+              }}
+              className={`flex items-center gap-1.5 transition-colors ${isLiked ? "text-red-500" : "hover:text-green-800"}`}
+            >
+              <Heart className={`w-4 h-4 ${isLiked ? "fill-red-500 text-red-500" : ""}`} strokeWidth={isLiked ? 0 : 2} />
+              {isLiked ? (locale === 'vi' ? 'Đã lưu' : 'Saved') : (dict.hotelGallery?.save || "Lưu")}
             </button>
           </div>
-
-          <button className="bg-[#0cf688] hover:bg-[#00aa6c] text-black hover:text-white font-bold px-6 py-2.5 rounded-full transition-colors shadow-sm w-full md:w-auto mt-2 text-[15px]">
-            {dict.hotelDetail?.viewPrices || "Kiểm tra phòng trống"}
-          </button>
         </div>
       </div>
 

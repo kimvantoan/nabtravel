@@ -3,6 +3,7 @@
 import { X, Send, RotateCcw, User } from "lucide-react";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useLanguage } from "@/app/providers";
+import { useSession } from "next-auth/react";
 import { AiHotelCard } from "./ai-hotel-card";
 
 // NabTravel Logo Icon (matching system branding)
@@ -37,10 +38,17 @@ interface ChatMessage {
   content: string;
 }
 
-// Parse AI response and render hotel cards inline
 function MessageContent({ content }: { content: string }) {
+  // Auto-close hotel-cards block if it's currently being streamed
+  let safeContent = content;
+  const openBlocks = (safeContent.match(/```hotel-cards/g) || []).length;
+  const closedBlocks = (safeContent.match(/```hotel-cards\n?([\s\S]*?)```/g) || []).length;
+  if (openBlocks > closedBlocks) {
+    safeContent += '\n```';
+  }
+
   // Split by hotel-cards code blocks
-  const parts = content.split(/```hotel-cards\n?([\s\S]*?)```/g);
+  const parts = safeContent.split(/```hotel-cards\n?([\s\S]*?)```/g);
 
   return (
     <div className="ai-message-content">
@@ -97,6 +105,7 @@ export function AiPlannerModal({ isOpen, onClose }: AiPlannerModalProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const { data: session } = useSession();
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -176,11 +185,16 @@ export function AiPlannerModal({ isOpen, onClose }: AiPlannerModalProps) {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        
+        if (value) {
+          buffer += decoder.decode(value, { stream: true });
+        }
+        if (done) {
+          buffer += decoder.decode();
+        }
 
-        buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
+        buffer = done ? '' : (lines.pop() || '');
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
@@ -199,6 +213,8 @@ export function AiPlannerModal({ isOpen, onClose }: AiPlannerModalProps) {
             } catch { /* skip */ }
           }
         }
+        
+        if (done) break;
       }
     } catch (err: any) {
       if (err.name === 'AbortError') return;
@@ -358,8 +374,12 @@ export function AiPlannerModal({ isOpen, onClose }: AiPlannerModalProps) {
                   </div>
 
                   {msg.role === 'user' && (
-                    <div className="w-7 h-7 rounded-lg bg-gray-800 flex items-center justify-center shrink-0 mt-0.5">
-                      <User className="w-4 h-4 text-white" />
+                    <div className="w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center shrink-0 mt-0.5 overflow-hidden shadow-sm">
+                      {session?.user?.image ? (
+                        <img src={session.user.image} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-4 h-4 text-white" />
+                      )}
                     </div>
                   )}
                 </div>

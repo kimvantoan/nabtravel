@@ -9,28 +9,24 @@ export interface HotelFiltersProps {
   initialHotels: HotelGridData[];
   selectedPropertyTypes: string[];
   setSelectedPropertyTypes: (v: string[]) => void;
-  selectedPriceRanges: string[];
-  setSelectedPriceRanges: (v: string[]) => void;
+  maxPrice: number;
+  setMaxPrice: (v: number) => void;
   selectedNeighborhoods: string[];
   setSelectedNeighborhoods: (v: string[]) => void;
+  selectedStars: number[];
+  setSelectedStars: (v: number[]) => void;
 }
-
-// Price range buckets — keyed by dict key so they work in both languages
-export const PRICE_RANGES = [
-  { key: "under1M",   min: 0,       max: 999999   },
-  { key: "1Mto2M",   min: 1000000, max: 2000000   },
-  { key: "2Mto3_5M", min: 2000001, max: 3500000   },
-  { key: "over3_5M", min: 3500001, max: Infinity   },
-] as const;
 
 export function HotelFilters({
   initialHotels,
   selectedPropertyTypes,
   setSelectedPropertyTypes,
-  selectedPriceRanges,
-  setSelectedPriceRanges,
+  maxPrice,
+  setMaxPrice,
   selectedNeighborhoods,
   setSelectedNeighborhoods,
+  selectedStars,
+  setSelectedStars,
 }: HotelFiltersProps) {
   const { dict } = useLanguage();
   const hp = dict.hotelsPage as any;
@@ -39,6 +35,7 @@ export function HotelFilters({
   const [isPropertyTypeOpen, setIsPropertyTypeOpen] = useState(true);
   const [isPriceLevelOpen, setIsPriceLevelOpen] = useState(true);
   const [isNeighborhoodOpen, setIsNeighborhoodOpen] = useState(true);
+  const [isStarOpen, setIsStarOpen] = useState(true);
 
   // Compute unique property type counts
   const propertyTypeCounts = useMemo(() => {
@@ -50,13 +47,24 @@ export function HotelFilters({
     return Object.entries(counts).sort((a, b) => b[1] - a[1]);
   }, [initialHotels, hp]);
 
-  // Compute price range counts using numeric buckets (locale-independent)
-  const priceRangeCounts = useMemo(() => {
-    return PRICE_RANGES.map(r => {
-      const count = initialHotels.filter(h => h.price >= r.min && h.price <= r.max).length;
-      return { key: r.key, label: hp?.[r.key] ?? r.key, count };
-    }).filter(r => r.count > 0);
-  }, [initialHotels, hp]);
+  // Compute highest price for slider max limit
+  const highestPriceInList = useMemo(() => {
+    let max = 0;
+    initialHotels.forEach(h => {
+      if (h.price > max) max = h.price;
+    });
+    return Math.max(1000000, Math.ceil(max / 1000000) * 1000000);
+  }, [initialHotels]);
+
+  // Compute Star rating counts
+  const starCounts = useMemo(() => {
+    const counts: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    initialHotels.forEach(h => {
+      const stars = h.stars || 3;
+      counts[stars] = (counts[stars] || 0) + 1;
+    });
+    return Object.entries(counts).filter(([_, count]) => count > 0).sort((a, b) => Number(b[0]) - Number(a[0]));
+  }, [initialHotels]);
 
   // Compute unique neighborhood counts
   const neighborhoodCounts = useMemo(() => {
@@ -70,11 +78,12 @@ export function HotelFilters({
 
   const handleClearFilters = () => {
     setSelectedPropertyTypes([]);
-    setSelectedPriceRanges([]);
+    setMaxPrice(0);
     setSelectedNeighborhoods([]);
+    setSelectedStars([]);
   };
 
-  const toggleArrayItem = (item: string, selected: string[], setSelected: (v: string[]) => void) => {
+  const toggleArrayItem = <T,>(item: T, selected: T[], setSelected: (v: T[]) => void) => {
     if (selected.includes(item)) {
       setSelected(selected.filter(i => i !== item));
     } else {
@@ -82,7 +91,7 @@ export function HotelFilters({
     }
   };
 
-  const totalActive = selectedPropertyTypes.length + selectedPriceRanges.length + selectedNeighborhoods.length;
+  const totalActive = selectedPropertyTypes.length + (maxPrice > 0 ? 1 : 0) + selectedNeighborhoods.length + selectedStars.length;
 
   return (
     <div className="bg-white p-4 lg:p-5 lg:rounded-xl lg:border lg:border-gray-100 lg:shadow-[0_2px_8px_rgba(0,0,0,0.04)] w-full">
@@ -105,33 +114,68 @@ export function HotelFilters({
       </div>
 
       <div className="space-y-6">
-        {/* Budget / Price Ranges */}
-        {priceRangeCounts.length > 0 && (
+        {/* Budget / Price Slider */}
+        <div className="border-t border-gray-100 pt-5">
+          <button
+            onClick={() => setIsPriceLevelOpen(!isPriceLevelOpen)}
+            className="flex items-center justify-between w-full text-left group"
+          >
+            <h4 className="font-bold text-gray-900 text-[15px] group-hover:text-[#004f32] transition-colors">
+              {hp?.maxPricePerNight ?? "Mức giá tối đa (1 đêm)"}
+            </h4>
+            <ChevronUp className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${!isPriceLevelOpen ? 'rotate-180' : ''}`} />
+          </button>
+          <div className={`mt-3 space-y-3 overflow-hidden transition-all duration-300 ${isPriceLevelOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div className="flex justify-between font-medium text-[14px]">
+              <span>0 ₫</span>
+              <span className="text-[#004f32] font-bold">
+                {maxPrice === 0 || maxPrice >= highestPriceInList ? (hp?.unlimited ?? "Không giới hạn") : `${maxPrice.toLocaleString('vi-VN')} ₫`}
+              </span>
+            </div>
+            <input
+              type="range"
+              min="100000"
+              max={highestPriceInList}
+              step="100000"
+              value={maxPrice === 0 ? highestPriceInList : maxPrice}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setMaxPrice(val >= highestPriceInList ? 0 : val);
+              }}
+              className="w-full accent-[#004f32] cursor-pointer"
+            />
+          </div>
+        </div>
+
+        {/* Star Rating Section */}
+        {starCounts.length > 1 && (
           <div className="border-t border-gray-100 pt-5">
             <button
-              onClick={() => setIsPriceLevelOpen(!isPriceLevelOpen)}
+              onClick={() => setIsStarOpen(!isStarOpen)}
               className="flex items-center justify-between w-full text-left group"
             >
               <h4 className="font-bold text-gray-900 text-[15px] group-hover:text-[#004f32] transition-colors">
-                {hp?.budgetLabel ?? "Budget"}
+                {hp?.starRating ?? "Hạng sao"}
               </h4>
-              <ChevronUp className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${!isPriceLevelOpen ? 'rotate-180' : ''}`} />
+              <ChevronUp className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${!isStarOpen ? 'rotate-180' : ''}`} />
             </button>
-            <div className={`mt-3 space-y-2.5 overflow-hidden transition-all duration-300 ${isPriceLevelOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
-              {priceRangeCounts.map(({ key, label, count }) => (
-                <label key={key} className="flex items-start gap-3 group cursor-pointer">
+            <div className={`mt-3 space-y-2.5 overflow-hidden transition-all duration-300 ${isStarOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+              {starCounts.map(([stars, count]) => (
+                <label key={stars} className="flex items-start gap-3 group cursor-pointer">
                   <div className="relative flex items-center pt-0.5">
                     <input
                       type="checkbox"
-                      checked={selectedPriceRanges.includes(key)}
-                      onChange={() => toggleArrayItem(key, selectedPriceRanges, setSelectedPriceRanges)}
+                      checked={selectedStars.includes(Number(stars))}
+                      onChange={() => toggleArrayItem(Number(stars), selectedStars, setSelectedStars)}
                       className="w-4 h-4 border-2 border-gray-300 rounded-[4px] text-[#004f32] focus:ring-[#003d27] transition-colors cursor-pointer"
                     />
                   </div>
-                  <div className="flex flex-1 justify-between text-[14px] leading-tight select-none">
-                    <span className={`transition-colors ${selectedPriceRanges.includes(key) ? 'text-[#004f32] font-semibold' : 'text-gray-700'}`}>
-                      {label}
-                    </span>
+                  <div className="flex flex-1 justify-between text-[14px] leading-tight select-none items-center">
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Number(stars) }).map((_, i) => (
+                        <span key={i} className="text-[#FFB800] text-[14px]">★</span>
+                      ))}
+                    </div>
                     <span className="text-gray-400 text-[13px]">{count}</span>
                   </div>
                 </label>
@@ -141,7 +185,7 @@ export function HotelFilters({
         )}
 
         {/* Property Types */}
-        {propertyTypeCounts.length > 0 && (
+        {propertyTypeCounts.length > 1 && (
           <div className="border-t border-gray-100 pt-5">
             <button
               onClick={() => setIsPropertyTypeOpen(!isPropertyTypeOpen)}
@@ -176,7 +220,7 @@ export function HotelFilters({
         )}
 
         {/* Neighborhoods */}
-        {neighborhoodCounts.length > 0 && (
+        {neighborhoodCounts.length > 1 && (
           <div className="border-t border-gray-100 pt-5">
             <button
               onClick={() => setIsNeighborhoodOpen(!isNeighborhoodOpen)}

@@ -2,6 +2,7 @@ import { getDictionary } from "@/lib/i18n";
 import { getCachedArticles } from "@/lib/data";
 import { ArticlesClientView } from "@/components/articles-client-view";
 
+export const revalidate = 3600; // Cache 1 giờ
 export default async function ArticlesPage() {
   const dict = await getDictionary();
   
