@@ -12,12 +12,12 @@ import { useLanguage } from "@/app/providers";
 export function HotelPricing({ price, hotelId, hotelName }: { price?: string, hotelId?: string | null, hotelName?: string }) {
   const { dict, locale } = useLanguage();
   const dateLocale = locale === "vi" ? vi : enUS;
-  
+
   const [date, setDate] = useState<DateRange | undefined>({
     from: addDays(new Date(), 8),
     to: addDays(new Date(), 9),
   });
-  
+
   const [adults, setAdults] = useState(2);
   const [rooms, setRooms] = useState(1);
 
@@ -25,7 +25,7 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
   const [realTimePrice, setRealTimePrice] = useState<string | null>(null);
   const [bookingUrl, setBookingUrl] = useState<string | null>(null);
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
-  
+
   const [hasBreakfast, setHasBreakfast] = useState<boolean>(false);
   const [cancellationText, setCancellationText] = useState<string | null>(null);
   const [isFreeCancellable, setIsFreeCancellable] = useState<boolean>(false);
@@ -41,15 +41,15 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
   // Fetch real-time price when dependencies change
   useEffect(() => {
     if (!hotelId || !date?.from || !date?.to) return;
-    
+
     // Setup debounce so it doesn't spam the API while selecting dates
     const timer = setTimeout(async () => {
       setIsLoading(true);
       setErrorStatus(null);
-      
+
       const arr = format(date.from!, "yyyy-MM-dd");
       const dep = format(date.to!, "yyyy-MM-dd");
-      
+
       try {
         const queryParams = new URLSearchParams({
           hotel_id: hotelId,
@@ -60,7 +60,7 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
           hotel_name: hotelName || "",
           lang: locale === "vi" ? "vi" : "en-us"
         });
-        
+
         const res = await fetch(`/api/hotel-price?${queryParams.toString()}`);
         if (res.ok) {
           const data = await res.json();
@@ -113,7 +113,7 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
 
       {/* Date & Guest Pickers */}
       <div className="flex flex-col lg:flex-row gap-3 border-b border-gray-200 pb-6 mb-2">
-        
+
         {/* Check-in / Check-out Group */}
         <Popover>
           <PopoverTrigger asChild>
@@ -171,17 +171,17 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
               <div className="flex items-center justify-between">
                 <span className="font-bold text-[15px]">{locale === "vi" ? "Số phòng" : "Rooms"}</span>
                 <div className="flex items-center gap-3">
-                   <button onClick={() => setRooms(Math.max(1, rooms - 1))} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30" disabled={rooms <= 1}>-</button>
-                   <span className="font-medium w-4 text-center">{rooms}</span>
-                   <button onClick={() => setRooms(Math.min(10, rooms + 1))} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30" disabled={rooms >= 10}>+</button>
+                  <button onClick={() => setRooms(Math.max(1, rooms - 1))} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30" disabled={rooms <= 1}>-</button>
+                  <span className="font-medium w-4 text-center">{rooms}</span>
+                  <button onClick={() => setRooms(Math.min(10, rooms + 1))} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30" disabled={rooms >= 10}>+</button>
                 </div>
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-bold text-[15px]">{locale === "vi" ? "Người lớn" : "Adults"}</span>
                 <div className="flex items-center gap-3">
-                   <button onClick={() => setAdults(Math.max(1, adults - 1))} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30" disabled={adults <= 1}>-</button>
-                   <span className="font-medium w-4 text-center">{adults}</span>
-                   <button onClick={() => setAdults(Math.min(20, adults + 1))} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30" disabled={adults >= 20}>+</button>
+                  <button onClick={() => setAdults(Math.max(1, adults - 1))} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30" disabled={adults <= 1}>-</button>
+                  <span className="font-medium w-4 text-center">{adults}</span>
+                  <button onClick={() => setAdults(Math.min(20, adults + 1))} className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-30" disabled={adults >= 20}>+</button>
                 </div>
               </div>
             </div>
@@ -191,13 +191,13 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
 
       {/* Pricing List */}
       <div className="flex flex-col">
-        
+
         {/* Booking.com Row */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-6 gap-4 relative">
           <div className="w-full md:w-1/4">
             <div className="text-[#003580] font-bold text-[22px] tracking-tight">Booking.com</div>
           </div>
-          
+
           <div className="w-full md:w-1/2 flex flex-col gap-2 min-h-[48px]">
             {isFreeCancellable || cancellationText ? (
               <div className="flex items-start gap-2 text-[15px] text-gray-700">
@@ -244,23 +244,23 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
               </div>
             ) : null}
           </div>
-          
+
           <div className="w-full md:w-1/4 flex flex-row md:flex-col items-center justify-between gap-3 shrink-0 md:items-end">
-             {isLoading ? (
-                <div className="flex items-center gap-2 text-gray-500">
-                   <Loader2 className="w-5 h-5 animate-spin" />
-                   <span className="text-sm">{locale === "vi" ? "Đang cập nhật giá..." : "Fetching live price..."}</span>
-                </div>
-             ) : errorStatus ? (
-                <div className="flex gap-2 items-center text-red-500 font-medium">
-                  <Info className="w-4 h-4" />
-                  <span>{errorStatus}</span>
-                </div>
-             ) : (
-                <span className="text-[24px] font-extrabold text-black tracking-tight">{displayPrice}</span>
-             )}
-            
-            <button 
+            {isLoading ? (
+              <div className="flex items-center gap-2 text-gray-500">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="text-sm">{locale === "vi" ? "Đang cập nhật giá..." : "Fetching live price..."}</span>
+              </div>
+            ) : errorStatus ? (
+              <div className="flex gap-2 items-center text-red-500 font-medium">
+                <Info className="w-4 h-4" />
+                <span>{errorStatus}</span>
+              </div>
+            ) : (
+              <span className="text-[24px] font-extrabold text-black tracking-tight">{displayPrice}</span>
+            )}
+
+            <button
               onClick={() => bookingUrl ? window.open(bookingUrl, '_blank') : null}
               disabled={isLoading || !!errorStatus}
               className="bg-[#34e065] hover:bg-[#2bbb52] disabled:bg-gray-200 disabled:text-gray-500 text-black font-bold px-8 py-3 rounded-full shadow-sm text-[15px] transition-colors"
@@ -272,9 +272,7 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
       </div>
 
       <div className="mt-8 border-t border-gray-100 pt-6">
-        <p className="text-[12px] text-gray-500 leading-relaxed max-w-5xl">
-          {dict.hotelDetail.priceDisclaimer || "Giá hiển thị là giá tổng cộng cuối cùng đã bao gồm thuế cho toàn bộ thời gian lưu trú và số lượng khách được chọn, cập nhật trong thời gian thực từ Booking.com."}
-        </p>
+        {dict.hotelDetail.priceDisclaimer || "Giá hiển thị là giá tổng cộng cuối cùng đã bao gồm thuế cho toàn bộ thời gian lưu trú và số lượng khách được chọn, cập nhật trong thời gian thực trên mạng lưới của NabTravel."}
       </div>
     </div>
   );
