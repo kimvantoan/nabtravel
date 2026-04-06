@@ -130,6 +130,8 @@
     "guestRating": "Guest rating",
     "amenities": "Amenities",
     "clearAll": "Clear all",
+    "maxPricePerNight": "Max price (1 night)",
+    "unlimited": "Unlimited",
     "sortBy": "Sort by",
     "recommended": "Recommended",
     "priceLowToHigh": "Price: Low to High",

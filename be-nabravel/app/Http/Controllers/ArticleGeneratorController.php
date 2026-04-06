@@ -93,7 +93,7 @@ class ArticleGeneratorController extends Controller
 
         try {
             // Thử model chính trước, fallback sang model nhẹ hơn nếu bị rate limit
-            $models = ['gemini-2.0-flash', 'gemini-2.0-flash-lite'];
+            $models = ['gemini-2.5-flash', 'gemini-2.5-pro'];
             $response = null;
 
             foreach ($models as $model) {
@@ -111,7 +111,8 @@ class ArticleGeneratorController extends Controller
                         ],
                         'generationConfig' => [
                             'temperature' => 0.85,
-                            'maxOutputTokens' => 4096,
+                            'maxOutputTokens' => 8192,
+                            'responseMimeType' => 'application/json',
                         ]
                     ]);
 
@@ -245,22 +246,27 @@ KHÁCH SẠN (bắt buộc dùng):
 YÊU CẦU:
 - Giọng: kịch tính, hài hước, lôi cuốn, đánh giá khách quan
 - Bố cục HTML: mở bài hấp dẫn → review từng khách sạn (h2/h3) → kết bài
-- Mỗi KS phải có <img src="URL_ẢNH" alt="..." class="rounded-xl shadow-lg my-6 w-full object-cover aspect-video"/>
-- Tên KS bọc <a href="LINK" class="text-[#004f32] font-bold underline">Tên</a>
-- Độ dài: 800-1200 từ
+- Mỗi KS phải có thẻ <img src='...' alt='...' class='rounded-xl shadow-lg my-6 w-full object-cover aspect-video'/>
+- Tên KS bọc thẻ <a href='...' class='text-[#004f32] font-bold underline'>Tên</a>
+- CHÚ Ý: CHỈ SỬ DỤNG DẤU NHÁY ĐƠN (') TRONG CÁC THẺ HTML, KHÔNG DÙNG DẤU NHÁY KÉP (") ĐỂ TRÁNH LỖI JSON.
+- Độ dài: 500-700 từ
 
-TRẢ VỀ JSON DUY NHẤT:
+TRẢ VỀ JSON DUY NHẤT HỢP LỆ (BẮT BUỘC PHẢI HOÀN THIỆN ĐẦY ĐỦ VÀ ĐÓNG NGOẶC HỢP LỆ):
 {"title":"Tiêu đề giật tít","meta_description":"Mô tả 150 ký tự","content":"<html bài viết>"}
 PROMPT;
     }
 
-    /**
-     * Parse chuỗi JSON do AI trả về
-     */
     private function parseAiResponse(string $rawText): ?array
     {
-        $cleaned = preg_replace('/^```json\s*/i', '', $rawText);
-        $cleaned = preg_replace('/```$/i', '', $cleaned);
-        return json_decode(trim($cleaned), true);
+        file_put_contents(storage_path('logs/ai_raw.log'), $rawText);
+        $start = strpos($rawText, '{');
+        $end = strrpos($rawText, '}');
+        
+        if ($start !== false && $end !== false) {
+            $jsonString = substr($rawText, $start, $end - $start + 1);
+            return json_decode($jsonString, true);
+        }
+        
+        return null;
     }
 }

@@ -13,12 +13,12 @@ interface HotelRecommendationsProps {
 }
 
 // Tripadvisor style green rating bubbles
-function RatingBubbles() {
+function RatingStars() {
   return (
-    <div className="flex gap-0.5 mx-1 items-center">
-      {[1, 2, 3, 4, 5].map((bubble) => (
-        <svg key={bubble} width="12" height="12" viewBox="0 0 16 16" fill="#00aa6c" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="8" cy="8" r="8" />
+    <div className="flex gap-1 mx-1 items-center">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <svg key={star} width="14" height="14" viewBox="0 0 24 24" fill="#FFB800" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
         </svg>
       ))}
     </div>
@@ -117,7 +117,7 @@ export function HotelRecommendations({ hotels }: HotelRecommendationsProps) {
                 </h3>
                 <div className="flex items-center text-sm text-gray-600 font-medium">
                   <span>{hotel.rating}</span>
-                  <RatingBubbles />
+                  <RatingStars />
                   <span>({hotel.reviews})</span>
                 </div>
               </div>
