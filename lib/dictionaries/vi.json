@@ -92,7 +92,7 @@
   "footer": {
     "sections": [
       {
-        "title": "Giới thiệu về Tripadvisor",
+        "title": "Giới thiệu về NabTravel",
         "links": ["Về chúng tôi", "Báo chí", "Tài nguyên và chính sách", "Tin cậy & An toàn", "Liên hệ với chúng tôi"]
       },
       {
@@ -108,14 +108,14 @@
         "links": ["Ứng dụng iPhone", "Ứng dụng Android"]
       }
     ],
-    "copyright": "© 2026 Tripadvisor LLC Bảo lưu mọi quyền",
+    "copyright": "© 2026 NabTravel LLC Bảo lưu mọi quyền",
     "terms": "Điều khoản sử dụng",
     "privacy": "Tuyên bố về quyền riêng tư và cookie",
     "cookieConsent": "Chấp thuận cookie",
     "howItWorks": "Cách thức hoạt động của trang web",
     "contact": "Liên hệ với chúng tôi",
     "accessibility": "Tuyên bố về trợ năng",
-    "regionalDisclaimer": "Đây là phiên bản trang web dành cho người sử dụng Tiếng Việt tại Việt Nam. Nếu bạn ở tại quốc gia hoặc vùng lãnh thổ khác, vui lòng chọn phiên bản Tripadvisor phù hợp với quốc gia hoặc vùng lãnh thổ của mình trong menu thả xuống.",
+    "regionalDisclaimer": "Đây là phiên bản trang web dành cho người sử dụng Tiếng Việt tại Việt Nam. Nếu bạn ở tại quốc gia hoặc vùng lãnh thổ khác, vui lòng chọn phiên bản NabTravel phù hợp với quốc gia hoặc vùng lãnh thổ của mình trong menu thả xuống.",
     "readMore": "Đọc thêm",
     "country": "Việt Nam"
   },

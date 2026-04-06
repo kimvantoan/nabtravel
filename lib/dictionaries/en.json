@@ -92,7 +92,7 @@
   "footer": {
     "sections": [
       {
-        "title": "About Tripadvisor",
+        "title": "About NabTravel",
         "links": ["About us", "Press", "Resources and policies", "Trust & Safety", "Contact us"]
       },
       {
@@ -108,14 +108,14 @@
         "links": ["iPhone app", "Android app"]
       }
     ],
-    "copyright": "© 2026 Tripadvisor LLC All rights reserved",
+    "copyright": "© 2026 NabTravel LLC All rights reserved",
     "terms": "Terms of Use",
     "privacy": "Privacy and cookie statement",
     "cookieConsent": "Cookie consent",
     "howItWorks": "How the site works",
     "contact": "Contact us",
     "accessibility": "Accessibility statement",
-    "regionalDisclaimer": "This is the version of our website addressed to speakers of English. If you are a resident of another country or region, please select the appropriate version of Tripadvisor for your country or region in the drop-down menu.",
+    "regionalDisclaimer": "This is the version of our website addressed to speakers of English. If you are a resident of another country or region, please select the appropriate version of NabTravel for your country or region in the drop-down menu.",
     "readMore": "Read more",
     "country": "Vietnam"
   },
