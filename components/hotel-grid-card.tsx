@@ -4,9 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Heart, MapPin } from "lucide-react";
 import { useLanguage } from "@/app/providers";
-import { useState } from "react";
 import { LiveListPrice } from "./live-list-price";
-import { differenceInDays, parseISO } from "date-fns";
+import { differenceInDays } from "date-fns";
+import { useFavorites } from "@/hooks/use-favorites";
 
 export interface HotelGridData {
   id: string;
@@ -28,7 +28,10 @@ export interface HotelGridData {
 
 export function HotelGridCard({ hotel, checkin, checkout, adults, rooms, bulkPrice, isFetchingBulk }: { hotel: HotelGridData, checkin?: string, checkout?: string, adults?: number, rooms?: number, bulkPrice?: number, isFetchingBulk?: boolean }) {
   const { dict } = useLanguage();
-  const [isLiked, setIsLiked] = useState(false);
+  const { toggleFavorite, isFavorite, isClient } = useFavorites();
+
+  const hotelId = hotel?.slug || hotel?.id;
+  const isLiked = isClient ? isFavorite(hotelId, 'hotel') : false;
 
   let nights = 1;
   try {
@@ -55,7 +58,17 @@ export function HotelGridCard({ hotel, checkin, checkout, adults, rooms, bulkPri
       </Link>
 
       <button
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsLiked(!isLiked); }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleFavorite({
+            id: hotelId,
+            type: 'hotel',
+            title: hotel?.name || 'Hotel',
+            image: hotel?.image || '',
+            url: `/hotel/${hotel?.slug || '#'}`
+          });
+        }}
         className="absolute top-2 right-2 md:top-4 md:right-4 p-1.5 md:p-2.5 rounded-full bg-black/20 hover:bg-white backdrop-blur-sm transition-all duration-300 shadow-sm group/btn z-20 cursor-pointer"
         aria-label="Save to favorites"
       >
@@ -109,9 +122,18 @@ export function HotelGridCard({ hotel, checkin, checkout, adults, rooms, bulkPri
                 {Number(hotel.originalPrice).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} ₫
               </span>
             )}
-            <span className="text-[16px] md:text-[22px] font-extrabold text-gray-900 leading-none tracking-tight">
-              <LiveListPrice hotelName={hotel?.name || ""} fallbackPrice={hotel?.price || 0} priceUpdatedAt={hotel?.price_updated_at} fontSize="22px" checkin={checkin} checkout={checkout} adults={adults} rooms={rooms} bulkPrice={bulkPrice} isFetchingBulk={isFetchingBulk} key={`${checkin}-${checkout}-${adults}-${rooms}`} />
-            </span>
+            <LiveListPrice
+              hotelName={hotel.name}
+              fallbackPrice={hotel.price}
+              priceUpdatedAt={hotel.price_updated_at}
+              checkin={checkin}
+              checkout={checkout}
+              adults={adults}
+              rooms={rooms}
+              bulkPrice={bulkPrice}
+              isFetchingBulk={isFetchingBulk}
+              className="text-[16px] md:text-[22px] font-extrabold text-gray-900 leading-none tracking-tight"
+            />
           </div>
 
           <Link

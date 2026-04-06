@@ -130,6 +130,8 @@
     "guestRating": "Đánh giá của khách",
     "amenities": "Tiện nghi",
     "clearAll": "Xóa bộ lọc",
+    "maxPricePerNight": "Mức giá tối đa (1 đêm)",
+    "unlimited": "Không giới hạn",
     "sortBy": "Sắp xếp theo",
     "recommended": "Đề xuất",
     "priceLowToHigh": "Giá: Thấp đến Cao",

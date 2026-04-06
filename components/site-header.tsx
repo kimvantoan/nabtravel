@@ -5,7 +5,8 @@ import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/app/providers";
-import { Globe, Search, Sparkles, Menu, UserCircle } from "lucide-react";
+import { Globe, Search, Sparkles, Menu, UserCircle, LogOut, Heart } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 import { Logo } from "./logo";
 import { AiPlannerModal } from "./ai-planner-modal";
 import { LoginModal } from "./login-modal";
@@ -25,6 +26,7 @@ export function SiteHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [lang, setLang] = useState(locale.toUpperCase());
   const [isPending, startTransition] = useTransition();
+  const { data: session, status } = useSession();
 
   const handleLanguageChange = (newLocal: string) => {
     setLang(newLocal.toUpperCase());
@@ -110,10 +112,20 @@ export function SiteHeader() {
               <Sparkles className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setIsLoginModalOpen(true)}
+              onClick={() => {
+                if (status !== "authenticated") {
+                  setIsLoginModalOpen(true);
+                } else {
+                  setIsMobileMenuOpen(true);
+                }
+              }}
               className="p-1 text-gray-900 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
             >
-              <UserCircle className="w-[28px] h-[28px] stroke-[1.5]" />
+              {status === "authenticated" && session?.user?.image ? (
+                <img src={session.user.image} alt="Avatar" className="w-7 h-7 rounded-full" />
+              ) : (
+                <UserCircle className="w-[28px] h-[28px] stroke-[1.5]" />
+              )}
             </button>
           </div>
         </div>
@@ -196,12 +208,38 @@ export function SiteHeader() {
                 </button>
               </div>
             </div>
-            <Button
-              onClick={() => setIsLoginModalOpen(true)}
-              className="rounded-full bg-green-950 text-white hover:bg-green-900 px-6 py-5 font-bold text-[15px] cursor-pointer"
-            >
-              {dict.header.signIn}
-            </Button>
+            
+            {status === "authenticated" && session?.user ? (
+              <div className="relative group cursor-pointer">
+                <div className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-50 transition-colors">
+                  <img src={session.user.image || ""} alt="" className="w-10 h-10 rounded-full border border-gray-200" />
+                  <span className="text-[15px] font-bold text-gray-900 hidden lg:block max-w-[120px] truncate">{session.user.name}</span>
+                </div>
+                <div className="absolute right-0 top-[90%] mt-1 w-48 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-2">
+                  <Link
+                    href="/favorites"
+                    className="w-full flex items-center gap-2 text-left px-4 py-2 hover:bg-green-50 text-[14px] font-bold text-gray-800 transition-colors"
+                  >
+                    <Heart className="w-4 h-4 text-red-500" />
+                    {lang === 'VI' ? 'Yêu thích' : 'Favorites'}
+                  </Link>
+                  <button
+                    onClick={() => signOut()}
+                    className="w-full flex items-center gap-2 text-left px-4 py-2 hover:bg-red-50 text-[14px] font-bold text-red-600 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    {lang === 'VI' ? 'Đăng xuất' : 'Sign Out'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                onClick={() => setIsLoginModalOpen(true)}
+                className="rounded-full bg-green-950 text-white hover:bg-green-900 px-6 py-5 font-bold text-[15px] cursor-pointer"
+              >
+                {dict.header.signIn}
+              </Button>
+            )}
           </div>
         </div>
 
@@ -250,15 +288,42 @@ export function SiteHeader() {
               </nav>
               <div className="h-px bg-gray-100 w-full my-2" />
               <div className="flex flex-col gap-6">
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    setIsLoginModalOpen(true);
-                  }}
-                  className="w-full text-left text-[17px] font-bold text-gray-900"
-                >
-                  {dict.header.signIn}
-                </button>
+                {status === "authenticated" && session?.user ? (
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                      <img src={session.user.image || ""} alt="" className="w-10 h-10 rounded-full" />
+                      <span className="text-[17px] font-bold text-gray-900">{session.user.name}</span>
+                    </div>
+                    <Link
+                      href="/favorites"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-full text-left text-[17px] font-bold text-gray-900 flex items-center gap-2"
+                    >
+                      <Heart className="w-5 h-5 text-red-500" />
+                      {lang === 'VI' ? 'Yêu thích' : 'Favorites'}
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        signOut();
+                      }}
+                      className="w-full text-left text-[17px] font-bold text-red-600 flex items-center gap-2"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      {lang === 'VI' ? 'Đăng xuất' : 'Sign Out'}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      setIsLoginModalOpen(true);
+                    }}
+                    className="w-full text-left text-[17px] font-bold text-gray-900"
+                  >
+                    {dict.header.signIn}
+                  </button>
+                )}
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center gap-2 text-[15px] font-bold text-gray-900 mb-1">
                     <Globe className="w-5 h-5" />

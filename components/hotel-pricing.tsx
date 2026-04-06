@@ -25,10 +25,6 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
   const [realTimePrice, setRealTimePrice] = useState<string | null>(null);
   const [bookingUrl, setBookingUrl] = useState<string | null>(null);
   const [errorStatus, setErrorStatus] = useState<string | null>(null);
-  const [isLoadingAgoda, setIsLoadingAgoda] = useState(false);
-  const [agodaPrice, setAgodaPrice] = useState<string | null>(null);
-  const [agodaUrl, setAgodaUrl] = useState<string | null>(null);
-  const [agodaErrorStatus, setAgodaErrorStatus] = useState<string | null>(null);
 
   const [hasBreakfast, setHasBreakfast] = useState<boolean>(false);
   const [cancellationText, setCancellationText] = useState<string | null>(null);
@@ -67,11 +63,7 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
 
         const bookingReq = fetch(`/api/hotel-price?${queryParams.toString()}`).catch(() => null);
 
-        setIsLoadingAgoda(true);
-        setAgodaErrorStatus(null);
-        const agodaReq = fetch(`/api/hotel-price-agoda?hotel_name=${encodeURIComponent(hotelName || "")}&arrival_date=${arr}&departure_date=${dep}&adults=${adults}&rooms=${rooms}&lang=${locale}`).catch(() => null);
-
-        const [res, agodaRes] = await Promise.all([bookingReq, agodaReq]);
+        const res = await bookingReq;
 
         let bookingPriceTotal = 0;
         let bookingData = null;
@@ -109,36 +101,11 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
         }
         setIsLoading(false);
 
-        if (agodaRes) {
-          try {
-            const data = await agodaRes.json();
-
-            if (agodaRes.ok) {
-              const formatter = new Intl.NumberFormat(locale === "vi" ? 'vi-VN' : 'en-US', {
-                style: 'currency',
-                currency: data.currency || 'VND',
-                maximumFractionDigits: 0
-              });
-              setAgodaPrice(formatter.format(data.total_price || data.price_per_night));
-              setAgodaUrl(data.url);
-            } else {
-              setAgodaPrice(null);
-              setAgodaErrorStatus(locale === "vi" ? "Đã hết phòng trên nền tảng" : "Sold out on this platform");
-            }
-          } catch (e) {
-            setAgodaPrice(null);
-            setAgodaErrorStatus("Error parsing data");
-          }
-        }
-        setIsLoadingAgoda(false);
 
       } catch (err) {
         setRealTimePrice(null);
         setErrorStatus(locale === "vi" ? "Không thể tải giá Booking" : "Could not load Booking price");
-        setAgodaPrice(null);
-        setAgodaErrorStatus(locale === "vi" ? "Không thể tải giá Agoda" : "Could not load Agoda price");
         setIsLoading(false);
-        setIsLoadingAgoda(false);
       }
     }, 800);
 
@@ -316,52 +283,7 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
           </div>
         </div>
 
-        {/* Separator */}
-        <hr className="border-gray-100 my-2" />
 
-        {/* Agoda Row */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-6 gap-4 relative">
-          <div className="w-full md:w-1/4">
-            <div className="flex items-center gap-2">
-              <img src="https://www.google.com/s2/favicons?domain=agoda.com&sz=128" alt="Agoda" className="w-8 h-8 object-contain" />
-              <span className="text-black font-bold text-[22px] tracking-tight">agoda</span>
-            </div>
-          </div>
-
-          <div className="w-full md:w-1/2 flex flex-col gap-2 min-h-[10px]">
-            {/* Note: Agoda API does not provide all the extra benefits nicely parsed right now, so this is mostly clear */}
-            {agodaPrice && (
-              <div className="flex items-start gap-2 text-[15px] text-[#00aa6c] font-medium">
-                <Check className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
-                <span>{(dict.hotelDetail as any).priceGuarantee}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="w-full md:w-1/4 flex flex-row md:flex-col items-center justify-between gap-3 shrink-0 md:items-end">
-            {isLoadingAgoda ? (
-              <div className="flex items-center gap-2 text-gray-500">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span className="text-sm">{locale === "vi" ? "Đang cập nhật giá..." : "Fetching live price..."}</span>
-              </div>
-            ) : agodaErrorStatus ? (
-              <div className="flex gap-2 items-center text-red-500 font-medium">
-                <Info className="w-4 h-4" />
-                <span>{agodaErrorStatus}</span>
-              </div>
-            ) : (
-              <span className="text-[24px] font-extrabold text-black tracking-tight">{agodaPrice || "---"}</span>
-            )}
-
-            <button
-              onClick={() => agodaUrl ? window.open(agodaUrl, '_blank') : null}
-              disabled={isLoadingAgoda || !!agodaErrorStatus}
-              className="bg-black hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-500 text-white font-bold px-8 py-3 rounded-full shadow-sm text-[15px] transition-colors"
-            >
-              {dict.hotelDetail.viewDeal || "Xem ưu đãi"}
-            </button>
-          </div>
-        </div>
       </div>
 
       <div className="mt-8 border-t border-gray-100 pt-6">

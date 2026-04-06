@@ -12,6 +12,8 @@ type LanguageContextType = {
 
 const LanguageContext = createContext<LanguageContextType | null>(null);
 
+import { SessionProvider } from "next-auth/react";
+
 export function LanguageProvider({
   children,
   dict,
@@ -22,9 +24,11 @@ export function LanguageProvider({
   locale: string;
 }) {
   return (
-    <LanguageContext.Provider value={{ dict, locale }}>
-      {children}
-    </LanguageContext.Provider>
+    <SessionProvider>
+      <LanguageContext.Provider value={{ dict, locale }}>
+        {children}
+      </LanguageContext.Provider>
+    </SessionProvider>
   );
 }
 

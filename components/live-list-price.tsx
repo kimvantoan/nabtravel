@@ -33,7 +33,8 @@ export function LiveListPrice({
   adults,
   rooms,
   bulkPrice,
-  isFetchingBulk
+  isFetchingBulk,
+  className
 }: {
   hotelName: string,
   fallbackPrice: number | string,
@@ -44,7 +45,8 @@ export function LiveListPrice({
   adults?: number,
   rooms?: number,
   bulkPrice?: number,
-  isFetchingBulk?: boolean
+  isFetchingBulk?: boolean,
+  className?: string
 }) {
   const { locale } = useLanguage();
   const [livePrice, setLivePrice] = useState<string | null>(null);
@@ -149,15 +151,15 @@ export function LiveListPrice({
   return (
     <div ref={containerRef} className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-2">
       {isLoading ? (
-        <span className={`font-bold text-gray-400 whitespace-nowrap text-[${fontSize}] animate-pulse`}>
+        <span className={`${className || `text-[${fontSize}]`} font-bold text-gray-400 whitespace-nowrap animate-pulse`}>
           {renderFallback}
         </span>
       ) : livePrice ? (
-        <span className={`font-bold text-black whitespace-nowrap text-[${fontSize}] animate-in fade-in duration-500`}>
+        <span className={`${className || `text-[${fontSize}]`} font-extrabold text-black whitespace-nowrap animate-in fade-in duration-500`}>
           {livePrice}
         </span>
       ) : (
-        <span className={`font-bold text-black whitespace-nowrap text-[${fontSize}]`}>
+        <span className={`${className || `text-[${fontSize}]`} font-bold text-black whitespace-nowrap`}>
           {renderFallback}
         </span>
       )}

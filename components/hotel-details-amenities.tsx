@@ -4,12 +4,12 @@ import { useState } from "react";
 import { ParkingCircle, Wifi, Utensils, GlassWater, Snowflake, Archive, BoxSelect, MountainSnow, Building2, Ban, Users, Waves, Landmark, ChevronUp, ChevronDown, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/app/providers";
 
-function RatingBubbles() {
+function RatingStars() {
   return (
-    <div className="flex gap-0.5 items-center">
-      {[1, 2, 3, 4, 5].map((bubble) => (
-        <svg key={bubble} width="16" height="16" viewBox="0 0 16 16" fill="#00aa6c" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="8" cy="8" r="8" />
+    <div className="flex gap-1 items-center">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <svg key={star} width="16" height="16" viewBox="0 0 24 24" fill="#FFB800" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
         </svg>
       ))}
     </div>
@@ -80,7 +80,7 @@ export function HotelDetailsAmenities({ rating, reviewsCount, description, ameni
             <div className="flex flex-col gap-1">
               <span className="font-bold text-[15px] text-black leading-none">{dict.hotelsPage?.excellent || "Xuất sắc"}</span>
               <div className="flex items-center gap-1">
-                <RatingBubbles />
+                <RatingStars />
                 <a href="#reviews" className="text-[13px] text-gray-600 hover:text-black hover:underline ml-1">
                   ({reviewsCount || 40} {dict.hotelGallery?.reviews || "đánh giá"})
                 </a>

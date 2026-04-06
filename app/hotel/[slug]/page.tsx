@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import { getLocale } from "@/lib/i18n";
 import {
   GallerySkeleton,
-  PricingSkeleton,
   AmenitiesSkeleton,
   ReviewsSkeleton,
   SimilarHotelsSkeleton,
@@ -16,10 +15,6 @@ import {
   HotelReviewsSection,
   SimilarHotelsSection,
 } from "./sections";
-import { HotelGallery } from "@/components/hotel-gallery";
-import { HotelDetailsAmenities } from "@/components/hotel-details-amenities";
-import { HotelReviews } from "@/components/hotel-reviews";
-import { SimilarHotels } from "@/components/similar-hotels";
 import { HotelMap } from "@/components/hotel-map";
 
 const RAPID_API_KEY = process.env.RAPID_API_KEY as string;
@@ -93,7 +88,7 @@ export default async function HotelReviewPage({ params }: { params: Promise<{ sl
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
 
   // ── Priority 0: Check Laravel cache first (fastest possible) ──
-  let cachedFullHotel: any = null;
+  let isFresh = false;
   let dbHotel: any = null;
   try {
     const dbRes = await fetch(`${backendUrl}/api/hotels/${slug}`, { next: { revalidate: 2592000 } }); // Cache 1 tháng
@@ -101,60 +96,12 @@ export default async function HotelReviewPage({ params }: { params: Promise<{ sl
       const h = await dbRes.json();
       if (h && h.name) {
         dbHotel = h;
-        if (h.description && h.photos && h.latest_reviews) cachedFullHotel = h;
+        const lastUpdated = new Date(h.updated_at).getTime();
+        const oneMonthMs = 30 * 24 * 60 * 60 * 1000;
+        isFresh = (Date.now() - lastUpdated < oneMonthMs);
       }
     }
-  } catch {}
-
-  // ── Fast path: if DB has everything, render cached version with Suspense for pricing ──
-  if (cachedFullHotel) {
-    return (
-      <div className="flex flex-col flex-1 items-center justify-start bg-white w-full">
-        <div className="max-w-6xl mx-auto w-full px-4 lg:px-6 pt-4">
-          {/* Priority 1: Gallery — instant from DB */}
-          <HotelGallery
-            name={cachedFullHotel.name}
-            rating={cachedFullHotel.rating ? Number(cachedFullHotel.rating) : undefined}
-            reviewsCount={cachedFullHotel.reviews}
-            address={cachedFullHotel.location}
-            photos={cachedFullHotel.photos}
-            locationId={cachedFullHotel.rapid_id}
-            langQuery={langQuery}
-            isBookingPhotos={true}
-            phone={cachedFullHotel.phone}
-          />
-          {/* Priority 2: Pricing — client component, loads independently */}
-          <HotelPricing
-            price={cachedFullHotel.price}
-            hotelId={cachedFullHotel.booking_id || null}
-            hotelName={cachedFullHotel.name}
-          />
-          {/* Priority 3: Map — instant, no API needed */}
-          <HotelMap
-            hotelName={cachedFullHotel.name}
-            address={cachedFullHotel.address || cachedFullHotel.location}
-          />
-          {/* Priority 4: Amenities — from DB cache */}
-          <HotelDetailsAmenities
-            rating={cachedFullHotel.rating ? Number(cachedFullHotel.rating) : undefined}
-            reviewsCount={cachedFullHotel.reviews}
-            description={cachedFullHotel.description}
-            amenities={cachedFullHotel.amenities || []}
-          />
-          {/* Priority 4: Reviews — from DB cache */}
-          <HotelReviews reviews={cachedFullHotel.latest_reviews} />
-          {/* Priority 5: Similar hotels — streamed */}
-          <Suspense fallback={<SimilarHotelsSkeleton />}>
-            <SimilarHotelsSection
-              slug={slug}
-              currentLocation={cachedFullHotel.location || ""}
-              backendUrl={backendUrl}
-            />
-          </Suspense>
-        </div>
-      </div>
-    );
-  }
+  } catch { }
 
   // ── Slow path: fetch from APIs with streaming ──
   if (/^\d+$/.test(lastPart)) {
@@ -219,16 +166,18 @@ export default async function HotelReviewPage({ params }: { params: Promise<{ sl
           address={hotelBasic?.address_obj?.address_string || currentLocation}
         />
 
-        {/* Priority 4: Amenities + Description — streams from Booking API */}
+        {/* Priority 4: Amenities + Description — streams or DB */}
         <Suspense fallback={<AmenitiesSkeleton />}>
           <HotelAmenitiesSection
             hotelBasic={hotelBasic}
             bookingDestId={bookingDestId}
             langQuery={langQuery}
+            dbHotel={dbHotel}
+            isFresh={isFresh}
           />
         </Suspense>
 
-        {/* Priority 4: Reviews — slowest, streams from TripAdvisor + Google */}
+        {/* Priority 4: Reviews — slowest, streams or DB */}
         <Suspense fallback={<ReviewsSkeleton />}>
           <HotelReviewsSection
             hotelBasic={hotelBasic}
@@ -237,6 +186,8 @@ export default async function HotelReviewPage({ params }: { params: Promise<{ sl
             slug={slug}
             bookingDestId={bookingDestId}
             backendUrl={backendUrl}
+            dbHotel={dbHotel}
+            isFresh={isFresh}
           />
         </Suspense>
 

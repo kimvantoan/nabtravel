@@ -48,7 +48,11 @@ export default async function HotelsPage({
 }) {
   const dict = await getDictionary();
   const params = await searchParams;
-  const search = (typeof params.search === 'string' ? params.search : undefined) || (typeof params.q === 'string' ? params.q : undefined);
+  let search = (typeof params.search === 'string' ? params.search : undefined) || (typeof params.q === 'string' ? params.q : undefined);
+
+  if (!search || search.trim() === '') {
+    search = 'Phú Quốc';
+  }
 
   const hotels = await fetchVietnamHotels(search);
 

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, Pencil, ThumbsUp } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronDown, Pencil, ThumbsUp, Star } from "lucide-react";
 import { useLanguage } from "@/app/providers";
+import { useSession, signIn } from "next-auth/react";
 
 function ExpandableText({ text, showMoreText, showLessText }: { text: string, showMoreText: string, showLessText: string }) {
   const [expanded, setExpanded] = useState(false);
@@ -32,21 +33,13 @@ function ExpandableText({ text, showMoreText, showLessText }: { text: string, sh
 function ReviewRating({ score }: { score: number }) {
   return (
     <div className="flex gap-0.5 items-center my-2">
-      {[1, 2, 3, 4, 5].map((bubble) => {
-        const isFull = score >= bubble;
-        if (isFull) {
-          return (
-            <svg key={bubble} width="16" height="16" viewBox="0 0 16 16" fill="#00aa6c" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="8" cy="8" r="8" />
-            </svg>
-          );
-        } else {
-          return (
-            <svg key={bubble} width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#00aa6c" strokeWidth="1.5" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="8" cy="8" r="7.25" />
-            </svg>
-          );
-        }
+      {[1, 2, 3, 4, 5].map((star) => {
+        const isFull = score >= star;
+        return (
+          <svg key={star} width="18" height="18" viewBox="0 0 24 24" fill={isFull ? "#FFB800" : "#E5E7EB"} xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+        );
       })}
     </div>
   );
@@ -71,13 +64,51 @@ export interface ReviewData {
   timestamp?: number;
 }
 
-export function HotelReviews({ reviews }: { reviews?: ReviewData[] }) {
+export function HotelReviews({ reviews, slug }: { reviews?: ReviewData[], slug?: string }) {
   const { dict, locale } = useLanguage();
+  const { data: session } = useSession();
   const [visibleCount, setVisibleCount] = useState(5);
   const [sortBy, setSortBy] = useState<"newest" | "highest" | "lowest">("newest");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  
+  // States for writing review
+  const [isWriting, setIsWriting] = useState(false);
+  const [writeRating, setWriteRating] = useState(5);
+  const [writeContent, setWriteContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [localReviews, setLocalReviews] = useState<ReviewData[]>([]);
 
-  const baseReviews = reviews?.length ? reviews : [];
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (slug) {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000'}/api/hotels/${slug}/reviews`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const mapped = data.map((r: any) => ({
+              id: `local_${r.id}`,
+              user: { name: r.user_name, avatar: "", location: "Vietnam", contributions: 0, helpfulVotes: 0 },
+              dateWritten: "Recent",
+              rating: r.rating,
+              title: "",
+              text: r.content,
+              dateOfStay: "Recent",
+              tripType: "",
+              helpfulCount: 0,
+              timestamp: new Date(r.created_at).getTime()
+            }));
+            setLocalReviews(mapped);
+          }
+        }).catch(console.error);
+    }
+  }, [slug]);
+
+  const baseReviews = [...localReviews, ...(reviews?.length ? reviews : [])];
 
   const sortedReviews = [...baseReviews].sort((a, b) => {
     if (sortBy === "highest") return b.rating - a.rating;
@@ -110,11 +141,92 @@ export function HotelReviews({ reviews }: { reviews?: ReviewData[] }) {
         <h2 className="text-[24px] font-extrabold text-black tracking-tight">
           {dict.hotelDetail.allReviews} ({sortedReviews.length})
         </h2>
-        <button className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-full font-bold transition-colors w-fit">
+        <button 
+          onClick={() => {
+            if (!session) {
+              signIn("google");
+            } else {
+              setIsWriting(!isWriting);
+            }
+          }}
+          className="flex items-center gap-2 bg-black hover:bg-gray-800 text-white px-6 py-3 rounded-full font-bold transition-colors w-fit">
           <Pencil className="w-4 h-4" />
-          {dict.hotelDetail.writeReview}
+          {mounted && session ? (isWriting ? (locale === 'vi' ? 'Hủy' : 'Cancel') : dict.hotelDetail.writeReview) : (locale === 'vi' ? 'Đăng nhập Google để Viết' : 'Login Google to Write')}
         </button>
       </div>
+
+      {/* Review Form Area */}
+      {isWriting && session && (
+        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 mb-8 mt-4">
+          <div className="flex items-center gap-4 mb-4">
+            <img src={session.user?.image || ""} alt="" className="w-12 h-12 rounded-full border border-gray-300" />
+            <div>
+              <div className="font-bold text-[16px]">{session.user?.name}</div>
+              <div className="text-[14px] text-gray-500">{session.user?.email}</div>
+            </div>
+          </div>
+          
+          <div className="mb-4">
+            <div className="font-bold text-[14px] mb-2">{locale === 'vi' ? 'Bạn chấm điểm thế nào?' : 'How do you rate?'}</div>
+            <div className="flex gap-1">
+               {[1, 2, 3, 4, 5].map(star => (
+                 <button key={star} type="button" onClick={() => setWriteRating(star)}>
+                   <Star className={`w-8 h-8 ${writeRating >= star ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'} hover:scale-110 transition-transform`} />
+                 </button>
+               ))}
+            </div>
+          </div>
+
+          <textarea 
+            className="w-full h-32 p-4 border border-gray-300 rounded-xl outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 mb-4 text-[15px]"
+            placeholder={locale === 'vi' ? 'Chia sẻ cảm nhận của bạn về kỳ nghỉ...' : 'Share your thoughts about your stay...'}
+            value={writeContent}
+            onChange={e => setWriteContent(e.target.value)}
+          ></textarea>
+
+          <button 
+            disabled={isSubmitting || writeContent.length < 5}
+            onClick={async () => {
+              setIsSubmitting(true);
+              try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000'}/api/hotels/${slug}/reviews`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    user_name: session.user?.name,
+                    user_email: session.user?.email,
+                    user_avatar: session.user?.image,
+                    rating: writeRating,
+                    content: writeContent
+                  })
+                });
+                if (res.ok) {
+                   const data = await res.json();
+                   if (data.review) {
+                     setLocalReviews(prev => [{
+                        id: `local_${Date.now()}`,
+                        user: { name: session.user?.name || "User", avatar: session.user?.image || "", location: "Vietnam", contributions: 0, helpfulVotes: 0 },
+                        dateWritten: "Recent",
+                        rating: writeRating,
+                        title: "",
+                        text: writeContent,
+                        dateOfStay: "Recent",
+                        tripType: "",
+                        helpfulCount: 0,
+                        timestamp: Date.now()
+                     }, ...prev]);
+                     setWriteContent("");
+                     setIsWriting(false);
+                   }
+                }
+              } catch (e) {}
+              setIsSubmitting(false);
+            }}
+            className="bg-[#00aa6c] text-white font-bold px-8 py-3 rounded-full hover:bg-[#008f5a] transition-colors disabled:opacity-50">
+             {isSubmitting ? '...' : (locale === 'vi' ? 'Đăng Bình Luận' : 'Post Review')}
+          </button>
+        </div>
+      )}
 
       {/* Filters and search removed */}
       <div className="flex flex-wrap items-center gap-3 mb-10">
@@ -141,16 +253,24 @@ export function HotelReviews({ reviews }: { reviews?: ReviewData[] }) {
         {currentReviews.map((review) => (
           <div key={review.id} className="w-full border border-gray-200 rounded-xl p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
             {/* User Header */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-4">
-                {/* Avatar removed as requested */}
-                <div className="flex flex-col">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <img 
+                  src={review.user?.avatar === '/images/tourist.png' ? `https://ui-avatars.com/api/?name=${encodeURIComponent(review.user.name || 'User')}&background=random` : (review.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.user.name || 'User')}&background=random`)} 
+                  alt={review.user.name || 'User'} 
+                  className="w-11 h-11 rounded-full border border-gray-100 object-cover shrink-0 shadow-sm" 
+                  referrerPolicy="no-referrer"
+                  onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(review.user.name || 'User')}&background=random`; }} 
+                />
+                <div className="flex flex-col justify-center">
                   <div className="text-[15px] font-bold text-gray-900 leading-tight">
-                    {review.user.name} <span className="font-normal text-gray-500 text-[14px]">{locale === 'vi' ? "đã viết đánh giá" : "wrote a review"} {review.dateWritten === 'Recent' && locale === 'vi' ? 'Gần đây' : review.dateWritten}</span>
+                    {review.user.name}
+                  </div>
+                  <div className="font-medium text-gray-500 text-[13px] mt-0.5">
+                    {locale === 'vi' ? "Đã đánh giá" : "Reviewed"} {review.dateWritten === 'Recent' ? (locale === 'vi' ? 'gần đây' : 'recently') : review.dateWritten}
                   </div>
                 </div>
               </div>
-
             </div>
 
             {/* Review Content */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/app/providers";
-import { HotelFilters, PRICE_RANGES } from "@/components/hotel-filters";
+import { HotelFilters } from "@/components/hotel-filters";
 import { HotelGridCard, HotelGridData } from "@/components/hotel-grid-card";
 import { ChevronDown, SlidersHorizontal, Search } from "lucide-react";
 import Image from "next/image";
@@ -44,6 +44,15 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [currentPage, setCurrentPage] = useState(1);
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const createSlug = (str: string) => {
+    return str.normalize('NFD') 
+      .replace(/[\u0300-\u036f]/g, '') 
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
+  };
   
   // Hydrate currentPage safely without branching SSR/Client rendering logic
   useEffect(() => {
@@ -56,8 +65,9 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
 
   // Filter States
   const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>([]);
-  const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
+  const [maxPrice, setMaxPrice] = useState<number>(0);
   const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<string[]>([]);
+  const [selectedStars, setSelectedStars] = useState<number[]>([]);
   
   // Date & Guest Picker State
   const dateLocale = locale === "vi" ? vi : enUS;
@@ -152,78 +162,35 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
     return matches.slice(0, 8);
   }, [searchQuery, isClient, initialHotels]);
 
-  // BULK METASEARCH ENGINE: Fetch prices for entire destination in 1 request!
-  useEffect(() => {
-    if (!searchQuery.trim() || !isClient) {
-      setBulkPricesMap({});
-      return;
-    }
-    
-    setIsFetchingBulk(true);
-    setBulkPricesMap({});
-
-    const fetchBulk = async () => {
-      try {
-        let url = `/api/bulk-hotel-prices?city=${encodeURIComponent(searchQuery.trim())}`;
-        if (passedCheckin && passedCheckout) {
-          url += `&checkin=${passedCheckin}&checkout=${passedCheckout}`;
-        }
-        url += `&adults=${adults}&rooms=${rooms}`;
-
-        const res = await fetch(url);
-        if (res.ok) {
-           const data = await res.json();
-           const map: Record<string, number> = {};
-           if (data.bulkPrices) {
-             data.bulkPrices.forEach((h: any) => {
-                const normalize = (s: string) => (s||"").toLowerCase().replace(/[^a-z0-9]/g, '');
-                map[normalize(h.name)] = h.price;
-             });
-           }
-           setBulkPricesMap(map);
-        }
-      } catch (e) {
-        console.error("Bulk fetch failed", e);
-      } finally {
-        setIsFetchingBulk(false);
-      }
-    };
-
-    // Debounce to prevent fetching during quick typing
-    const t = setTimeout(fetchBulk, 1200);
-    return () => clearTimeout(t);
-  }, [searchQuery, passedCheckin, passedCheckout, adults, rooms, isClient]);
+  // Đã gỡ bỏ BULK METASEARCH ENGINE tại Frontend vì giá đã được Server-side Cron Job cập nhật sẵn cực mượt vào DB.
 
   // Filter Algorithm
   const filteredHotels = initialHotels.filter(hotel => {
-    // 1. Search Query
-    if (searchQuery.trim() !== '') {
-      const normalize = (s: string) => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/gi, "").toLowerCase();
-      const q = normalize(searchQuery);
-      if (!normalize(hotel.name).includes(q) && !normalize(hotel.location).includes(q)) {
-        return false;
-      }
-    }
+    // 1. Search Query (Đã loại bỏ lọc local theo Text, tránh nhảy màn hình ngay khi gõ. Chỉ tìm bằng nút Submit)
     
     // 2. Property Type
     if (selectedPropertyTypes.length > 0) {
-      if (!hotel.propertyType || !selectedPropertyTypes.includes(hotel.propertyType)) return false;
+      const hp = dict.hotelsPage as any;
+      const type = hotel.propertyType || (hp?.otherType ?? "Other");
+      if (!selectedPropertyTypes.includes(type)) return false;
     }
 
-    // 3. Price Range (using key-based numeric buckets)
-    if (selectedPriceRanges.length > 0) {
-      const rangeMap: Record<string, {min: number, max: number}> = {};
-      PRICE_RANGES.forEach(r => { rangeMap[r.key] = { min: r.min, max: r.max }; });
-      const match = selectedPriceRanges.some(key => {
-        const range = rangeMap[key];
-        return range && hotel.price >= range.min && hotel.price <= range.max;
-      });
-      if (!match) return false;
+    // 3. Price Filter (Max Range)
+    if (maxPrice > 0) {
+      if (hotel.price > maxPrice) return false;
     }
 
     // 4. Neighborhood
     if (selectedNeighborhoods.length > 0) {
-      if (!hotel.neighborhood || !selectedNeighborhoods.includes(hotel.neighborhood)) return false;
+      const hp = dict.hotelsPage as any;
+      const hood = hotel.neighborhood || (hp?.commonArea ?? "Khu vực phổ biến");
+      if (!selectedNeighborhoods.includes(hood)) return false;
+    }
+
+    // 5. Stars Rating
+    if (selectedStars.length > 0) {
+      const hStars = hotel.stars || 3;
+      if (!selectedStars.includes(hStars)) return false;
     }
 
     return true;
@@ -255,10 +222,12 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               initialHotels={initialHotels}
               selectedPropertyTypes={selectedPropertyTypes}
               setSelectedPropertyTypes={(v: string[]) => { setSelectedPropertyTypes(v); setCurrentPage(1); }}
-              selectedPriceRanges={selectedPriceRanges}
-              setSelectedPriceRanges={(v: string[]) => { setSelectedPriceRanges(v); setCurrentPage(1); }}
+              maxPrice={maxPrice}
+              setMaxPrice={(v: number) => { setMaxPrice(v); setCurrentPage(1); }}
               selectedNeighborhoods={selectedNeighborhoods}
               setSelectedNeighborhoods={(v: string[]) => { setSelectedNeighborhoods(v); setCurrentPage(1); }}
+              selectedStars={selectedStars}
+              setSelectedStars={(v: number[]) => { setSelectedStars(v); setCurrentPage(1); }}
             />
           </div>
 
@@ -270,7 +239,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               onSubmit={(e) => {
                 e.preventDefault();
                 if (searchQuery.trim()) {
-                  window.location.href = `/hotels?search=${encodeURIComponent(searchQuery.trim())}`;
+                  window.location.href = `/hotels?search=${createSlug(searchQuery.trim())}`;
                 } else {
                   window.location.href = `/hotels`;
                 }
@@ -278,9 +247,9 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               className="flex flex-col lg:flex-row gap-2.5 mb-8 relative z-50 bg-white p-2 md:p-3 rounded-2xl md:rounded-full shadow-lg border border-gray-200"
             >
               {/* Destination Input */}
-              <div className="flex items-center flex-1 lg:w-1/3 bg-transparent rounded-full px-5 py-2 hover:bg-gray-50 focus-within:bg-gray-50 transition-colors cursor-text relative">
+              <label className="flex items-center flex-1 lg:w-1/3 bg-transparent rounded-full px-5 py-2 hover:bg-gray-50 focus-within:bg-gray-50 transition-colors cursor-text relative">
                 <Search className="w-5 h-5 text-gray-500 shrink-0 mr-3" strokeWidth={2} />
-                <div className="flex flex-col w-full">
+                <div className="flex flex-col w-full cursor-text">
                   <span className="text-[13px] text-gray-600 font-medium">{dict.searchHero?.whereTo || "Vị trí"}</span>
                   <input 
                     required
@@ -295,7 +264,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
                       setShowSuggestions(true);
                     }}
                     placeholder="Thành phố hoặc Khách sạn..."
-                    className="w-full bg-transparent outline-none text-[15px] font-bold text-gray-900 placeholder:text-gray-400"
+                    className="w-full bg-transparent outline-none text-[15px] font-bold text-gray-900 placeholder:text-gray-400 cursor-text"
                     autoComplete="off"
                   />
                 </div>
@@ -330,7 +299,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
                      ))}
                    </div>
                 )}
-              </div>
+              </label>
 
               {/* Vertical Divider */}
               <div className="hidden lg:block w-px h-10 bg-gray-300 my-auto" />
@@ -475,8 +444,9 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
                 <button
                   onClick={() => {
                     setSelectedPropertyTypes([]);
-                    setSelectedPriceRanges([]);
+                    setMaxPrice(0);
                     setSelectedNeighborhoods([]);
+                    setSelectedStars([]);
                     setSearchQuery("");
                   }}
                   className="px-6 py-2.5 bg-[#004f32] text-white rounded-full font-bold hover:bg-[#003d27] transition-colors"
@@ -487,8 +457,6 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
             ) : (
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
                 {paginatedHotels.map((hotel) => {
-                  const normalize = (s: string) => (s||"").toLowerCase().replace(/[^a-z0-9]/g, '');
-                  const matchedPrice = bulkPricesMap[normalize(hotel.name)];
                   return (
                     <HotelGridCard 
                        key={hotel.id} 
@@ -496,9 +464,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
                        checkin={passedCheckin} 
                        checkout={passedCheckout} 
                        adults={adults} 
-                       rooms={rooms} 
-                       bulkPrice={matchedPrice}
-                       isFetchingBulk={isFetchingBulk}
+                       rooms={rooms}
                     />
                   );
                 })}
@@ -540,10 +506,12 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               initialHotels={initialHotels}
               selectedPropertyTypes={selectedPropertyTypes}
               setSelectedPropertyTypes={(v: string[]) => { setSelectedPropertyTypes(v); setCurrentPage(1); }}
-              selectedPriceRanges={selectedPriceRanges}
-              setSelectedPriceRanges={(v: string[]) => { setSelectedPriceRanges(v); setCurrentPage(1); }}
+              maxPrice={maxPrice}
+              setMaxPrice={(v: number) => { setMaxPrice(v); setCurrentPage(1); }}
               selectedNeighborhoods={selectedNeighborhoods}
               setSelectedNeighborhoods={(v: string[]) => { setSelectedNeighborhoods(v); setCurrentPage(1); }}
+              selectedStars={selectedStars}
+              setSelectedStars={(v: number[]) => { setSelectedStars(v); setCurrentPage(1); }}
             />
           </div>
           <div className="p-4 border-t border-gray-200 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.05)] shrink-0">

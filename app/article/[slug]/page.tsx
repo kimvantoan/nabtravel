@@ -7,6 +7,8 @@ import { ArticleCard } from "@/components/article-card";
 import { getDictionary, getLocale } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 
+export const revalidate = 3600;
+
 // Dynamic SEO
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
