@@ -179,6 +179,12 @@ export function SiteHeader() {
                 {dict.header.hotels}
               </Link>
               <Link
+                href="/tours"
+                className="text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors"
+              >
+                {lang === 'VI' ? 'Tour' : 'Tours'}
+              </Link>
+              <Link
                 href="/articles"
                 className="text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors"
               >
@@ -277,6 +283,13 @@ export function SiteHeader() {
                   className="text-[17px] font-bold text-gray-900"
                 >
                   {dict.header.hotels}
+                </Link>
+                <Link
+                  href="/tours"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-[17px] font-bold text-gray-900"
+                >
+                  {lang === 'VI' ? 'Tour' : 'Tours'}
                 </Link>
                 <Link
                   href="/articles"

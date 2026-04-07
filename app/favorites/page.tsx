@@ -5,14 +5,14 @@ import { useFavorites, FavoriteItem } from "@/hooks/use-favorites";
 import { useSession, signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, Building2, Newspaper, ArrowRight } from "lucide-react";
+import { Heart, Building2, Newspaper, ArrowRight, MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function FavoritesPage() {
   const { dict, locale } = useLanguage();
   const { data: session, status } = useSession();
   const { favorites, toggleFavorite, isClient } = useFavorites();
-  const [filter, setFilter] = useState<'all' | 'hotel' | 'article'>('all');
+  const [filter, setFilter] = useState<'all' | 'hotel' | 'article' | 'tour'>('all');
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -41,8 +41,8 @@ export default function FavoritesPage() {
           </h1>
           <p className="text-gray-500 text-lg font-medium">
             {locale === 'vi' 
-              ? 'Khách sạn và bài viết yêu thích của bạn, được lưu trữ an toàn.'
-              : 'Your favorite hotels and articles, stored securely.'}
+              ? 'Khách sạn, tour và bài viết yêu thích của bạn, được lưu trữ an toàn.'
+              : 'Your favorite hotels, tours and articles, stored securely.'}
           </p>
 
           {/* Filters */}
@@ -58,6 +58,12 @@ export default function FavoritesPage() {
               className={`px-4 py-2 rounded-full font-bold text-[13px] md:text-sm whitespace-nowrap flex items-center gap-1.5 transition-all ${filter === 'hotel' ? 'bg-[#004f32] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
             >
               <Building2 className="w-4 h-4" /> {locale === 'vi' ? 'Khách sạn' : 'Hotels'}
+            </button>
+            <button 
+              onClick={() => setFilter('tour')}
+              className={`px-4 py-2 rounded-full font-bold text-[13px] md:text-sm whitespace-nowrap flex items-center gap-1.5 transition-all ${filter === 'tour' ? 'bg-[#004f32] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            >
+              <MapPin className="w-4 h-4" /> Tours
             </button>
             <button 
               onClick={() => setFilter('article')}
@@ -80,8 +86,8 @@ export default function FavoritesPage() {
              </h3>
              <p className="text-gray-500 mb-8 max-w-md text-sm md:text-base">
                {locale === 'vi' 
-                 ? 'Khám phá các khách sạn và bài viết hấp dẫn, thả tim để lưu chúng vào bộ sưu tập cá nhân của bạn.'
-                 : 'Explore amazing hotels and articles, and tap the heart icon to save them to your personal collection.'}
+                 ? 'Khám phá các khách sạn, tour và bài viết hấp dẫn, thả tim để lưu chúng vào bộ sưu tập cá nhân của bạn.'
+                 : 'Explore amazing hotels, tours and articles, and tap the heart icon to save them to your personal collection.'}
              </p>
              <Link href="/" className="bg-[#00aa6c] text-white font-bold py-3 md:py-3.5 px-6 md:px-8 rounded-full hover:bg-[#008f5a] transition-colors inline-block text-sm md:text-base">
                {locale === 'vi' ? 'Bắt đầu khám phá' : 'Start Exploring'}
@@ -97,10 +103,11 @@ export default function FavoritesPage() {
                     alt={item.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    unoptimized
                   />
                   <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-white/90 backdrop-blur text-[10px] md:text-xs font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded-[4px] md:rounded-md text-gray-800 shadow-sm flex items-center gap-1 uppercase tracking-wider">
-                     {item.type === 'hotel' ? <Building2 className="w-3 h-3 md:w-3.5 md:h-3.5" /> : <Newspaper className="w-3 h-3 md:w-3.5 md:h-3.5" />}
-                     <span className="hidden sm:inline">{item.type === 'hotel' ? (locale === 'vi' ? 'Khách sạn' : 'Hotel') : (locale === 'vi' ? 'Bài viết' : 'Article')}</span>
+                     {item.type === 'hotel' ? <Building2 className="w-3 h-3 md:w-3.5 md:h-3.5" /> : item.type === 'tour' ? <MapPin className="w-3 h-3 md:w-3.5 md:h-3.5" /> : <Newspaper className="w-3 h-3 md:w-3.5 md:h-3.5" />}
+                     <span className="hidden sm:inline">{item.type === 'hotel' ? (locale === 'vi' ? 'Khách sạn' : 'Hotel') : item.type === 'tour' ? 'Tour' : (locale === 'vi' ? 'Bài viết' : 'Article')}</span>
                   </div>
                 </Link>
 

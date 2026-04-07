@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 
-export type FavoriteType = 'hotel' | 'article';
+export type FavoriteType = 'hotel' | 'article' | 'tour';
 
 export interface FavoriteItem {
   id: string; // The slug or target_id

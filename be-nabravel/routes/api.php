@@ -30,6 +30,10 @@ Route::get('/destinations', [DestinationController::class, 'index']);
 Route::get('/articles', [ArticleController::class, 'index']);
 Route::get('/articles/{slug}', [ArticleController::class, 'show']);
 
+use App\Http\Controllers\TourController;
+Route::get('/tours', [TourController::class, 'index']);
+Route::get('/tours/{slug}', [TourController::class, 'show']);
+
 Route::get('/hotels', [HotelController::class, 'index']);
 Route::get('/hotels/sync', [HotelController::class, 'sync']);
 Route::get('/hotels/top', [HotelController::class, 'topHotels']);

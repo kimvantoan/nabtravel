@@ -31,6 +31,12 @@ class FavoriteController extends Controller
                     $fav->delete();
                     continue;
                 }
+            } else if ($fav->type === 'tour') {
+                $exists = \App\Models\Tour::where('tour_id', $fav->target_id)->exists();
+                if (!$exists) {
+                    $fav->delete();
+                    continue;
+                }
             }
             $validFavorites[] = $fav;
         }
