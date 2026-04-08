@@ -36,13 +36,13 @@ class HotelController extends Controller
                 'rating' => $ratingNum,
                 'reviews' => $h->reviews ?? 100,
                 'reviewWord' => $reviewWord,
-                'price' => $h->price_per_night ?? 1500000,
+                'price' => $h->price_per_night ?? $h->agoda_price ?? 1500000,
                 'stars' => 4, // Booking filter already ensured 4-5
                 'propertyType' => 'Khách sạn',
                 'priceLevel' => 'Đa dạng',
                 'neighborhood' => $h->location ?? "Khu vực trung tâm",
                 'amenities' => ["WiFi miễn phí", "Điều hòa nhiệt độ"],
-                'source_url' => $h->source_url
+                'source_url' => $h->source_url ?? $h->agoda_url
             ];
         });
 

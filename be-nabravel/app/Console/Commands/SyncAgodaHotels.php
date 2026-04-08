@@ -80,7 +80,33 @@ class SyncAgodaHotels extends Command
                 $matchedCount++;
                 $this->line("✅ Đã khớp: [Agoda] {$agoda['name']} <=> [DB/Booking] {$bestMatch->name}");
             } else {
-                $this->warn("⚠️ Bỏ lỡ (Không tìm thấy): {$agoda['name']}");
+                // Thêm mới hoàn toàn (Agoda độc quyền)
+                $newSlug = Str::slug($agoda['name']);
+                
+                // Tránh trùng slug
+                $slugCount = 1;
+                $originalSlug = $newSlug;
+                while (DB::table('ta_hotels')->where('slug', $newSlug)->exists()) {
+                    $newSlug = $originalSlug . '-' . $slugCount++;
+                }
+
+                $agodaId = "agoda_" . uniqid();
+
+                DB::table('ta_hotels')->insert([
+                    'ta_id' => $agodaId,
+                    'slug' => $newSlug,
+                    'name' => $agoda['name'],
+                    'location' => $agoda['location'],
+                    'rating' => $agoda['rating'],
+                    'reviews' => $agoda['reviews'],
+                    'agoda_price' => $agoda['price'] ? intval($agoda['price']) : null,
+                    'agoda_url' => $agoda['agoda_url'],
+                    'photo_url' => $agoda['photo_url'] ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                
+                $this->info("🌟 Thêm mới (Độc quyền Agoda): {$agoda['name']}");
             }
         }
 
