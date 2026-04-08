@@ -1,0 +1,112 @@
+[
+  {
+    "booking_id": "BKG_de-la-mont-hote_4726",
+    "name": "De La Mont Hotel Ha Giang",
+    "slug": "de-la-mont-hotel-ha-giang",
+    "city_location": "Ha Giang",
+    "photoUrl": "https://cf.bstatic.com/xdata/images/hotel/square240/778164136.webp?k=f0a3e2b0f17e95d615c5299d0249d3766d8a421995ace3a22acfa3175f9c55b0&o=",
+    "rating": 9.3,
+    "totalReviews": 70,
+    "price_per_night": 902531,
+    "source_url": "https://www.booking.com/hotel/vn/de-la-mont-ha-giang.vi.html"
+  },
+  {
+    "booking_id": "BKG_four-points-by-_4741",
+    "name": "Four Points by Sheraton Ha Giang",
+    "slug": "four-points-by-sheraton-ha-giang",
+    "city_location": "Ha Giang",
+    "photoUrl": "https://cf.bstatic.com/xdata/images/hotel/square240/654833836.webp?k=83d000001dd8a549c338915a5a12a55d1d5a8bf9b880c95f561b0890b0112506&o=",
+    "rating": 9.4,
+    "totalReviews": 439,
+    "price_per_night": 1278660,
+    "source_url": "https://www.booking.com/hotel/vn/four-points-by-sheraton-ha-giang.vi.html"
+  },
+  {
+    "booking_id": "BKG_hmong-village-r_830",
+    "name": "Hmong Village Resort",
+    "slug": "hmong-village-resort",
+    "city_location": "Ha Giang",
+    "photoUrl": "https://cf.bstatic.com/xdata/images/hotel/square240/666578604.webp?k=b01aed80af0c0ca7f02b9c322da51069a9c33abff3cf309014fd266a1735861c&o=",
+    "rating": 9.2,
+    "totalReviews": 159,
+    "price_per_night": 1796107,
+    "source_url": "https://www.booking.com/hotel/vn/khu-nghi-duong-h-39-mong-village.vi.html"
+  },
+  {
+    "booking_id": "BKG_ban-bang-ecolod_1991",
+    "name": "Ban Bang Ecolodge Tours & Motorbike Rental",
+    "slug": "ban-bang-ecolodge-tours-motorbike-rental",
+    "city_location": "Ha Giang",
+    "photoUrl": "https://cf.bstatic.com/xdata/images/hotel/square240/753684881.webp?k=75b56705d4c0704b206917515f9138a2ce007c0e702173635a374d046429a674&o=",
+    "rating": 9.8,
+    "totalReviews": 91,
+    "price_per_night": 480000,
+    "source_url": "https://www.booking.com/hotel/vn/local-homestay-ban-bang-motorbike-rental-and-tour.vi.html"
+  },
+  {
+    "booking_id": "BKG_panhou-retreat_5323",
+    "name": "Panhou Retreat",
+    "slug": "panhou-retreat",
+    "city_location": "Ha Giang",
+    "photoUrl": "https://cf.bstatic.com/xdata/images/hotel/square240/775913705.webp?k=92bcad0a9f5f3970855826b1cc8ade912b7d1d14cb509517b06f4659372a9bed&o=",
+    "rating": 9.8,
+    "totalReviews": 135,
+    "price_per_night": 3000000,
+    "source_url": "https://www.booking.com/hotel/vn/ecolodge-pan-hou-village.vi.html"
+  },
+  {
+    "booking_id": "BKG_de-la-mont-hote_2884",
+    "name": "De La Mont Hotel Ha Giang",
+    "slug": "de-la-mont-hotel-ha-giang",
+    "city_location": "Ha Giang",
+    "photoUrl": "https://cf.bstatic.com/xdata/images/hotel/square240/778164136.webp?k=f0a3e2b0f17e95d615c5299d0249d3766d8a421995ace3a22acfa3175f9c55b0&o=",
+    "rating": 9.3,
+    "totalReviews": 70,
+    "price_per_night": 927550,
+    "source_url": "https://www.booking.com/hotel/vn/de-la-mont-ha-giang.vi.html"
+  },
+  {
+    "booking_id": "BKG_four-points-by-_7316",
+    "name": "Four Points by Sheraton Ha Giang",
+    "slug": "four-points-by-sheraton-ha-giang",
+    "city_location": "Ha Giang",
+    "photoUrl": "https://cf.bstatic.com/xdata/images/hotel/square240/654833836.webp?k=83d000001dd8a549c338915a5a12a55d1d5a8bf9b880c95f561b0890b0112506&o=",
+    "rating": 9.4,
+    "totalReviews": 439,
+    "price_per_night": 1278660,
+    "source_url": "https://www.booking.com/hotel/vn/four-points-by-sheraton-ha-giang.vi.html"
+  },
+  {
+    "booking_id": "BKG_hmong-village-r_5225",
+    "name": "Hmong Village Resort",
+    "slug": "hmong-village-resort",
+    "city_location": "Ha Giang",
+    "photoUrl": "https://cf.bstatic.com/xdata/images/hotel/square240/666578604.webp?k=b01aed80af0c0ca7f02b9c322da51069a9c33abff3cf309014fd266a1735861c&o=",
+    "rating": 9.2,
+    "totalReviews": 159,
+    "price_per_night": 1804534,
+    "source_url": "https://www.booking.com/hotel/vn/khu-nghi-duong-h-39-mong-village.vi.html"
+  },
+  {
+    "booking_id": "BKG_ban-bang-ecolod_3115",
+    "name": "Ban Bang Ecolodge Tours & Motorbike Rental",
+    "slug": "ban-bang-ecolodge-tours-motorbike-rental",
+    "city_location": "Ha Giang",
+    "photoUrl": "https://cf.bstatic.com/xdata/images/hotel/square240/753684881.webp?k=75b56705d4c0704b206917515f9138a2ce007c0e702173635a374d046429a674&o=",
+    "rating": 9.8,
+    "totalReviews": 91,
+    "price_per_night": 480000,
+    "source_url": "https://www.booking.com/hotel/vn/local-homestay-ban-bang-motorbike-rental-and-tour.vi.html"
+  },
+  {
+    "booking_id": "BKG_panhou-retreat_6447",
+    "name": "Panhou Retreat",
+    "slug": "panhou-retreat",
+    "city_location": "Ha Giang",
+    "photoUrl": "https://cf.bstatic.com/xdata/images/hotel/square240/775913705.webp?k=92bcad0a9f5f3970855826b1cc8ade912b7d1d14cb509517b06f4659372a9bed&o=",
+    "rating": 9.8,
+    "totalReviews": 135,
+    "price_per_night": 3000000,
+    "source_url": "https://www.booking.com/hotel/vn/ecolodge-pan-hou-village.vi.html"
+  }
+]

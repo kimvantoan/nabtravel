@@ -14,36 +14,35 @@ class HotelController extends Controller
      */
     public function index()
     {
-        // Trả về tất cả hotel, có thể phân trang sau
-        $hotels = Hotel::all();
+        // Fetch from new scraped table
+        $hotels = \Illuminate\Support\Facades\DB::table('ta_hotels')->get();
 
         // Format lại giống lúc frontend trả về
         $formatted = $hotels->map(function ($h) {
-            $ratingNum = $h->rating ? (float)$h->rating : 4.0;
-            $reviewWord = 'good';
-            if ($ratingNum >= 4.5) $reviewWord = 'excellent';
-            else if ($ratingNum >= 4.0) $reviewWord = 'veryGood';
+            $ratingNum = $h->rating ? (float)$h->rating : 8.0;
+            $reviewWord = 'Tuyệt vời';
+            if ($ratingNum >= 9.0) $reviewWord = 'Xuất sắc';
+            else if ($ratingNum >= 8.5) $reviewWord = 'rất tốt';
+
+            // Dùng ảnh local nếu có, không thì lấy ảnh mạng
+            $img = $h->local_photo_path ? url('/') . '/storage/' . $h->local_photo_path : $h->photo_url;
 
             return [
-                'id' => $h->rapid_id,
+                'id' => $h->ta_id,
                 'slug' => $h->slug,
                 'name' => $h->name,
-                'image' => $h->image,
+                'image' => $img,
                 'location' => $h->location,
                 'rating' => $ratingNum,
                 'reviews' => $h->reviews ?? 100,
                 'reviewWord' => $reviewWord,
-                'price' => $h->price ?? 1500000,
-                'stars' => $h->stars ?? 4,
-                'propertyType' => $h->property_type,
-                'priceLevel' => $h->price_level,
-                'neighborhood' => $h->neighborhood,
-                'amenities' => $h->amenities,
-                'booking_id'     => $h->booking_id,
-                'price_updated_at' => $h->price_updated_at ? $h->price_updated_at->toISOString() : null,
-                'address'        => $h->address,
-                'latitude'       => $h->latitude,
-                'longitude'      => $h->longitude
+                'price' => $h->price_per_night ?? 1500000,
+                'stars' => 4, // Booking filter already ensured 4-5
+                'propertyType' => 'Khách sạn',
+                'priceLevel' => 'Đa dạng',
+                'neighborhood' => $h->location ?? "Khu vực trung tâm",
+                'amenities' => ["WiFi miễn phí", "Điều hòa nhiệt độ"],
+                'source_url' => $h->source_url
             ];
         });
 
@@ -222,11 +221,45 @@ class HotelController extends Controller
      */
     public function show($slug)
     {
-        $hotel = Hotel::where('slug', $slug)->first();
+        $hotel = \Illuminate\Support\Facades\DB::table('ta_hotels')
+            ->leftJoin('ta_hotel_details', 'ta_hotels.ta_id', '=', 'ta_hotel_details.ta_id')
+            ->where('ta_hotels.slug', $slug)
+            ->first();
+
         if (!$hotel) {
             return response()->json(['error' => 'Not found'], 404);
         }
-        return response()->json($hotel);
+
+        // Format
+        $img = $hotel->local_photo_path ? url('/') . '/storage/' . $hotel->local_photo_path : $hotel->photo_url;
+        // Parse JSON fields
+        $gallery = $hotel->gallery_json ? json_decode($hotel->gallery_json) : [];
+        if (!empty($gallery)) {
+            $gallery = array_map(function($g) {
+                return (str_starts_with($g, 'http')) ? $g : url('/') . '/storage/' . $g;
+            }, $gallery);
+        }
+
+        $amenities = $hotel->amenities_json ? json_decode($hotel->amenities_json) : [];
+        $latest_reviews = $hotel->latest_reviews_json ? json_decode($hotel->latest_reviews_json) : [];
+
+        return response()->json([
+            'id' => $hotel->ta_id,
+            'slug' => $hotel->slug,
+            'name' => $hotel->name,
+            'image' => $img,
+            'location' => $hotel->location,
+            'rating' => $hotel->rating,
+            'reviews' => $hotel->reviews,
+            'price' => $hotel->price_per_night,
+            'photos' => $gallery,
+            'description' => $hotel->overview_text,
+            'amenities' => $amenities,
+            'latest_reviews' => $latest_reviews,
+            'source_url' => $hotel->source_url,
+            'agoda_price' => $hotel->agoda_price,
+            'agoda_url' => $hotel->agoda_url
+        ]);
     }
 
     /**
@@ -241,13 +274,13 @@ class HotelController extends Controller
             'latest_reviews' => 'nullable|array'
         ]);
 
-        $hotel = Hotel::where('slug', $data['slug'])->first();
+        $hotel = \Illuminate\Support\Facades\DB::table('ta_hotels')->where('slug', $data['slug'])->first();
         if ($hotel) {
-            $hotel->update([
-                'description' => $data['description'] ?? $hotel->description,
-                'photos' => $data['photos'] ?? $hotel->photos,
-                'latest_reviews' => $data['latest_reviews'] ?? $hotel->latest_reviews,
-            ]);
+            \Illuminate\Support\Facades\DB::table('ta_hotel_details')
+                ->where('ta_id', $hotel->ta_id)
+                ->update([
+                    'latest_reviews_json' => isset($data['latest_reviews']) ? json_encode($data['latest_reviews']) : null,
+                ]);
             return response()->json(['message' => 'Details synced globally']);
         }
 

@@ -219,6 +219,7 @@ export function HotelGallery({
               src={photoUrl}
               alt={`Mobile Photo ${idx + 1}`}
               fill
+              unoptimized={photoUrl ? (photoUrl.includes('127.0.0.1') || photoUrl.includes('localhost')) : false}
               className="object-cover"
               sizes="(max-width: 768px) 90vw"
               priority={idx === 0}
@@ -249,6 +250,7 @@ export function HotelGallery({
             src={displayPhotos[0]}
             alt={`${name} Main Photo`}
             fill
+            unoptimized={displayPhotos[0] ? (displayPhotos[0].includes('127.0.0.1') || displayPhotos[0].includes('localhost')) : false}
             className="object-cover transition-transform duration-500 hover:scale-[1.02]"
             sizes="(max-width: 1200px) 66vw, 800px"
             priority
@@ -259,17 +261,17 @@ export function HotelGallery({
         {/* Right side 3 small images */}
         <div className="w-1/3 flex flex-col gap-1 h-full relative">
           <div className="relative w-full h-1/3 cursor-pointer group overflow-hidden" onClick={() => openModal(1)}>
-            <Image src={displayPhotos[1]} alt="Gallery 1" fill className="object-cover transition-transform duration-500 hover:scale-105" sizes="33vw" />
+            <Image src={displayPhotos[1]} alt="Gallery 1" fill unoptimized={displayPhotos[1] ? (displayPhotos[1].includes('127.0.0.1') || displayPhotos[1].includes('localhost')) : false} className="object-cover transition-transform duration-500 hover:scale-105" sizes="33vw" />
             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
           <div className="relative w-full h-1/3 cursor-pointer group overflow-hidden" onClick={() => openModal(2)}>
-            <Image src={displayPhotos[2]} alt="Gallery 2" fill className="object-cover transition-transform duration-500 hover:scale-105" sizes="33vw" />
+            <Image src={displayPhotos[2]} alt="Gallery 2" fill unoptimized={displayPhotos[2] ? (displayPhotos[2].includes('127.0.0.1') || displayPhotos[2].includes('localhost')) : false} className="object-cover transition-transform duration-500 hover:scale-105" sizes="33vw" />
             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
           <div className="relative w-full h-1/3 cursor-pointer group overflow-hidden" onClick={() => openModal(3)}>
-            <Image src={displayPhotos[3]} alt="Gallery 3" fill className="object-cover transition-transform duration-500 hover:scale-105" sizes="33vw" />
+            <Image src={displayPhotos[3]} alt="Gallery 3" fill unoptimized={displayPhotos[3] ? (displayPhotos[3].includes('127.0.0.1') || displayPhotos[3].includes('localhost')) : false} className="object-cover transition-transform duration-500 hover:scale-105" sizes="33vw" />
 
             {/* Dark gradient overlay for "View All" button */}
             <div className="absolute inset-0 bg-gray-900/40 group-hover:bg-gray-900/60 transition-colors flex items-center justify-center backdrop-blur-[2px]">
@@ -314,6 +316,7 @@ export function HotelGallery({
                 src={activePhotos[currentPhotoIndex] || DEFAULT_PHOTOS[0]}
                 alt={`Full Gallery Photo ${currentPhotoIndex + 1}`}
                 fill
+                unoptimized={(activePhotos[currentPhotoIndex] || DEFAULT_PHOTOS[0]).includes('127.0.0.1') || (activePhotos[currentPhotoIndex] || DEFAULT_PHOTOS[0]).includes('localhost')}
                 className={`object-contain transition-opacity duration-300 ${isLoadingMore && currentPhotoIndex === activePhotos.length - 1 ? 'opacity-50' : 'opacity-100'}`}
                 quality={100}
                 priority

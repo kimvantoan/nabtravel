@@ -52,6 +52,7 @@ export function HotelGridCard({ hotel, checkin, checkout, adults, rooms, bulkPri
           src={hotel?.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80'}
           alt={hotel?.name || 'Hotel'}
           fill
+          unoptimized={hotel?.image ? (hotel.image.includes('127.0.0.1') || hotel.image.includes('localhost')) : false}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover group-hover:scale-105 transition-transform duration-700 will-change-transform"
         />
@@ -122,18 +123,9 @@ export function HotelGridCard({ hotel, checkin, checkout, adults, rooms, bulkPri
                 {Number(hotel.originalPrice).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} ₫
               </span>
             )}
-            <LiveListPrice
-              hotelName={hotel.name}
-              fallbackPrice={hotel.price}
-              priceUpdatedAt={hotel.price_updated_at}
-              checkin={checkin}
-              checkout={checkout}
-              adults={adults}
-              rooms={rooms}
-              bulkPrice={bulkPrice}
-              isFetchingBulk={isFetchingBulk}
-              className="text-[16px] md:text-[22px] font-extrabold text-gray-900 leading-none tracking-tight"
-            />
+            <div className="text-[16px] md:text-[22px] font-extrabold text-gray-900 leading-none tracking-tight">
+              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format((hotel?.price || 0) * nights)}
+            </div>
           </div>
 
           <Link
