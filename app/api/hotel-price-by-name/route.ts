@@ -7,13 +7,13 @@ export async function GET(request: Request) {
   const checkout = searchParams.get('checkout');
   const adults = searchParams.get('adults') || '2';
   const rooms = searchParams.get('rooms') || '1';
-  
+
   if (!name) return NextResponse.json({ error: 'Missing name param' }, { status: 400 });
 
   try {
     const tmr = new Date(); tmr.setDate(tmr.getDate() + 8); // +8 days to ensure availability
     const dayAfter = new Date(); dayAfter.setDate(dayAfter.getDate() + 9);
-    
+
     // Use selected checkin/checkout or default to +8/+9 days
     const arr = checkin || tmr.toISOString().split('T')[0];
     const dep = checkout || dayAfter.toISOString().split('T')[0];
@@ -30,24 +30,24 @@ export async function GET(request: Request) {
         headers: { "X-RapidAPI-Key": rapidKey, "X-RapidAPI-Host": "apidojo-booking-v1.p.rapidapi.com" },
         next: { revalidate: 2592000 }
       });
-      
+
       if (destRes.ok) {
         const destData = await destRes.json();
         const hotel = destData?.find((d: any) => d.dest_type === 'hotel');
         if (hotel && hotel.dest_id) {
           hotelIdForSync = hotel.dest_id.toString();
-          
+
           const priceRes = await fetch(`https://apidojo-booking-v1.p.rapidapi.com/properties/detail?hotel_id=${hotel.dest_id}&arrival_date=${arr}&departure_date=${dep}&adults=${adults}&room_qty=${rooms}&languagecode=en-us&currency_code=VND`, {
             headers: { "X-RapidAPI-Key": rapidKey, "X-RapidAPI-Host": "apidojo-booking-v1.p.rapidapi.com" },
             next: { revalidate: 3600 }
           });
-          
+
           if (priceRes.ok) {
             const priceData = await priceRes.json();
             const hotelP = priceData[0];
-            priceVal = hotelP?.composite_price_breakdown?.gross_amount?.value 
-                || hotelP?.composite_price_breakdown?.gross_amount_per_night?.value
-                || hotelP?.product_price_breakdowns?.[0]?.gross_amount?.value;
+            priceVal = hotelP?.composite_price_breakdown?.gross_amount?.value
+              || hotelP?.composite_price_breakdown?.gross_amount_per_night?.value
+              || hotelP?.product_price_breakdowns?.[0]?.gross_amount?.value;
             currency = hotelP?.composite_price_breakdown?.gross_amount_per_night?.currency || 'VND';
           }
         }
@@ -67,7 +67,7 @@ export async function GET(request: Request) {
         if (agodaSearch.ok) {
           const searchData = await agodaSearch.json();
           const hotelA = searchData.places?.find((p: any) => p.typeId === 4) || searchData.places?.[0];
-          
+
           if (hotelA && hotelA.city?.id) {
             hotelIdForSync = hotelA.id?.toString() || "";
             const searchId = `1_${hotelA.city.id}`;
@@ -75,16 +75,16 @@ export async function GET(request: Request) {
               headers: { "X-RapidAPI-Key": rapidKey, "X-RapidAPI-Host": "agoda-com.p.rapidapi.com" },
               next: { revalidate: 3600 }
             });
-            
+
             if (agodaRes.ok) {
               const agodaData = await agodaRes.json();
               const props = agodaData?.data?.citySearch?.properties || [];
-              
+
               // Find precise match
               const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
               const nameNorm = normalize(name);
-              const matched = props.find((p:any) => normalize(p.content?.informationSummary?.displayName || "").includes(nameNorm));
-              
+              const matched = props.find((p: any) => normalize(p.content?.informationSummary?.displayName || "").includes(nameNorm));
+
               if (matched) {
                 priceVal = matched.pricing?.priceAsPerPricingSummary?.price?.exactPrice;
                 currency = matched.pricing?.priceAsPerPricingSummary?.price?.currency || 'VND';
@@ -99,7 +99,7 @@ export async function GET(request: Request) {
 
     // 3. Sync & Return
     if (priceVal) {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       fetch(`${backendUrl}/api/hotels/sync-price`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -119,7 +119,7 @@ export async function GET(request: Request) {
     // so the User Interface (grids) don't break and show 'N/A' or fail loading.
     const mockPrice = 1180000 + (Math.floor(Math.random() * 50) * 10000);
     return NextResponse.json({ price: mockPrice, currency: 'VND', mock: true });
-    
+
   } catch (error) {
     console.error("List Pricing API Error:", error);
     return NextResponse.json({ price: 1250000, currency: 'VND', mock: true });

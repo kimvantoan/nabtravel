@@ -70,7 +70,7 @@ export function HotelReviews({ reviews, slug }: { reviews?: ReviewData[], slug?:
   const [visibleCount, setVisibleCount] = useState(5);
   const [sortBy, setSortBy] = useState<"newest" | "highest" | "lowest">("newest");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
-  
+
   // States for writing review
   const [isWriting, setIsWriting] = useState(false);
   const [writeRating, setWriteRating] = useState(5);
@@ -86,7 +86,7 @@ export function HotelReviews({ reviews, slug }: { reviews?: ReviewData[], slug?:
 
   useEffect(() => {
     if (slug) {
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000'}/api/hotels/${slug}/reviews`)
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/hotels/${slug}/reviews`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
@@ -141,7 +141,7 @@ export function HotelReviews({ reviews, slug }: { reviews?: ReviewData[], slug?:
         <h2 className="text-[24px] font-extrabold text-black tracking-tight">
           {dict.hotelDetail.allReviews} ({sortedReviews.length})
         </h2>
-        <button 
+        <button
           onClick={() => {
             if (!session) {
               signIn("google");
@@ -165,31 +165,31 @@ export function HotelReviews({ reviews, slug }: { reviews?: ReviewData[], slug?:
               <div className="text-[14px] text-gray-500">{session.user?.email}</div>
             </div>
           </div>
-          
+
           <div className="mb-4">
             <div className="font-bold text-[14px] mb-2">{locale === 'vi' ? 'Bạn chấm điểm thế nào?' : 'How do you rate?'}</div>
             <div className="flex gap-1">
-               {[1, 2, 3, 4, 5].map(star => (
-                 <button key={star} type="button" onClick={() => setWriteRating(star)}>
-                   <Star className={`w-8 h-8 ${writeRating >= star ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'} hover:scale-110 transition-transform`} />
-                 </button>
-               ))}
+              {[1, 2, 3, 4, 5].map(star => (
+                <button key={star} type="button" onClick={() => setWriteRating(star)}>
+                  <Star className={`w-8 h-8 ${writeRating >= star ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'} hover:scale-110 transition-transform`} />
+                </button>
+              ))}
             </div>
           </div>
 
-          <textarea 
+          <textarea
             className="w-full h-32 p-4 border border-gray-300 rounded-xl outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 mb-4 text-[15px]"
             placeholder={locale === 'vi' ? 'Chia sẻ cảm nhận của bạn về kỳ nghỉ...' : 'Share your thoughts about your stay...'}
             value={writeContent}
             onChange={e => setWriteContent(e.target.value)}
           ></textarea>
 
-          <button 
+          <button
             disabled={isSubmitting || writeContent.length < 5}
             onClick={async () => {
               setIsSubmitting(true);
               try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000'}/api/hotels/${slug}/reviews`, {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/hotels/${slug}/reviews`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
@@ -201,29 +201,29 @@ export function HotelReviews({ reviews, slug }: { reviews?: ReviewData[], slug?:
                   })
                 });
                 if (res.ok) {
-                   const data = await res.json();
-                   if (data.review) {
-                     setLocalReviews(prev => [{
-                        id: `local_${Date.now()}`,
-                        user: { name: session.user?.name || "User", avatar: session.user?.image || "", location: "Vietnam", contributions: 0, helpfulVotes: 0 },
-                        dateWritten: "Recent",
-                        rating: writeRating,
-                        title: "",
-                        text: writeContent,
-                        dateOfStay: "Recent",
-                        tripType: "",
-                        helpfulCount: 0,
-                        timestamp: Date.now()
-                     }, ...prev]);
-                     setWriteContent("");
-                     setIsWriting(false);
-                   }
+                  const data = await res.json();
+                  if (data.review) {
+                    setLocalReviews(prev => [{
+                      id: `local_${Date.now()}`,
+                      user: { name: session.user?.name || "User", avatar: session.user?.image || "", location: "Vietnam", contributions: 0, helpfulVotes: 0 },
+                      dateWritten: "Recent",
+                      rating: writeRating,
+                      title: "",
+                      text: writeContent,
+                      dateOfStay: "Recent",
+                      tripType: "",
+                      helpfulCount: 0,
+                      timestamp: Date.now()
+                    }, ...prev]);
+                    setWriteContent("");
+                    setIsWriting(false);
+                  }
                 }
-              } catch (e) {}
+              } catch (e) { }
               setIsSubmitting(false);
             }}
             className="bg-[#00aa6c] text-white font-bold px-8 py-3 rounded-full hover:bg-[#008f5a] transition-colors disabled:opacity-50">
-             {isSubmitting ? '...' : (locale === 'vi' ? 'Đăng Bình Luận' : 'Post Review')}
+            {isSubmitting ? '...' : (locale === 'vi' ? 'Đăng Bình Luận' : 'Post Review')}
           </button>
         </div>
       )}
@@ -255,12 +255,12 @@ export function HotelReviews({ reviews, slug }: { reviews?: ReviewData[], slug?:
             {/* User Header */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <img 
-                  src={review.user?.avatar === '/images/tourist.png' ? `https://ui-avatars.com/api/?name=${encodeURIComponent(review.user.name || 'User')}&background=random` : (review.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.user.name || 'User')}&background=random`)} 
-                  alt={review.user.name || 'User'} 
-                  className="w-11 h-11 rounded-full border border-gray-100 object-cover shrink-0 shadow-sm" 
+                <img
+                  src={review.user?.avatar === '/images/tourist.png' ? `https://ui-avatars.com/api/?name=${encodeURIComponent(review.user.name || 'User')}&background=random` : (review.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.user.name || 'User')}&background=random`)}
+                  alt={review.user.name || 'User'}
+                  className="w-11 h-11 rounded-full border border-gray-100 object-cover shrink-0 shadow-sm"
                   referrerPolicy="no-referrer"
-                  onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(review.user.name || 'User')}&background=random`; }} 
+                  onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(review.user.name || 'User')}&background=random`; }}
                 />
                 <div className="flex flex-col justify-center">
                   <div className="text-[15px] font-bold text-gray-900 leading-tight">

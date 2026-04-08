@@ -45,7 +45,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
    const [isLoading, setIsLoading] = useState(true);
 
    useEffect(() => {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       fetch(`${backendUrl}/api/tours/${tourId}`)
          .then(res => res.json())
          .then(data => {
@@ -246,7 +246,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                               <div className="font-semibold text-[#333] text-[16px]">01 Jan 2026 - 30 Apr 2027</div>
                               <div className="text-[13px] font-semibold text-gray-500 uppercase tracking-wide">{dict.tourDetail.privateTour}</div>
                            </div>
-                           
+
                            {/* Rows */}
                            <div className="flex flex-col">
                               {tour.prices && tour.prices.length > 0 ? tour.prices.map((p: any, idx: number) => (
@@ -322,7 +322,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                      </div>
 
                      <div className="flex gap-4">
-                        <button 
+                        <button
                            onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -334,9 +334,8 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                                  url: `/tour/${tour?.slug || tour?.id || tourId}`
                               });
                            }}
-                           className={`w-12 h-12 border rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                              isLiked ? 'bg-[#10a36e] border-[#10a36e] text-white shadow-sm' : 'bg-white border-gray-300 text-[#10a36e] hover:border-[#10a36e] hover:bg-[#f0faf5]'
-                           }`}
+                           className={`w-12 h-12 border rounded-full flex items-center justify-center shrink-0 transition-colors ${isLiked ? 'bg-[#10a36e] border-[#10a36e] text-white shadow-sm' : 'bg-white border-gray-300 text-[#10a36e] hover:border-[#10a36e] hover:bg-[#f0faf5]'
+                              }`}
                         >
                            <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                         </button>

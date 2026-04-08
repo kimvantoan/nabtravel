@@ -13,7 +13,7 @@ import { ArticleData } from "@/components/article-card";
 // 1. Cached Articles Fetcher
 export const getCachedArticles = cache(async (): Promise<ArticleData[]> => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     const response = await fetch(`${backendUrl}/api/articles`, {
       next: { revalidate: 3600 } // Revalidate every 1 hour (ISR)
     });
@@ -34,7 +34,7 @@ export const getCachedArticles = cache(async (): Promise<ArticleData[]> => {
 // 2. Cached Article Detail Fetcher
 export const getCachedArticleBySlug = cache(async (slug: string): Promise<ArticleData | null> => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     const response = await fetch(`${backendUrl}/api/articles/${slug}`, {
       next: { revalidate: 3600 }
     });

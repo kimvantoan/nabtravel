@@ -27,7 +27,7 @@ export function useFavorites() {
         return;
       }
       try {
-        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/api/favorites?user_email=${encodeURIComponent(session.user.email)}`;
+        const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/favorites?user_email=${encodeURIComponent(session.user.email)}`;
         const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
@@ -40,7 +40,7 @@ export function useFavorites() {
             url: f.url
           })));
         }
-      } catch (e) {}
+      } catch (e) { }
     };
 
     fetchFavorites();
@@ -66,12 +66,12 @@ export function useFavorites() {
     } else {
       newFavs = [...favorites, item];
     }
-    
+
     // Update UI
     setFavorites(newFavs);
 
     try {
-      const url = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/api/favorites/toggle`;
+      const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/favorites/toggle`;
       await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -86,7 +86,7 @@ export function useFavorites() {
       });
       // Optionally dispatch to sync other cards
       window.dispatchEvent(new Event('favorites-updated'));
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const isFavorite = (id: string, type: FavoriteType) => {

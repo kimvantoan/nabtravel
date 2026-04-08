@@ -4,35 +4,35 @@ import { HotelGridData } from "@/components/hotel-grid-card";
 
 async function fetchVietnamHotels(searchQuery?: string): Promise<HotelGridData[]> {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     const response = await fetch(`${backendUrl}/api/hotels`, {
       next: { revalidate: 60 } // Cache 60 seconds
     });
-    
+
     if (!response.ok) {
       console.error('Failed to fetch hotels from backend');
       return [];
     }
 
     const hotels = await response.json();
-    
+
     // Nếu có searchQuery thì filter ở đây sơ bộ
     if (searchQuery) {
-        // Tối ưu hóa so khớp: bỏ dấu tiếng việt, thay ký tự không phải chữ số thành rỗng
-        const normalizeStr = (str: string) => {
-           if (!str) return "";
-           return str.normalize("NFD")
-                     .replace(/[\u0300-\u036f]/g, "") // Xoá dấu
-                     .replace(/[^a-zA-Z0-9]/g, "") // Xoá cách, -, kí tự đặc biệt
-                     .toLowerCase();
-        };
-        const safeQuery = normalizeStr(searchQuery);
-        return hotels.filter((h: any) => 
-            normalizeStr(h.name).includes(safeQuery) ||
-            normalizeStr(h.location).includes(safeQuery)
-        );
+      // Tối ưu hóa so khớp: bỏ dấu tiếng việt, thay ký tự không phải chữ số thành rỗng
+      const normalizeStr = (str: string) => {
+        if (!str) return "";
+        return str.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "") // Xoá dấu
+          .replace(/[^a-zA-Z0-9]/g, "") // Xoá cách, -, kí tự đặc biệt
+          .toLowerCase();
+      };
+      const safeQuery = normalizeStr(searchQuery);
+      return hotels.filter((h: any) =>
+        normalizeStr(h.name).includes(safeQuery) ||
+        normalizeStr(h.location).includes(safeQuery)
+      );
     }
-    
+
     return hotels;
 
   } catch (error) {
