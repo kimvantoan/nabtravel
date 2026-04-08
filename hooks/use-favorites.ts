@@ -51,20 +51,24 @@ export function useFavorites() {
   }, [session, status]);
 
   const toggleFavorite = async (item: FavoriteItem) => {
+    if (status === "loading") return;
+
     if (status !== "authenticated" || !session?.user?.email) {
       signIn("google");
       return;
     }
 
-    // Optimistic UI update
-    setFavorites(prev => {
-      const exists = prev.find(p => p.id === item.id && p.type === item.type);
-      if (exists) {
-        return prev.filter(p => !(p.id === item.id && p.type === item.type));
-      } else {
-        return [...prev, item];
-      }
-    });
+    // Calculate new favorites synchronously
+    const exists = favorites.find(p => p.id === item.id && p.type === item.type);
+    let newFavs: FavoriteItem[];
+    if (exists) {
+      newFavs = favorites.filter(p => !(p.id === item.id && p.type === item.type));
+    } else {
+      newFavs = [...favorites, item];
+    }
+    
+    // Update UI
+    setFavorites(newFavs);
 
     try {
       const url = `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/api/favorites/toggle`;

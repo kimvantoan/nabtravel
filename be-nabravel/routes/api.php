@@ -46,3 +46,6 @@ Route::post('/hotels/sync-price', [HotelController::class, 'syncPrice']);
 use App\Http\Controllers\FavoriteController;
 Route::get('/favorites', [FavoriteController::class, 'getFavorites']);
 Route::post('/favorites/toggle', [FavoriteController::class, 'toggleFavorite']);
+
+use App\Http\Controllers\TourInquiryController;
+Route::post('/tour-inquiries', [TourInquiryController::class, 'store']);

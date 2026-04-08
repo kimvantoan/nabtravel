@@ -9,6 +9,7 @@ import { useFavorites } from "@/hooks/use-favorites";
 
 export interface TourItemData {
   id: string;
+  slug?: string;
   name: { en: string; vi: string };
   priceVND: number;
   photoUrl: string;
@@ -37,14 +38,8 @@ export function TourListCard({ tour }: { tour: TourItemData }) {
   // Handle Multi-language
   const name = typeof tour.name === "object" ? tour.name[locale as keyof typeof tour.name] || tour.name.en : tour.name;
 
-  // Create a clean URL slug
-  const cleanTitle = (typeof tour.name === "object" ? tour.name.en : String(tour.name)) || "";
-  const slug = cleanTitle.toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-
-  const detailUrl = `/tour/${tour.id}?slug=${slug}`;
+  // Use the database slug directly
+  const detailUrl = `/tour/${tour.slug || tour.id}`;
 
   // No discount mapped from real database, remove fake randomized deals
   const hasDeal = false;
@@ -76,7 +71,7 @@ export function TourListCard({ tour }: { tour: TourItemData }) {
     <div className="flex flex-col md:flex-row bg-white rounded-xl md:rounded-[18px] lg:rounded-[20px] shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all group duration-300 h-full flex-1">
       
       {/* Photo Section */}
-      <div className="relative w-full md:w-[260px] lg:w-[280px] shrink-0 aspect-[4/3] md:aspect-[4/3] overflow-hidden md:self-start">
+      <Link href={detailUrl} className="relative block w-full md:w-[260px] lg:w-[280px] shrink-0 aspect-[4/3] md:aspect-[4/3] overflow-hidden md:self-start">
         {tour.photoUrl ? (
           <Image
             src={tour.photoUrl}
@@ -109,7 +104,7 @@ export function TourListCard({ tour }: { tour: TourItemData }) {
         >
           <Heart className={`w-4 h-4 md:w-5 md:h-5 transition-colors duration-300 ${isFavorite ? 'text-rose-500 fill-rose-500' : 'text-gray-400 group-hover/btn:text-rose-500'}`} />
         </button>
-      </div>
+      </Link>
 
       {/* Content Section */}
       <div className="flex flex-col flex-1 p-3 md:p-5 lg:p-6 relative h-full">

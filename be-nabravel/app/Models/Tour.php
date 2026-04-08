@@ -11,6 +11,7 @@ class Tour extends Model
 
     protected $fillable = [
         'tour_id',
+        'slug',
         'locations_applied',
         'destinations_json',
         'name_en',

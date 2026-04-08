@@ -2,7 +2,9 @@
 
 import { useLanguage } from "@/app/providers";
 import { useState, useRef, useEffect } from "react";
+import { useFavorites } from "@/hooks/use-favorites";
 import Image from "next/image";
+import Link from "next/link";
 import {
    MapPin,
    Clock,
@@ -33,11 +35,13 @@ import {
 
 export function TourDetailClient({ tourId }: { tourId: string }) {
    const { dict, locale } = useLanguage();
+   const { isFavorite, toggleFavorite } = useFavorites();
+   const [tour, setTour] = useState<any>(null);
+   const isLiked = isFavorite(tour?.id || tourId, 'tour');
    const [activeTab, setActiveTab] = useState("itinerary");
    const scrollRef = useRef<HTMLDivElement>(null);
    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-   const [tour, setTour] = useState<any>(null);
    const [isLoading, setIsLoading] = useState(true);
 
    useEffect(() => {
@@ -55,7 +59,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
    }, [tourId]);
 
    if (isLoading) {
-      return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-[#00aa6c] border-t-transparent rounded-full animate-spin"></div></div>;
+      return <TourSkeleton />;
    }
 
    if (!tour) {
@@ -129,7 +133,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                      {dict.tourDetail.from} <span className="line-through">{formatCurrency(tour.originalPriceVND)}</span>
                   </div>
                   <div className="flex items-baseline gap-1">
-                     <span className="text-black font-extrabold text-[32px] leading-none tracking-tight">{formatCurrency(tour.priceVND)}</span>
+                     <span className="text-[#d32f2f] font-black text-[38px] leading-none tracking-tight">{formatCurrency(tour.priceVND)}</span>
                      <span className="text-gray-500 text-[14px]">{dict.tourDetail.pax}</span>
                   </div>
                </div>
@@ -318,12 +322,27 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                      </div>
 
                      <div className="flex gap-4">
-                        <button className="w-12 h-12 bg-white border border-[#10a36e] text-[#10a36e] rounded-full flex items-center justify-center shrink-0 hover:bg-[#f0faf5] transition-colors">
-                           <Heart className="w-5 h-5" />
+                        <button 
+                           onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleFavorite({
+                                 id: tour?.id || tourId,
+                                 type: 'tour',
+                                 title: name || 'Tour',
+                                 image: photos?.[0] || '',
+                                 url: `/tour/${tour?.slug || tour?.id || tourId}`
+                              });
+                           }}
+                           className={`w-12 h-12 border rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                              isLiked ? 'bg-[#10a36e] border-[#10a36e] text-white shadow-sm' : 'bg-white border-gray-300 text-[#10a36e] hover:border-[#10a36e] hover:bg-[#f0faf5]'
+                           }`}
+                        >
+                           <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                         </button>
-                        <button className="flex-1 bg-[#10a36e] text-white py-3 rounded-lg font-bold text-[16px] shadow-sm hover:opacity-90 transition-opacity">
+                        <Link href={`/tour/${tour?.slug || tour?.id || tourId}/inquire`} className="flex-1 bg-[#10a36e] text-white py-3 rounded-lg font-bold text-[16px] shadow-sm hover:opacity-90 transition-opacity text-center flex items-center justify-center">
                            {dict.tourDetail.getQuote}
-                        </button>
+                        </Link>
                      </div>
                   </div>
 
@@ -418,6 +437,67 @@ function AccordionFAQ({ faq, defaultOpen = false }: { faq: any, defaultOpen?: bo
             <div className="overflow-hidden">
                <div className="px-5 pb-5 pt-1 text-gray-600 text-[15px] leading-relaxed whitespace-pre-wrap border-t border-gray-100">
                   {faq.answer}
+               </div>
+            </div>
+         </div>
+      </div>
+   );
+}
+
+function TourSkeleton() {
+   return (
+      <div className="flex flex-col flex-1 items-center justify-start bg-white w-full pb-24 animate-pulse">
+         <div className="max-w-6xl mx-auto w-full px-4 lg:px-6 pt-4">
+            {/* Header Skeleton */}
+            <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
+               <div className="flex-1 w-full">
+                  <div className="h-8 md:h-10 bg-gray-100 rounded-md w-3/4 mb-3"></div>
+                  <div className="h-8 bg-gray-100 rounded-md w-1/2 mb-3 md:hidden"></div>
+                  <div className="flex items-center gap-2">
+                     <div className="h-5 w-12 bg-gray-100 rounded-md"></div>
+                     <div className="h-5 w-32 bg-gray-100 rounded-md"></div>
+                  </div>
+               </div>
+               <div className="flex flex-row md:flex-col items-end gap-2 md:gap-1 mt-2 md:mt-0 w-48">
+                  <div className="h-4 w-24 bg-gray-100 rounded-md mb-1"></div>
+                  <div className="h-10 w-36 bg-gray-100 rounded-md"></div>
+               </div>
+            </div>
+
+            {/* Content & Sidebar Skeleton */}
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
+               <div className="flex-1 w-full max-w-full overflow-hidden">
+                  {/* Image Skeleton */}
+                  <div className="w-full h-64 md:h-[400px] lg:h-[500px] bg-gray-100 rounded-xl mb-6"></div>
+
+                  {/* Tabs Skeleton */}
+                  <div className="flex gap-4 mb-6 border-b border-gray-100 pb-2">
+                     <div className="h-8 w-24 bg-gray-100 rounded-md"></div>
+                     <div className="h-8 w-24 bg-gray-100 rounded-md"></div>
+                     <div className="h-8 w-24 bg-gray-100 rounded-md"></div>
+                  </div>
+
+                  {/* Content Lines */}
+                  <div className="space-y-4">
+                     <div className="h-6 bg-gray-100 rounded-md w-1/4 mb-6"></div>
+                     <div className="h-20 bg-gray-100 rounded-xl w-full"></div>
+                     <div className="h-20 bg-gray-100 rounded-xl w-full"></div>
+                     <div className="h-20 bg-gray-100 rounded-xl w-full"></div>
+                  </div>
+               </div>
+
+               {/* Sidebar Skeleton */}
+               <div className="w-full lg:w-[340px] xl:w-[380px] shrink-0 sticky top-24">
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                     <div className="h-6 w-32 bg-gray-100 rounded-md mb-6"></div>
+                     <div className="space-y-4 mb-8">
+                        <div className="h-12 bg-gray-100 rounded-lg w-full"></div>
+                        <div className="h-12 bg-gray-100 rounded-lg w-full"></div>
+                     </div>
+                     <div className="h-4 w-full bg-gray-100 rounded-md mb-2"></div>
+                     <div className="h-4 w-3/4 bg-gray-100 rounded-md mb-8"></div>
+                     <div className="h-14 bg-gray-100 rounded-full w-full"></div>
+                  </div>
                </div>
             </div>
          </div>
