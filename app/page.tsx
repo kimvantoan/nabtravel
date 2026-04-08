@@ -2,10 +2,8 @@ import { SearchHero } from "@/components/search-hero";
 import { IconicDestinations, IconicDestination } from "@/components/iconic-destinations";
 import { HotelRecommendations } from "@/components/hotel-recommendations";
 import { TourRecommendations } from "@/components/tour-recommendations";
-import { InspirationSection } from "@/components/inspiration-section";
-import { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n";
-import { getCachedArticles } from "@/lib/data";
+import { Metadata } from "next";
 import { TourItemData } from "@/components/tour-list-card";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -101,10 +99,9 @@ async function fetchHomeTours(): Promise<TourItemData[]> {
 }
 
 export default async function Home() {
-  const [destinations, hotels, articles, tours] = await Promise.all([
+  const [destinations, hotels, tours] = await Promise.all([
     searchAttractions(),
     fetchTopHotels(),
-    getCachedArticles(),
     fetchHomeTours()
   ]);
 
@@ -114,7 +111,6 @@ export default async function Home() {
       <IconicDestinations destinations={destinations} />
       <HotelRecommendations hotels={hotels} />
       <TourRecommendations tours={tours} />
-      <InspirationSection articles={articles} />
     </div>
   );
 }

@@ -63,6 +63,7 @@ export function HotelGallery({
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [loadedModalImages, setLoadedModalImages] = useState<Record<number, boolean>>({});
 
   const scrollToReviews = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -320,7 +321,15 @@ export function HotelGallery({
                 className={`object-contain transition-opacity duration-300 ${isLoadingMore && currentPhotoIndex === activePhotos.length - 1 ? 'opacity-50' : 'opacity-100'}`}
                 quality={100}
                 priority
+                onLoad={() => setLoadedModalImages(prev => ({...prev, [currentPhotoIndex]: true}))}
               />
+              {!loadedModalImages[currentPhotoIndex] && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="bg-black/50 px-5 py-4 rounded-xl flex items-center justify-center shadow-lg backdrop-blur-sm">
+                    <Loader2 className="w-8 h-8 text-white animate-spin" />
+                  </div>
+                </div>
+              )}
               {isLoadingMore && currentPhotoIndex === activePhotos.length - 1 && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="bg-black/80 px-6 py-4 rounded-2xl flex flex-col items-center gap-3">

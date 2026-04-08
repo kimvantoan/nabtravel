@@ -85,12 +85,12 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
   const [showMoreDest, setShowMoreDest] = useState(false);
   const [durationOpen, setDurationOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(initialTours.length >= 12);
+  const [hasMore, setHasMore] = useState(initialTours.length >= 18);
   const [aggregates, setAggregates] = useState({
     price: { under_5: 0, "5_10": 0, "10_20": 0, "20_40": 0, "40_70": 0, over_70: 0 },
     destinations: [] as string[]
   });
-  const LIMIT = 12;
+  const LIMIT = 18;
 
   const fetchTours = async (skip: number, reset: boolean = false, currentSort: string = sortOption) => {
     try {

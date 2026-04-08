@@ -59,7 +59,7 @@ async function fetchVietnamTours(searchQuery?: string) {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
     const url = new URL(`${backendUrl}/api/tours`);
-    url.searchParams.set('limit', '12');
+    url.searchParams.set('limit', '18');
     url.searchParams.set('skip', '0');
     if (searchQuery) {
       // Map basic slugs to correct Vietnamese keywords if necessary, or just rely on UI search parsing

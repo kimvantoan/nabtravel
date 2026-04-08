@@ -258,8 +258,10 @@ export function TourInquireClient({ tourId }: { tourId: string }) {
                      <Calendar
                        mode="single"
                        selected={arrivalDate}
-                       onSelect={setArrivalDate}
-                       initialFocus
+                       onSelect={(date) => {
+                         setArrivalDate(date);
+                         if (errors.arrivalDate) setErrors({ ...errors, arrivalDate: false });
+                       }}
                        disabled={(date) => {
                          const today = new Date();
                          today.setHours(0, 0, 0, 0);
@@ -278,7 +280,10 @@ export function TourInquireClient({ tourId }: { tourId: string }) {
                           key={acc}
                           type="button"
                           variant="outline"
-                          onClick={() => setAccommodations(acc)}
+                          onClick={() => {
+                             setAccommodations(acc);
+                             if (errors.accommodations) setErrors({ ...errors, accommodations: false });
+                          }}
                           className={`h-10 text-[13px] transition-colors rounded-lg px-5 ${
                              accommodations === acc ? 'bg-[#f0faf5] border-[#10a36e] text-[#10a36e] shadow-sm hover:text-[#10a36e] hover:bg-[#e4fcfa]' : 'border-gray-300 text-gray-600 hover:border-gray-400 hover:bg-gray-50'
                           }`}
@@ -363,8 +368,10 @@ export function TourInquireClient({ tourId }: { tourId: string }) {
                                         key={c}
                                         value={c}
                                         onSelect={(currentValue) => {
-                                          setCountry(currentValue === country ? "" : currentValue)
-                                          setOpenCountry(false)
+                                          const newVal = currentValue === country ? "" : currentValue;
+                                          setCountry(newVal);
+                                          setOpenCountry(false);
+                                          if (newVal && errors.country) setErrors({ ...errors, country: false });
                                         }}
                                       >
                                         <Check

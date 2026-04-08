@@ -9,7 +9,8 @@ async function scrapeBookingDetails() {
         // CẤU HÌNH CHO TEST LOCAL
         browser = await puppeteer.launch({ 
             headless: false,
-            executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+            executablePath: '/usr/bin/google-chrome',
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
         
         const page = await browser.newPage();
@@ -20,10 +21,19 @@ async function scrapeBookingDetails() {
         const hotels = JSON.parse(rawData);
         
         const detailedData = [];
+        let startIndex = 0;
+        
+        if (fs.existsSync('hotel_booking_details_full.json')) {
+            try {
+                const existing = JSON.parse(fs.readFileSync('hotel_booking_details_full.json', 'utf8'));
+                detailedData.push(...existing);
+                startIndex = detailedData.length;
+            } catch(e) {}
+        }
 
-        console.log(`Bắt đầu cào chi tiết cho ${hotels.length} khách sạn...`);
+        console.log(`Bắt đầu cào chi tiết: ${hotels.length} hotels. Đã cào trước: ${startIndex}...`);
 
-        for (let i = 0; i < hotels.length; i++) {
+        for (let i = startIndex; i < hotels.length; i++) {
             const hotel = hotels[i];
             console.log(`[${i+1}/${hotels.length}] Đang chui vào: ${hotel.name}`);
             

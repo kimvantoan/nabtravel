@@ -38,7 +38,6 @@ export function SearchHero() {
             <input
               type="text"
               name="q"
-              autoFocus
               placeholder={dict.header.searchPlaceholder2}
               className="flex-1 min-w-0 bg-transparent border-none outline-none text-[15px] md:text-[17px] text-gray-900 font-medium placeholder:font-normal placeholder:text-gray-500 py-3 md:py-4 cursor-text"
             />

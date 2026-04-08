@@ -17,8 +17,7 @@ async function scrapeBookingMaster() {
     try {
         console.log("Khởi động Puppeteer (Chế độ Stealth Booking đa khu vực)...");
         browser = await puppeteer.launch({ 
-            headless: false, // Hiện Browser để vượt Captcha thủ công nếu bị Cloudflare làm khó
-            executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+            headless: 'new', // Chạy chế độ ngầm để không bị lỗi trên linux server
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1920,1080']
         });
         
@@ -75,8 +74,12 @@ async function scrapeBookingMaster() {
                          source_url = source_url.split('?')[0]; 
                     }
 
-                    const scoreEl = e.querySelector('[data-testid="review-score"] > div:first-child');
-                    const score = scoreEl ? parseFloat(scoreEl.innerText.replace(',', '.')) : null;
+                    const scoreEl = e.querySelector('[data-testid="review-score"]');
+                    let score = null;
+                    if (scoreEl) {
+                        const sMatch = scoreEl.innerText.match(/(\d+[\.,]\d+)/);
+                        if (sMatch) score = parseFloat(sMatch[1].replace(',', '.'));
+                    }
                     
                     const reviewCountEl = e.querySelector('[data-testid="review-score"]');
                     let reviews = null;

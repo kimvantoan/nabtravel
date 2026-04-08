@@ -61,7 +61,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
       setCurrentPage(parseInt(saved, 10));
     }
   }, []);
-  const ITEMS_PER_PAGE = 6;
+  const ITEMS_PER_PAGE = 18;
 
   // Filter States
   const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>([]);
@@ -103,13 +103,6 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
   const [rooms, setRooms] = useState(1);
   
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-
-  // Auto-focus the DatePicker when first entering the page
-  useEffect(() => {
-    // Small delay ensures client-side hydration is perfectly ready so the Popover doesn't glitch during SSR
-    const t = setTimeout(() => setIsDatePickerOpen(true), 150);
-    return () => clearTimeout(t);
-  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -321,7 +314,6 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
-                    initialFocus
                     mode="range"
                     defaultMonth={date?.from || new Date()}
                     selected={date}
