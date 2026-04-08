@@ -29,6 +29,46 @@ const SORT_OPTIONS = [
   { id: "topReviewed", labelKey: "topReviewed" },
 ];
 
+function SkeletonTourCard() {
+  return (
+    <div className="flex flex-col md:flex-row bg-white rounded-xl md:rounded-[18px] lg:rounded-[20px] shadow-sm border border-gray-100 overflow-hidden flex-1 animate-pulse">
+      {/* Photo Section Skeleton */}
+      <div className="relative w-full md:w-[260px] lg:w-[280px] shrink-0 aspect-[4/3] bg-gray-200">
+      </div>
+
+      {/* Content Section Skeleton */}
+      <div className="flex flex-col flex-1 p-3 md:p-5 lg:p-6 w-full">
+        {/* Title area */}
+        <div className="flex-1 pr-0 lg:pr-4">
+          <div className="h-5 md:h-6 bg-gray-200 rounded-md w-3/4 mb-3"></div>
+          <div className="h-5 md:h-6 bg-gray-200 rounded-md w-2/4"></div>
+
+          {/* Rating */}
+          <div className="flex items-center gap-2 mt-4">
+            <div className="w-10 h-5 bg-gray-200 rounded-md"></div>
+            <div className="w-16 h-4 bg-gray-200 rounded-md"></div>
+          </div>
+
+          {/* Location */}
+          <div className="flex items-center gap-2 mt-4">
+            <div className="w-4 h-4 bg-gray-200 rounded-full"></div>
+            <div className="h-4 bg-gray-200 rounded-md w-1/2"></div>
+          </div>
+        </div>
+
+        {/* Footer Skeleton */}
+        <div className="mt-5 md:mt-8 pt-4 border-t border-gray-50 flex flex-col md:flex-row md:justify-between items-start md:items-end gap-4">
+          <div className="w-full md:w-1/2 flex flex-col gap-2">
+             <div className="h-3 bg-gray-200 rounded-md w-3/4"></div>
+             <div className="h-3 bg-gray-200 rounded-md w-2/3"></div>
+          </div>
+          <div className="w-full md:w-28 h-10 bg-gray-200 rounded-md md:self-end mt-2 md:mt-0"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQuery = "" }: { initialTours: TourItemData[], initialTotal?: number, initialSearchQuery?: string }) {
   const { dict, locale } = useLanguage();
   const hp = dict.hotelsPage as any; // Reusing translations from hotels page where applicable
@@ -318,7 +358,13 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
             </div>
 
             {/* List Array - Grid on Mobile (2 items), Flex column on Desktop (1 item per row) */}
-            {tours.length === 0 ? (
+            {loading && tours.length === 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-1 gap-3 md:gap-6 w-full">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <SkeletonTourCard key={i} />
+                ))}
+              </div>
+            ) : tours.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-3xl border border-gray-100 shadow-sm mt-4">
                 <Search className="w-12 h-12 text-gray-300 mb-4" />
                 <h3 className="font-bold text-gray-900 text-[18px]">{locale === 'vi' ? "Không tìm thấy kết quả" : "No tours found"}</h3>
