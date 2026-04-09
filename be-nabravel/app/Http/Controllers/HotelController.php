@@ -14,36 +14,35 @@ class HotelController extends Controller
      */
     public function index()
     {
-        // Trả về tất cả hotel, có thể phân trang sau
         $hotels = Hotel::all();
 
-        // Format lại giống lúc frontend trả về
         $formatted = $hotels->map(function ($h) {
-            $ratingNum = $h->rating ? (float)$h->rating : 4.0;
-            $reviewWord = 'good';
-            if ($ratingNum >= 4.5) $reviewWord = 'excellent';
-            else if ($ratingNum >= 4.0) $reviewWord = 'veryGood';
+            $ratingNum = $h->rating ? (float)$h->rating : 8.0;
+            $reviewWord = 'Tuyệt vời';
+            if ($ratingNum >= 9.0) $reviewWord = 'Xuất sắc';
+            else if ($ratingNum >= 8.5) $reviewWord = 'rất tốt';
+
+            $img = $h->image;
+            if ($h->photos && count($h->photos) > 0) {
+               $img = str_starts_with($h->photos[0], '/') ? url('/') . $h->photos[0] : $h->photos[0];
+            }
 
             return [
-                'id' => $h->rapid_id,
+                'id' => $h->rapid_id ?? $h->id,
                 'slug' => $h->slug,
-                'name' => $h->name,
-                'image' => $h->image,
-                'location' => $h->location,
+                'name' => $h->name_vi,
+                'image' => $img,
+                'location' => $h->location_vi,
                 'rating' => $ratingNum,
                 'reviews' => $h->reviews ?? 100,
                 'reviewWord' => $reviewWord,
-                'price' => $h->price ?? 1500000,
-                'stars' => $h->stars ?? 4,
-                'propertyType' => $h->property_type,
-                'priceLevel' => $h->price_level,
-                'neighborhood' => $h->neighborhood,
-                'amenities' => $h->amenities,
-                'booking_id'     => $h->booking_id,
-                'price_updated_at' => $h->price_updated_at ? $h->price_updated_at->toISOString() : null,
-                'address'        => $h->address,
-                'latitude'       => $h->latitude,
-                'longitude'      => $h->longitude
+                'price' => $h->price ?? $h->agoda_price ?? 1500000,
+                'stars' => 4,
+                'propertyType' => 'Khách sạn',
+                'priceLevel' => 'Đa dạng',
+                'neighborhood' => $h->neighborhood ?? "Khu vực trung tâm",
+                'amenities' => ["WiFi miễn phí", "Điều hòa nhiệt độ"],
+                'source_url' => $h->booking_url ?? $h->agoda_url
             ];
         });
 
@@ -71,9 +70,9 @@ class HotelController extends Controller
             return [
                 'id'             => $h->rapid_id,
                 'slug'           => $h->slug,
-                'name'           => $h->name,
+                'name'           => $h->name_vi,
                 'image'          => $h->image,
-                'location'       => $h->location,
+                'location'       => $h->location_vi,
                 'rating'         => $ratingNum,
                 'reviews'        => $h->reviews ?? 100,
                 'reviewWord'     => $reviewWord,
@@ -81,13 +80,10 @@ class HotelController extends Controller
                 'stars'          => $h->stars ?? 4,
                 'propertyType'   => $h->property_type,
                 'priceLevel'     => $h->price_level,
-                'neighborhood'   => $h->neighborhood,
                 'amenities'      => $h->amenities,
                 'booking_id'     => $h->booking_id,
                 'price_updated_at' => $h->price_updated_at ? $h->price_updated_at->toISOString() : null,
                 'address'        => $h->address,
-                'latitude'       => $h->latitude,
-                'longitude'      => $h->longitude
             ];
         });
 
@@ -222,11 +218,40 @@ class HotelController extends Controller
      */
     public function show($slug)
     {
-        $hotel = Hotel::where('slug', $slug)->first();
+        $hotel = Hotel::with('detail')->where('slug', $slug)->first();
+
         if (!$hotel) {
             return response()->json(['error' => 'Not found'], 404);
         }
-        return response()->json($hotel);
+
+        $img = $hotel->image;
+        if ($hotel->detail?->photos && count($hotel->detail->photos) > 0) {
+            $img = str_starts_with($hotel->detail->photos[0], '/') ? url('/') . $hotel->detail->photos[0] : $hotel->detail->photos[0];
+        }
+
+        return response()->json([
+            'id' => $hotel->rapid_id ?? $hotel->id,
+            'slug' => $hotel->slug,
+            'name' => $hotel->name_vi,
+            'name_en' => $hotel->name_en,
+            'name_vi' => $hotel->name_vi,
+            'image' => $img,
+            'location' => $hotel->location_vi,
+            'rating' => $hotel->rating,
+            'reviews' => $hotel->reviews,
+            'price' => $hotel->price,
+            'photos' => $hotel->detail?->photos ?? [],
+            'description' => $hotel->detail?->overview_vi ?? null,
+            'overview_en' => $hotel->detail?->overview_en ?? null,
+            'overview_vi' => $hotel->detail?->overview_vi ?? null,
+            'amenities' => $hotel->detail?->amenities_vi ?? [],
+            'amenities_en' => $hotel->detail?->amenities_en ?? [],
+            'amenities_vi' => $hotel->detail?->amenities_vi ?? [],
+            'latest_reviews' => $hotel->detail?->latest_reviews ?? [],
+            'booking_url' => $hotel->booking_url,
+            'agoda_price' => $hotel->agoda_price,
+            'agoda_url' => $hotel->agoda_url
+        ]);
     }
 
     /**
@@ -243,11 +268,11 @@ class HotelController extends Controller
 
         $hotel = Hotel::where('slug', $data['slug'])->first();
         if ($hotel) {
-            $hotel->update([
-                'description' => $data['description'] ?? $hotel->description,
-                'photos' => $data['photos'] ?? $hotel->photos,
-                'latest_reviews' => $data['latest_reviews'] ?? $hotel->latest_reviews,
-            ]);
+            $detail = \App\Models\HotelDetail::firstOrCreate(['hotel_id' => $hotel->id]);
+            if (isset($data['latest_reviews'])) {
+                $detail->latest_reviews = $data['latest_reviews'];
+                $detail->save();
+            }
             return response()->json(['message' => 'Details synced globally']);
         }
 

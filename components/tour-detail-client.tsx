@@ -30,7 +30,9 @@ import {
    CreditCard,
    RefreshCcw,
    Plane,
-   ShipWheel
+   ShipWheel,
+   Loader2,
+   X
 } from "lucide-react";
 
 export function TourDetailClient({ tourId }: { tourId: string }) {
@@ -39,13 +41,19 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
    const [tour, setTour] = useState<any>(null);
    const isLiked = isFavorite(tour?.id || tourId, 'tour');
    const [activeTab, setActiveTab] = useState("itinerary");
+   const activeTabRef = useRef<string>("itinerary"); // keep original logic if needed
    const scrollRef = useRef<HTMLDivElement>(null);
    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+   // Modal
+   const [isModalOpen, setIsModalOpen] = useState(false);
+   const [modalPhotoIndex, setModalPhotoIndex] = useState(0);
+   const [loadedModalImages, setLoadedModalImages] = useState<Record<number, boolean>>({});
 
    const [isLoading, setIsLoading] = useState(true);
 
    useEffect(() => {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       fetch(`${backendUrl}/api/tours/${tourId}`)
          .then(res => res.json())
          .then(data => {
@@ -58,6 +66,38 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
          });
    }, [tourId]);
 
+   const photos = tour?.gallery?.length > 0 ? tour.gallery : (tour?.photoUrl ? [tour.photoUrl] : []);
+
+   const openModal = (index: number) => {
+      setModalPhotoIndex(index);
+      setIsModalOpen(true);
+      document.body.style.overflow = "hidden";
+   };
+
+   const closeModal = () => {
+      setIsModalOpen(false);
+      document.body.style.overflow = "auto";
+   };
+
+   const handlePrev = () => {
+      if (modalPhotoIndex > 0) setModalPhotoIndex(prev => prev - 1);
+   };
+
+   const handleNext = () => {
+      if (photos && modalPhotoIndex < photos.length - 1) setModalPhotoIndex(prev => prev + 1);
+   };
+
+   useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+         if (!isModalOpen) return;
+         if (e.key === "Escape") closeModal();
+         if (e.key === "ArrowLeft") handlePrev();
+         if (e.key === "ArrowRight") handleNext();
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+   }, [isModalOpen, modalPhotoIndex, photos?.length]);
+
    if (isLoading) {
       return <TourSkeleton />;
    }
@@ -68,9 +108,16 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
 
    const name = typeof tour.name === 'object' ? (tour.name[locale] || tour.name.en) : tour.name;
    const places = Array.isArray(tour.destinations) ? tour.destinations.join(' - ') : tour.locations_applied;
-   const photos = tour.gallery && tour.gallery.length > 0 ? tour.gallery : [tour.photoUrl];
 
-   const itineraryDays = tour.itinerary ? tour.itinerary.map((item: any, idx: number, arr: any[]) => ({
+   // Handle dynamic locale fields with fallbacks
+   const activeItinerary = tour.itinerary ? (tour.itinerary[locale] || tour.itinerary.en) : null;
+   const activeInclusions = tour.inclusions ? (tour.inclusions[locale] || tour.inclusions.en) : null;
+   const activePrices = tour.prices ? (tour.prices[locale] || tour.prices.en) : null;
+   const activeFaqs = tour.faqs ? (tour.faqs[locale] || tour.faqs.en) : null;
+   const activeGroupSize = tour.group_size ? (typeof tour.group_size === 'object' ? (tour.group_size[locale] || tour.group_size.en) : tour.group_size) : '';
+   const activeMealsSummary = tour.meals_summary ? (typeof tour.meals_summary === 'object' ? (tour.meals_summary[locale] || tour.meals_summary.en) : tour.meals_summary) : '';
+
+   const itineraryDays = activeItinerary ? activeItinerary.map((item: any, idx: number, arr: any[]) => ({
       id: idx + 1,
       title: `${item.title}`,
       content: item.description || item.content,
@@ -152,7 +199,15 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                         className="flex w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth"
                      >
                         {photos.map((photo: string, index: number) => (
-                           <div key={index} className="relative w-full h-full shrink-0 snap-center">
+                           <div
+                              key={index}
+                              className="relative w-full h-full shrink-0 snap-center md:cursor-pointer"
+                              onClick={() => {
+                                 if (window.innerWidth >= 768) {
+                                    openModal(index);
+                                 }
+                              }}
+                           >
                               <Image src={photo} alt={`${name}`} fill sizes="70vw" className="object-cover" unoptimized />
                            </div>
                         ))}
@@ -227,7 +282,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                               <CheckCircle2 className="w-6 h-6 text-[#10a36e]" /> {dict.tourDetail.inclusionsTitle}
                            </h4>
                            <ul className="flex flex-col gap-3">
-                              {tour.inclusions ? tour.inclusions.map((inc: string, i: number) => (
+                              {activeInclusions ? activeInclusions.map((inc: string, i: number) => (
                                  <li key={i} className="flex items-start gap-2 text-[14px] text-gray-700">
                                     <div className="w-1.5 h-1.5 rounded-full bg-[#10a36e] shrink-0 mt-2"></div>
                                     <span className="leading-relaxed">{inc}</span>
@@ -246,10 +301,10 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                               <div className="font-semibold text-[#333] text-[16px]">01 Jan 2026 - 30 Apr 2027</div>
                               <div className="text-[13px] font-semibold text-gray-500 uppercase tracking-wide">{dict.tourDetail.privateTour}</div>
                            </div>
-                           
+
                            {/* Rows */}
                            <div className="flex flex-col">
-                              {tour.prices && tour.prices.length > 0 ? tour.prices.map((p: any, idx: number) => (
+                              {activePrices && activePrices.length > 0 ? activePrices.map((p: any, idx: number) => (
                                  <div key={idx} className="px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-0 border-b border-gray-100 hover:bg-gray-50 transition-colors flex-wrap">
                                     <div className="text-[15px] text-[#444] leading-relaxed flex-1 w-full md:w-auto">{p.tier}</div>
                                     <div className="flex items-center justify-end w-full md:w-auto shrink-0 mt-1 md:mt-0">
@@ -270,11 +325,11 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                         </div>
                      </div>
                   )}
-                  {activeTab === 'qanda' && tour.faqs && (
+                  {activeTab === 'qanda' && activeFaqs && (
                      <div className="py-6">
                         <h4 className="font-bold text-[24px] text-[#333] mb-6">{dict.tourDetail.faqsTitle}</h4>
                         <div className="flex flex-col gap-4">
-                           {tour.faqs.map((faq: any, idx: number) => (
+                           {activeFaqs.map((faq: any, idx: number) => (
                               <AccordionFAQ key={idx} faq={faq} defaultOpen={idx === 0} />
                            ))}
                         </div>
@@ -290,7 +345,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                      <ul className="flex flex-col gap-4 text-[#333]">
                         <li className="flex items-start gap-3">
                            <Clock className="w-5 h-5 shrink-0 mt-0.5 text-gray-700" strokeWidth={1.5} />
-                           <div className="leading-relaxed"><span className="font-bold">{dict.tourDetail.duration}</span> <span className="text-gray-700 ml-1">{tour.duration_text || ((tour.itinerary ? tour.itinerary.length : 1) + (locale === 'vi' ? ' ngày' : ' days'))}</span></div>
+                           <div className="leading-relaxed"><span className="font-bold">{dict.tourDetail.duration}</span> <span className="text-gray-700 ml-1">{((activeItinerary ? activeItinerary.length : 1) + (locale === 'vi' ? ' ngày' : ' days'))}</span></div>
                         </li>
                         <li className="flex items-start gap-3">
                            <MapPin className="w-5 h-5 shrink-0 mt-0.5 text-gray-700" strokeWidth={1.5} />
@@ -298,11 +353,11 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                         </li>
                         <li className="flex items-start gap-3">
                            <Utensils className="w-5 h-5 shrink-0 mt-0.5 text-gray-700" strokeWidth={1.5} />
-                           <div className="leading-relaxed"><span className="font-bold">{dict.tourDetail.meals}</span> <span className="text-gray-700 ml-1">{tour.meals_summary}</span></div>
+                           <div className="leading-relaxed"><span className="font-bold">{dict.tourDetail.meals}</span> <span className="text-gray-700 ml-1">{activeMealsSummary}</span></div>
                         </li>
                         <li className="flex items-start gap-3">
                            <Users className="w-5 h-5 shrink-0 mt-0.5 text-gray-700" strokeWidth={1.5} />
-                           <div className="leading-relaxed"><span className="font-bold">{dict.tourDetail.groupSize}</span> <span className="text-gray-700 ml-1">{tour.group_size}</span></div>
+                           <div className="leading-relaxed"><span className="font-bold">{dict.tourDetail.groupSize}</span> <span className="text-gray-700 ml-1">{activeGroupSize}</span></div>
                         </li>
                         <li className="flex items-start gap-3">
                            <ShipWheel className="w-5 h-5 shrink-0 mt-0.5 text-gray-700" strokeWidth={1.5} />
@@ -322,7 +377,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                      </div>
 
                      <div className="flex gap-4">
-                        <button 
+                        <button
                            onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -334,9 +389,8 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                                  url: `/tour/${tour?.slug || tour?.id || tourId}`
                               });
                            }}
-                           className={`w-12 h-12 border rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                              isLiked ? 'bg-[#10a36e] border-[#10a36e] text-white shadow-sm' : 'bg-white border-gray-300 text-[#10a36e] hover:border-[#10a36e] hover:bg-[#f0faf5]'
-                           }`}
+                           className={`w-12 h-12 border rounded-full flex items-center justify-center shrink-0 transition-colors ${isLiked ? 'bg-[#10a36e] border-[#10a36e] text-white shadow-sm' : 'bg-white border-gray-300 text-[#10a36e] hover:border-[#10a36e] hover:bg-[#f0faf5]'
+                              }`}
                         >
                            <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                         </button>
@@ -366,6 +420,63 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
             </div>
 
          </div>
+
+         {/* DESKTOP MODAL LIGHTBOX */}
+         {isModalOpen && (
+            <div className="fixed inset-0 z-[9999] bg-black/95 hidden md:flex items-center justify-center backdrop-blur-md">
+               <div className="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-50 pointer-events-none">
+                  <span className="text-white/80 font-medium tracking-widest text-sm bg-black/50 px-4 py-1.5 rounded-full pointer-events-auto select-none">
+                     {modalPhotoIndex + 1} / {photos.length}
+                  </span>
+                  <button
+                     onClick={closeModal}
+                     className="pointer-events-auto p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors group"
+                  >
+                     <X className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                  </button>
+               </div>
+
+               <button
+                  onClick={handlePrev}
+                  disabled={modalPhotoIndex === 0}
+                  className={`absolute left-4 lg:left-8 p-3 lg:p-4 rounded-full bg-white/10 text-white transition-all z-50
+                 ${modalPhotoIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/20 hover:scale-110'}`}
+               >
+                  <ChevronLeft className="w-8 h-8 lg:w-10 lg:h-10" strokeWidth={1.5} />
+               </button>
+
+               <div className="relative w-full max-w-7xl h-full max-h-[85vh] flex items-center justify-center px-16 md:px-24">
+                  <div className="relative w-full h-full">
+                     <Image
+                        src={photos[modalPhotoIndex]}
+                        alt={`Full Gallery Photo ${modalPhotoIndex + 1}`}
+                        fill
+                        unoptimized={photos[modalPhotoIndex] ? (photos[modalPhotoIndex].includes('127.0.0.1') || photos[modalPhotoIndex].includes('localhost')) : false}
+                        className="object-contain"
+                        quality={100}
+                        priority
+                        onLoad={() => setLoadedModalImages(prev => ({ ...prev, [modalPhotoIndex]: true }))}
+                     />
+                     {!loadedModalImages[modalPhotoIndex] && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                           <div className="bg-black/50 px-5 py-4 rounded-xl flex items-center justify-center shadow-lg backdrop-blur-sm">
+                              <Loader2 className="w-8 h-8 text-white animate-spin" />
+                           </div>
+                        </div>
+                     )}
+                  </div>
+               </div>
+
+               <button
+                  onClick={handleNext}
+                  disabled={modalPhotoIndex === photos.length - 1}
+                  className={`absolute right-4 lg:right-8 p-3 lg:p-4 rounded-full bg-white/10 text-white transition-all z-50
+                 ${modalPhotoIndex === photos.length - 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/20 hover:scale-110'}`}
+               >
+                  <ChevronRight className="w-8 h-8 lg:w-10 lg:h-10" strokeWidth={1.5} />
+               </button>
+            </div>
+         )}
       </div>
    );
 }

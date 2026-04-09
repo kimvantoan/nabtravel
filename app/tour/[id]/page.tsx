@@ -7,25 +7,25 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const resolvedParams = await params;
   const slug = resolvedParams.id;
-  
+
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     const res = await fetch(`${backendUrl}/api/tours/${slug}`, { next: { revalidate: 3600 } }); // Cache 1 hour
-    
+
     if (res.ok) {
       const tour = await res.json();
-      
+
       const title = tour.name?.vi || tour.name?.en || 'Tour Du Lịch';
       const rawDesc = tour.shortDescription?.vi || tour.shortDescription?.en || '';
       const priceStr = new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(tour.priceVND || 0);
-      
+
       let description = typeof rawDesc === 'string' ? rawDesc : '';
       // Strip HTML if any
       description = description.replace(/<[^>]+>/g, '').substring(0, 150).trim();
       if (!description) {
-         description = `Trải nghiệm chuyến đi tuyệt vời ${title} cùng NabTravel. Giá cực sốc chỉ từ ${priceStr}. Lịch trình chuẩn 5 sao, đội ngũ HDV chuyên nghiệp.`;
+        description = `Trải nghiệm chuyến đi tuyệt vời ${title} cùng NabTravel. Giá cực sốc chỉ từ ${priceStr}. Lịch trình chuẩn 5 sao, đội ngũ HDV chuyên nghiệp.`;
       } else {
-         description = `[Chỉ ${priceStr}] ${description}...`;
+        description = `[Chỉ ${priceStr}] ${description}...`;
       }
 
       const ogImage = tour.photoUrl || "https://nabtravel.com/booking-placeholder.jpg";

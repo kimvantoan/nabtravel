@@ -3,7 +3,7 @@
 import { useLanguage } from "@/app/providers";
 import { TourListCard, TourItemData } from "@/components/tour-list-card";
 import { ChevronDown, SlidersHorizontal, Search, MapPin, Clock, X, ChevronUp } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const destDict: Record<string, string> = {
   "Hanoi": "Hà Nội",
@@ -59,8 +59,8 @@ function SkeletonTourCard() {
         {/* Footer Skeleton */}
         <div className="mt-5 md:mt-8 pt-4 border-t border-gray-50 flex flex-col md:flex-row md:justify-between items-start md:items-end gap-4">
           <div className="w-full md:w-1/2 flex flex-col gap-2">
-             <div className="h-3 bg-gray-200 rounded-md w-3/4"></div>
-             <div className="h-3 bg-gray-200 rounded-md w-2/3"></div>
+            <div className="h-3 bg-gray-200 rounded-md w-3/4"></div>
+            <div className="h-3 bg-gray-200 rounded-md w-2/3"></div>
           </div>
           <div className="w-full md:w-28 h-10 bg-gray-200 rounded-md md:self-end mt-2 md:mt-0"></div>
         </div>
@@ -85,17 +85,37 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
   const [showMoreDest, setShowMoreDest] = useState(false);
   const [durationOpen, setDurationOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(initialTours.length >= 12);
+  const [hasMore, setHasMore] = useState(initialTours.length >= 18);
   const [aggregates, setAggregates] = useState({
     price: { under_5: 0, "5_10": 0, "10_20": 0, "20_40": 0, "40_70": 0, over_70: 0 },
     destinations: [] as string[]
   });
-  const LIMIT = 12;
+  const LIMIT = 18;
+
+  const loaderRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          // If intersecting and not already loading, fetch the next set of tours
+          fetchTours(tours.length, false);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasMore, loading, tours.length]);
 
   const fetchTours = async (skip: number, reset: boolean = false, currentSort: string = sortOption) => {
     try {
       setLoading(true);
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const url = new URL(`${backendUrl}/api/tours`);
       url.searchParams.set('limit', LIMIT.toString());
       url.searchParams.set('skip', skip.toString());
@@ -309,34 +329,33 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
               </form>
             </div>
 
-            <div className="flex justify-between items-center mb-6 relative z-30">
-              <span className="font-bold text-[16px] text-gray-900">
-                {locale === 'vi' ? `Hiển thị ${tours.length} / ${total} Tours` : `Showing ${tours.length} of ${total} Tours`}
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 relative z-30 gap-4">
+              <span className="font-bold text-[16px] text-gray-900 order-2 md:order-1 text-gray-500 md:text-gray-900 text-sm md:text-[16px]">
+                {locale === 'vi' ? `Hiển thị ${tours.length} / ${total} Tour` : `Showing ${tours.length} of ${total} Tours`}
               </span>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 justify-start md:justify-end w-full md:w-auto order-1 md:order-2">
                 <button
                   onClick={() => setIsMobileFilterOpen(true)}
-                  className="flex lg:hidden items-center gap-1.5 bg-white border border-gray-300 rounded-xl px-4 py-2 font-bold text-[14px]"
+                  className="flex lg:hidden items-center justify-center w-10 h-10 bg-white border border-gray-300 rounded-xl text-gray-900 hover:bg-gray-50 transition-colors shrink-0"
                 >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  Filter
+                  <SlidersHorizontal className="w-5 h-5" />
                 </button>
 
                 <div className="relative">
                   <button
                     onClick={() => setIsSortOpen(!isSortOpen)}
-                    className="flex items-center gap-2 bg-white border border-gray-300 rounded-xl px-4 py-2 font-bold text-[14px] shadow-sm hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-1.5 bg-white border border-gray-300 rounded-xl px-4 h-10 font-bold text-[14px] shadow-sm hover:bg-gray-50 transition-colors shrink-0 whitespace-nowrap"
                   >
                     <span className="hidden md:inline">{dict.hotelsPage?.sortBy || "Sắp xếp"}:</span>
                     <span className="text-[#004f32]">{dict.hotelsPage?.[sortOption as keyof typeof dict.hotelsPage] || "Thịnh hành"}</span>
-                    <ChevronDown className={`w-4 h-4 ml-1 text-[#004f32] transition-transform ${isSortOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-4 h-4 ml-0.5 text-[#004f32] transition-transform ${isSortOpen ? "rotate-180" : ""}`} />
                   </button>
 
                   {isSortOpen && (
                     <>
                       <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)} />
-                      <div className="absolute top-full right-0 mt-2 w-56 bg-white border border-gray-200 shadow-xl rounded-[10px] py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-100">
+                      <div className="absolute top-full left-0 md:left-auto md:right-0 mt-2 w-56 bg-white border border-gray-200 shadow-xl rounded-[10px] py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-100">
                         {SORT_OPTIONS.map((opt) => (
                           <button
                             key={opt.id}
@@ -377,18 +396,18 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
               </div>
             )}
 
-            {/* Pagination Load More */}
-            {hasMore && (
-              <div className="mt-12 flex justify-center pb-20">
-                <button
-                  onClick={() => fetchTours(tours.length, false)}
-                  disabled={loading}
-                  className="bg-white border-2 border-[#10a36e] text-[#10a36e] disabled:opacity-50 font-extrabold rounded-full px-10 py-3.5 hover:bg-[#f0faf5] transition-colors text-[15px]"
-                >
-                  {loading ? (locale === 'vi' ? "Đang tải..." : "Loading...") : (hp?.showMore ?? "Xem thêm")}
-                </button>
+            {/* Pagination Infinite Loader */}
+            {hasMore ? (
+              <div ref={loaderRef} className="mt-8 pb-20 w-full relative">
+                {loading && (
+                  <div className="grid grid-cols-2 md:grid-cols-1 gap-3 md:gap-6 w-full">
+                    {[1, 2, 3].map((i) => (
+                      <SkeletonTourCard key={`skeleton-more-${i}`} />
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

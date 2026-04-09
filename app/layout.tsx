@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Outfit, Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { LanguageProvider } from "./providers";
 import { getDictionary, getLocale } from "@/lib/i18n";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta",
+const outfit = Outfit({
+  variable: "--font-sans-custom",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const beVietnamPro = Be_Vietnam_Pro({
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: "--font-sans-custom",
   subsets: ["latin", "vietnamese"],
   display: "swap",
 });
@@ -46,11 +53,12 @@ export default async function RootLayout({
 }>) {
   const dict = await getDictionary();
   const locale = await getLocale();
+  const fontClass = locale === 'vi' ? beVietnamPro.variable : outfit.variable;
 
   return (
     <html
       lang={locale}
-      className={`${plusJakartaSans.variable} h-full antialiased`}
+      className={`${fontClass} h-full antialiased`}
     >
       <head>
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
