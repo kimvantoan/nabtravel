@@ -174,7 +174,12 @@
     "filterBtn": "Lọc",
     "suitableHotels": "Khách sạn phù hợp",
     "showMore": "Hiển thị thêm kết quả",
-    "searchBtn": "Tìm kiếm"
+    "searchBtn": "Tìm kiếm",
+    "reviewScore": "Điểm đánh giá",
+    "scoreExceptional": "Đặc biệt: 9.5+ điểm",
+    "scoreExcellent": "Tuyệt hảo: 9.0+ điểm",
+    "scoreFabulous": "Rất tốt: 8.5+ điểm",
+    "scoreVeryGood": "Tốt: 8.0+ điểm"
   },
   "articlesPage": {
     "title": "Cẩm nang Khách sạn & Nghỉ dưỡng",

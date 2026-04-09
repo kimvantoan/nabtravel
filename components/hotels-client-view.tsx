@@ -82,9 +82,10 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
 
   // Filter States
   const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>([]);
-  const [maxPrice, setMaxPrice] = useState<number>(0);
+  const [selectedPriceBuckets, setSelectedPriceBuckets] = useState<string[]>([]);
   const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<string[]>([]);
   const [selectedStars, setSelectedStars] = useState<number[]>([]);
+  const [selectedReviewScores, setSelectedReviewScores] = useState<number[]>([]);
   
   // Date & Guest Picker State
   const dateLocale = locale === "vi" ? vi : enUS;
@@ -185,9 +186,16 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
       if (!selectedPropertyTypes.includes(type)) return false;
     }
 
-    // 3. Price Filter (Max Range)
-    if (maxPrice > 0) {
-      if (hotel.price > maxPrice) return false;
+    // 3. Price Filter (Buckets)
+    if (selectedPriceBuckets.length > 0) {
+      let matchesPrice = false;
+      const p = hotel.price;
+      if (selectedPriceBuckets.includes('under1M') && p < 1000000) matchesPrice = true;
+      if (selectedPriceBuckets.includes('1Mto2M') && p >= 1000000 && p < 2000000) matchesPrice = true;
+      if (selectedPriceBuckets.includes('2Mto3_5M') && p >= 2000000 && p < 3500000) matchesPrice = true;
+      if (selectedPriceBuckets.includes('over3_5M') && p >= 3500000) matchesPrice = true;
+      
+      if (!matchesPrice) return false;
     }
 
     // 4. Neighborhood
@@ -201,6 +209,13 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
     if (selectedStars.length > 0) {
       const hStars = hotel.stars || 3;
       if (!selectedStars.includes(hStars)) return false;
+    }
+
+    // 6. Review Score Rating (>= minRequired)
+    if (selectedReviewScores.length > 0) {
+      const minRequired = Math.min(...selectedReviewScores);
+      const hRating = hotel.rating || 0;
+      if (hRating < minRequired) return false;
     }
 
     return true;
@@ -250,12 +265,14 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               initialHotels={initialHotels}
               selectedPropertyTypes={selectedPropertyTypes}
               setSelectedPropertyTypes={(v: string[]) => { setSelectedPropertyTypes(v); setCurrentPage(1); }}
-              maxPrice={maxPrice}
-              setMaxPrice={(v: number) => { setMaxPrice(v); setCurrentPage(1); }}
+              selectedPriceBuckets={selectedPriceBuckets}
+              setSelectedPriceBuckets={(v: string[]) => { setSelectedPriceBuckets(v); setCurrentPage(1); }}
               selectedNeighborhoods={selectedNeighborhoods}
               setSelectedNeighborhoods={(v: string[]) => { setSelectedNeighborhoods(v); setCurrentPage(1); }}
               selectedStars={selectedStars}
               setSelectedStars={(v: number[]) => { setSelectedStars(v); setCurrentPage(1); }}
+              selectedReviewScores={selectedReviewScores}
+              setSelectedReviewScores={(v: number[]) => { setSelectedReviewScores(v); setCurrentPage(1); }}
             />
           </div>
 
@@ -470,9 +487,10 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
                 <button
                   onClick={() => {
                     setSelectedPropertyTypes([]);
-                    setMaxPrice(0);
+                    setSelectedPriceBuckets([]);
                     setSelectedNeighborhoods([]);
                     setSelectedStars([]);
+                    setSelectedReviewScores([]);
                     setSearchQuery("");
                   }}
                   className="px-6 py-2.5 bg-[#004f32] text-white rounded-full font-bold hover:bg-[#003d27] transition-colors"
@@ -531,12 +549,14 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               initialHotels={initialHotels}
               selectedPropertyTypes={selectedPropertyTypes}
               setSelectedPropertyTypes={(v: string[]) => { setSelectedPropertyTypes(v); setCurrentPage(1); }}
-              maxPrice={maxPrice}
-              setMaxPrice={(v: number) => { setMaxPrice(v); setCurrentPage(1); }}
+              selectedPriceBuckets={selectedPriceBuckets}
+              setSelectedPriceBuckets={(v: string[]) => { setSelectedPriceBuckets(v); setCurrentPage(1); }}
               selectedNeighborhoods={selectedNeighborhoods}
               setSelectedNeighborhoods={(v: string[]) => { setSelectedNeighborhoods(v); setCurrentPage(1); }}
               selectedStars={selectedStars}
               setSelectedStars={(v: number[]) => { setSelectedStars(v); setCurrentPage(1); }}
+              selectedReviewScores={selectedReviewScores}
+              setSelectedReviewScores={(v: number[]) => { setSelectedReviewScores(v); setCurrentPage(1); }}
             />
           </div>
           <div className="p-4 border-t border-gray-200 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.05)] shrink-0">
