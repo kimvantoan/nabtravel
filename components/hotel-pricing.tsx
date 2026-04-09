@@ -177,7 +177,7 @@ export function HotelPricing({ price, hotelId, hotelName, agodaPrice, agodaUrl }
             <button
               onClick={() => bookingUrl ? window.open(bookingUrl, '_blank') : null}
               disabled={isLoading || !!errorStatus}
-              className="min-w-[120px] bg-white hover:bg-gray-50 text-[#003c20] border-2 border-[#003c20] font-bold px-6 py-2.5 rounded-full text-[15px] transition-colors"
+              className="min-w-[120px] flex items-center justify-center bg-white hover:bg-gray-50 text-[#003c20] border-2 border-[#003c20] font-bold px-4 py-2.5 rounded-full text-[14px] transition-colors whitespace-nowrap"
             >
               {dict.hotelDetail.viewDeal || "View deal"}
             </button>
@@ -209,7 +209,7 @@ export function HotelPricing({ price, hotelId, hotelName, agodaPrice, agodaUrl }
 
               <button
                 onClick={() => window.open(agodaUrl, '_blank')}
-                className="min-w-[120px] bg-white hover:bg-gray-50 text-[#003c20] border-2 border-[#003c20] font-bold px-6 py-2.5 rounded-full text-[15px] transition-colors"
+                className="min-w-[120px] flex items-center justify-center bg-white hover:bg-gray-50 text-[#003c20] border-2 border-[#003c20] font-bold px-4 py-2.5 rounded-full text-[14px] transition-colors whitespace-nowrap"
               >
                 {dict.hotelDetail.viewDeal || "View deal"}
               </button>

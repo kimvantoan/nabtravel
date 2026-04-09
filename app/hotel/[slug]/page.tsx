@@ -85,7 +85,7 @@ export default async function HotelReviewPage({ params }: { params: Promise<{ sl
   let extractedLocationId = "";
   let hotelNameQuery = safeSlug;
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL as string;
 
   // ── Priority 0: Check Laravel cache first (fastest possible) ──
   let isFresh = false;
@@ -191,14 +191,7 @@ export default async function HotelReviewPage({ params }: { params: Promise<{ sl
           />
         </Suspense>
 
-        {/* Priority 5: Similar hotels */}
-        <Suspense fallback={<SimilarHotelsSkeleton />}>
-          <SimilarHotelsSection
-            slug={slug}
-            currentLocation={currentLocation}
-            backendUrl={backendUrl}
-          />
-        </Suspense>
+
 
       </div>
     </div>
