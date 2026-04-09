@@ -99,6 +99,7 @@ export function HotelRecommendations({ hotels }: HotelRecommendationsProps) {
                   fill
                   className="object-cover transition-transform duration-500 group-hover/card:scale-105"
                   sizes="(max-width: 768px) 100vw, 280px"
+                  unoptimized
                 />
 
                 {/* Save Heart Button */}
