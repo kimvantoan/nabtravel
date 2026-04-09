@@ -181,6 +181,17 @@ mkdir -p ~/nabtravel/tmp && touch ~/nabtravel/tmp/restart.txt
 - Kiểm tra Node.js version >= 18
 - Xem logs: cPanel → **Errors** hoặc `/home/username/logs/`
 
+### Lỗi 500 ở API/Backend (Lỗi PailServiceProvider not found)
+- **Nguyên nhân**: File cache cấu hình của Laravel chứa thông tin về package `laravel/pail` (chỉ dùng cho dev) nhưng thư mục `vendor/` trên production không có package này do chạy `--no-dev` hoặc bị thiếu. Việc này khiến ứng dụng văng lỗi 500: `Error Class "Laravel\Pail\PailServiceProvider" not found`.
+- **Fix**: Xóa bộ đệm (cache) tự động load file bị lỗi qua SSH/Terminal:
+  ```bash
+  cd ~/api.nabtravel.vn
+  rm -f bootstrap/cache/*.php
+  php artisan config:cache
+  php artisan route:cache
+  ```
+
+
 ### Ảnh / CSS không load
 - Chưa copy `public/` và `.next/static/` → chạy lại script deploy
 - Kiểm tra file có trong `/home/username/nabtravel/public/` không
