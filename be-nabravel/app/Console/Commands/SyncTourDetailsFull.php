@@ -45,17 +45,12 @@ class SyncTourDetailsFull extends Command
             TourDetail::updateOrCreate(
                 ['tour_id' => $detail['tour_id']],
                 [
-                    'tour_type' => $detail['tour_type'] ?? null,
-                    'duration_text' => $detail['duration_text'] ?? null,
                     'group_size' => $detail['group_size'] ?? null,
-                    'suitable_for' => $detail['suitable_for'] ?? null,
-                    'themes' => $detail['themes'] ?? null,
                     'meals_summary' => $detail['meals_summary'] ?? null,
                     'operated_by' => $detail['operator'] ?? null,
                     'gallery_json' => isset($detail['gallery_json']) ? json_decode($detail['gallery_json'], true) : null,
                     'itinerary_json' => isset($detail['itinerary_json']) ? json_decode($detail['itinerary_json'], true) : null,
                     'inclusions_json' => isset($detail['inclusions']) ? json_decode($detail['inclusions'], true) : null,
-                    'exclusions_json' => isset($detail['exclusions']) ? json_decode($detail['exclusions'], true) : null,
                     'highlights_json' => isset($detail['highlights']) ? json_decode($detail['highlights'], true) : null,
                     'policies_json' => isset($detail['policies_json']) ? json_decode($detail['policies_json'], true) : null,
                     'faqs_json' => isset($detail['faqs_json']) ? json_decode($detail['faqs_json'], true) : null,

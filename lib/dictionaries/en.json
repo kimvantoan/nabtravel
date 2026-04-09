@@ -174,7 +174,12 @@
     "filterBtn": "Filter",
     "suitableHotels": "properties found",
     "showMore": "Load more results",
-    "searchBtn": "Search"
+    "searchBtn": "Search",
+    "reviewScore": "Review Score",
+    "scoreExceptional": "Exceptional: 9.5+",
+    "scoreExcellent": "Superb: 9.0+",
+    "scoreFabulous": "Fabulous: 8.5+",
+    "scoreVeryGood": "Very Good: 8.0+"
   },
   "articlesPage": {
     "title": "Travel Articles & Reviews",

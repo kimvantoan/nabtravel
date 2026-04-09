@@ -91,14 +91,12 @@ export default async function HotelReviewPage({ params }: { params: Promise<{ sl
   let isFresh = false;
   let dbHotel: any = null;
   try {
-    const dbRes = await fetch(`${backendUrl}/api/hotels/${slug}`, { next: { revalidate: 2592000 } }); // Cache 1 tháng
+    const dbRes = await fetch(`${backendUrl}/api/hotels/${slug}`, { next: { revalidate: 0 } });
     if (dbRes.ok) {
       const h = await dbRes.json();
       if (h && h.name) {
         dbHotel = h;
-        const lastUpdated = new Date(h.updated_at).getTime();
-        const oneMonthMs = 30 * 24 * 60 * 60 * 1000;
-        isFresh = (Date.now() - lastUpdated < oneMonthMs);
+        isFresh = true; // Always use DB data directly
       }
     }
   } catch { }
@@ -158,6 +156,8 @@ export default async function HotelReviewPage({ params }: { params: Promise<{ sl
           price={hotelBasic?.price || dbHotel?.price?.toString()}
           hotelId={bookingDestId}
           hotelName={hotelBasic?.name || hotelNameQuery}
+          agodaPrice={dbHotel?.agoda_price}
+          agodaUrl={dbHotel?.agoda_url}
         />
 
         {/* Priority 3: Map — instant, no API needed */}
@@ -191,14 +191,7 @@ export default async function HotelReviewPage({ params }: { params: Promise<{ sl
           />
         </Suspense>
 
-        {/* Priority 5: Similar hotels */}
-        <Suspense fallback={<SimilarHotelsSkeleton />}>
-          <SimilarHotelsSection
-            slug={slug}
-            currentLocation={currentLocation}
-            backendUrl={backendUrl}
-          />
-        </Suspense>
+
 
       </div>
     </div>

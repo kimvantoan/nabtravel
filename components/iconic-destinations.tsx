@@ -33,7 +33,7 @@ export function IconicDestinations({ destinations }: IconicDestinationsProps) {
         {destinations.slice(0, 5).map((dest, index) => {
           // 2 items in first row (span-3), 3 items in second row (span-2)
           const spanClass = index < 2 ? "md:col-span-3" : "md:col-span-2";
-          const searchSlug = dest.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-").toLowerCase();
+          const searchSlug = encodeURIComponent(dest.name);
 
           return (
             <Link

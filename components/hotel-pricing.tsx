@@ -8,8 +8,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
 import { useLanguage } from "@/app/providers";
+import Image from "next/image";
 
-export function HotelPricing({ price, hotelId, hotelName }: { price?: string, hotelId?: string | null, hotelName?: string }) {
+export function HotelPricing({ price, hotelId, hotelName, agodaPrice, agodaUrl }: { price?: string, hotelId?: string | null, hotelName?: string, agodaPrice?: number, agodaUrl?: string }) {
   const { dict, locale } = useLanguage();
   const dateLocale = locale === "vi" ? vi : enUS;
 
@@ -38,82 +39,32 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
     max_occupancy?: number | null;
   } | null>(null);
 
-  // Fetch real-time price when dependencies change
   useEffect(() => {
-    if (!hotelId || !date?.from || !date?.to) return;
-
-    // Setup debounce so it doesn't spam the API while selecting dates
-    const timer = setTimeout(async () => {
+    // Không dùng RapidAPI để tiết kiệm chi phí, giả lập dựa trên giá tĩnh DB truyền vào
+    if (price && !isNaN(Number(price))) {
       setIsLoading(true);
-      setErrorStatus(null);
-
-      const arr = format(date.from!, "yyyy-MM-dd");
-      const dep = format(date.to!, "yyyy-MM-dd");
-
-      try {
-        const queryParams = new URLSearchParams({
-          hotel_id: hotelId || "",
-          arrival_date: arr,
-          departure_date: dep,
-          adults: adults.toString(),
-          room_qty: rooms.toString(),
-          hotel_name: hotelName || "",
-          lang: locale === "vi" ? "vi" : "en-us"
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+        const diffDays = Math.max(1, Math.round((date?.to?.getTime()! - date?.from?.getTime()!) / (1000 * 60 * 60 * 24)));
+        const finalPrice = Number(price) * diffDays * rooms;
+        const formatter = new Intl.NumberFormat(locale === "vi" ? 'vi-VN' : 'en-US', {
+          style: 'currency',
+          currency: 'VND',
+          maximumFractionDigits: 0
         });
+        setRealTimePrice(formatter.format(finalPrice));
+        setHasBreakfast(true);
+        setIsFreeCancellable(true);
+        setBookingUrl(`https://www.booking.com/searchresults.vi.html?ss=${encodeURIComponent(hotelName || "")}`);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [price, hotelName, date, rooms, locale]);
 
-        const bookingReq = fetch(`/api/hotel-price?${queryParams.toString()}`).catch(() => null);
-
-        const res = await bookingReq;
-
-        let bookingPriceTotal = 0;
-        let bookingData = null;
-        if (res && res.ok) {
-          bookingData = await res.json();
-          // Format based on currency
-          const formatter = new Intl.NumberFormat(locale === "vi" ? 'vi-VN' : 'en-US', {
-            style: 'currency',
-            currency: bookingData.currency || 'VND',
-            maximumFractionDigits: 0
-          });
-
-          bookingPriceTotal = bookingData.total_price || bookingData.price_per_night || 0;
-
-          setRealTimePrice(formatter.format(bookingPriceTotal));
-          setBookingUrl(bookingData.url);
-          setHasBreakfast(!!bookingData.has_breakfast);
-          setCancellationText(bookingData.cancellation_text);
-          setIsFreeCancellable(!!bookingData.is_free_cancellable);
-          setExtraBenefits(bookingData.extra_benefits || {
-            has_lunch: bookingData.has_lunch,
-            has_dinner: bookingData.has_dinner,
-            all_inclusive: bookingData.all_inclusive,
-            free_parking: bookingData.free_parking,
-            no_prepayment: bookingData.no_prepayment,
-            max_occupancy: bookingData.max_occupancy
-          });
-        } else {
-          setRealTimePrice(null);
-          setErrorStatus(locale === "vi" ? "Đã hết phòng cho ngày này" : "Sold out for these dates");
-          setHasBreakfast(false);
-          setCancellationText(null);
-          setIsFreeCancellable(false);
-          setExtraBenefits(null);
-        }
-        setIsLoading(false);
-
-
-      } catch (err) {
-        setRealTimePrice(null);
-        setErrorStatus(locale === "vi" ? "Không thể tải giá Booking" : "Could not load Booking price");
-        setIsLoading(false);
-      }
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [hotelId, date, adults, rooms, locale]);
+  const diffDays = Math.max(1, Math.round((date?.to?.getTime()! - date?.from?.getTime()!) / (1000 * 60 * 60 * 24)) || 1);
 
   // Fallback price logic if api hasn't returned yet and error hasn't happened
-  const displayPrice = realTimePrice ? realTimePrice : (price ? price : "---");
+  const displayPrice = realTimePrice ? realTimePrice : (price ? new Intl.NumberFormat(locale === "vi" ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(Number(price) * diffDays * rooms) : "---");
 
   return (
     <div className="w-full border border-gray-200 rounded-2xl shadow-sm bg-white p-6 my-8">
@@ -150,7 +101,6 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
-              initialFocus
               mode="range"
               defaultMonth={date?.from}
               selected={date}
@@ -200,89 +150,72 @@ export function HotelPricing({ price, hotelId, hotelName }: { price?: string, ho
       </div>
 
       {/* Pricing List */}
-      <div className="flex flex-col">
+      <div className="flex flex-col border-t border-gray-200">
 
         {/* Booking.com Row */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between py-6 gap-4 relative">
-          <div className="w-full md:w-1/4">
-            <div className="flex items-center gap-2">
-              <img src="https://www.google.com/s2/favicons?domain=booking.com&sz=128" alt="Booking.com" className="w-8 h-8 object-contain" />
-              <span className="text-[#003B95] font-extrabold text-[22px] tracking-tight">Booking.com</span>
-            </div>
+        <div className="flex flex-col md:flex-row items-center justify-between py-4 md:py-6 gap-4 border-b border-gray-200">
+
+          {/* Logo */}
+          <div className="w-full md:w-1/2 flex items-center">
+            <Image
+              src="/images/Booking_Com_v2_384x164_Blue.png"
+              alt="Booking.com"
+              width={140}
+              height={40}
+              className="h-6 md:h-8 w-auto object-contain"
+            />
           </div>
 
-          <div className="w-full md:w-1/2 flex flex-col gap-2 min-h-[48px]">
-            {isFreeCancellable || cancellationText ? (
-              <div className="flex items-start gap-2 text-[15px] text-gray-700">
-                <Check className={`w-4 h-4 mt-0.5 shrink-0 ${isFreeCancellable ? 'text-[#00aa6c]' : 'text-gray-400'}`} strokeWidth={2} />
-                <span className={isFreeCancellable ? 'text-[#00aa6c] font-medium' : ''}>
-                  {cancellationText || (dict.hotelDetail.freeCancellation || "Hủy miễn phí")}
-                </span>
-              </div>
-            ) : null}
-            {extraBenefits?.no_prepayment ? (
-              <div className="flex items-start gap-2 text-[15px] text-[#00aa6c] font-medium">
-                <Check className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
-                <span>{dict.hotelDetail.noPrepayment}</span>
-              </div>
-            ) : null}
-            {hasBreakfast ? (
-              <div className="flex items-start gap-2 text-[15px] text-[#00aa6c] font-medium">
-                <Check className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
-                <span>{dict.hotelDetail.breakfastIncluded || "Bao gồm bữa sáng"}</span>
-              </div>
-            ) : null}
-            {extraBenefits?.has_lunch ? (
-              <div className="flex items-start gap-2 text-[15px] text-[#00aa6c] font-medium">
-                <Check className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
-                <span>{dict.hotelDetail.lunchIncluded}</span>
-              </div>
-            ) : null}
-            {extraBenefits?.has_dinner ? (
-              <div className="flex items-start gap-2 text-[15px] text-[#00aa6c] font-medium">
-                <Check className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
-                <span>{dict.hotelDetail.dinnerIncluded}</span>
-              </div>
-            ) : null}
-            {extraBenefits?.all_inclusive ? (
-              <div className="flex items-start gap-2 text-[15px] text-[#00aa6c] font-medium">
-                <Check className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
-                <span>{dict.hotelDetail.allInclusive}</span>
-              </div>
-            ) : null}
-            {extraBenefits?.free_parking ? (
-              <div className="flex items-start gap-2 text-[15px] text-[#00aa6c] font-medium">
-                <Check className="w-4 h-4 mt-0.5 shrink-0" strokeWidth={2} />
-                <span>{dict.hotelDetail.freeParking}</span>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="w-full md:w-1/4 flex flex-row md:flex-col items-center justify-between gap-3 shrink-0 md:items-end">
+          {/* Price & Action */}
+          <div className="w-full md:w-1/4 flex items-center justify-between md:justify-end gap-6 shrink-0">
             {isLoading ? (
-              <div className="flex items-center gap-2 text-gray-500">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span className="text-sm">{locale === "vi" ? "Đang cập nhật giá..." : "Fetching live price..."}</span>
-              </div>
-            ) : errorStatus ? (
-              <div className="flex gap-2 items-center text-red-500 font-medium">
-                <Info className="w-4 h-4" />
-                <span>{errorStatus}</span>
-              </div>
+              <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
             ) : (
-              <span className="text-[24px] font-extrabold text-black tracking-tight">{displayPrice}</span>
+              <span className="text-[20px] md:text-[24px] font-extrabold text-[#003c20] tracking-tight">{displayPrice}</span>
             )}
 
             <button
               onClick={() => bookingUrl ? window.open(bookingUrl, '_blank') : null}
               disabled={isLoading || !!errorStatus}
-              className="bg-[#003B95] hover:bg-[#0052cc] disabled:bg-gray-200 disabled:text-gray-500 text-white font-bold px-8 py-3 rounded-full shadow-sm text-[15px] transition-colors"
+              className="min-w-[120px] flex items-center justify-center bg-white hover:bg-gray-50 text-[#003c20] border-2 border-[#003c20] font-bold px-4 py-2.5 rounded-full text-[14px] transition-colors whitespace-nowrap"
             >
-              {dict.hotelDetail.viewDeal || "Xem ưu đãi"}
+              {dict.hotelDetail.viewDeal || "View deal"}
             </button>
           </div>
         </div>
 
+        {/* Agoda Row */}
+        {agodaUrl && (
+          <div className="flex flex-col md:flex-row items-center justify-between py-4 md:py-6 gap-4 border-b border-gray-200">
+
+            {/* Logo */}
+            <div className="w-full md:w-1/2 flex items-center">
+              <Image
+                src="/images/Agoda.png"
+                alt="Agoda"
+                width={100}
+                height={40}
+                className="h-7 md:h-9 w-auto object-contain"
+              />
+            </div>
+
+            {/* Price & Action */}
+            <div className="w-full md:w-1/4 flex items-center justify-between md:justify-end gap-6 shrink-0">
+              <div className="flex flex-col items-end">
+                <span className="text-[20px] md:text-[24px] font-extrabold text-[#003c20] tracking-tight leading-none">
+                  {agodaPrice ? new Intl.NumberFormat(locale === "vi" ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(agodaPrice * diffDays * rooms) : "---"}
+                </span>
+              </div>
+
+              <button
+                onClick={() => window.open(agodaUrl, '_blank')}
+                className="min-w-[120px] flex items-center justify-center bg-white hover:bg-gray-50 text-[#003c20] border-2 border-[#003c20] font-bold px-4 py-2.5 rounded-full text-[14px] transition-colors whitespace-nowrap"
+              >
+                {dict.hotelDetail.viewDeal || "View deal"}
+              </button>
+            </div>
+          </div>
+        )}
 
       </div>
 

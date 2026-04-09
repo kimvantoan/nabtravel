@@ -25,7 +25,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="font-bold">{locale === 'vi' ? 'Địa chỉ' : 'Address'}</div>
-                  <div>123 Đường Du Lịch, Quận 1, TP. HCM</div>
+                  <div>Số 12-BT 11 Khu đô thị Mới Vân Canh, Xã Sơn Đồng, TP Hà Nội</div>
                 </div>
               </div>
               <div className="flex items-center gap-4 text-gray-700">
@@ -43,7 +43,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="font-bold">{locale === 'vi' ? 'Điện thoại' : 'Phone'}</div>
-                  <div>+84 123 456 789</div>
+                  <div>098 2838 383</div>
                 </div>
               </div>
             </div>

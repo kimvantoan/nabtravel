@@ -1,0 +1,186 @@
+const fs = require('fs');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+
+const DESTINATIONS = [
+    { name: "Hà Nội", url: "https://www.agoda.com/search?city=2758&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=5fde7da6-f1d9-4a40-b2ce-82eb44c94413&analyticsSessionId=-3531049014471292660&pageTypeId=1&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-wswg6&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=Hanoi&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Hạ Long", url: "https://www.agoda.com/search?guid=257f9107-ae7b-4e47-866e-b1addc72628e&lastSearchedCity=2758&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNiTzdQp8D765%2FhRfoSi0pwv2O5aXWa0KOndSi0iTrhW74tkDimjSSCScEixPUmZNN9qPZEWM%2BdOF7UNi91Yw4km0t3c82nJ%2Fp%2B0GXkwK5hQ9rQBqIIqVpaxX8H38lVRbDg6HQ8d7WIh%2BLHir20Yp7wMj%2BxG%2F0EXyqEpLKdlme8IQ%3D&city=17182&tick=639113193795&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=7f196d18-32c9-4b44-a96f-2742311ac2aa&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-5shlm&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=H%E1%BA%A1+Long&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Sa Pa", url: "https://www.agoda.com/search?guid=83254086-dbfe-42d0-9117-55b3ffa1c826&lastSearchedCity=16808&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNZqoElmvuvAKcxVtunta2iE33ASSD89lXbLP0SEtmcmAuJ6U%2FeTUyz6QS9p2kWgNDBb%2BZ58XrzTZovriM0y21ppl1K0ufyaPjXAzATyn78bZlKApIKXRKxIE%2BsaWzr%2BKeG1XcEilU7gGozl1yVksP%2FA%3D%3D&city=17160&tick=639113194080&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=4c54c410-7820-445f-bf8b-d9de8adc124c&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-b2xnp&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=Sapa&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Hà Giang", url: "https://www.agoda.com/search?guid=2e054331-9a4f-4698-83a3-7d8dfe35701f&lastSearchedCity=17160&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNNbgam3mvoD5rz0KxG9WMMzxkkzM9ts4lwl1p9yKRqf74tkDimjSSCScEixPUmZNNPjVIAaFdCE3GSgdgwQhVUG0t3c82nJ%2Fp%2B0GXkwK5hQ%2FMfbNApeOOpgQdWbpjpH%2FgaxrBGXojlB0MeJQU3dq2tQ%3D%3D&city=204060&tick=639113194293&isdym=true&searchterm=H%C3%A0+Giang&txtuuid=2e054331-9a4f-4698-83a3-7d8dfe35701f&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=93ef0e12-3a41-40f5-a85d-9be80cf698c5&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-89tjm&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=H%C3%A0+Giang&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Ninh Bình", url: "https://www.agoda.com/search?guid=19c752aa-ce03-4887-aca7-19b05463a7b7&lastSearchedCity=204060&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNR3540Dw%2FPKliKXr42QsJdIr5GoVeaI1N9Yb3py2W2kw0rQCrxL61GXWCyBq7bfO1rBnKIr6csMJp%2F1YVJlfr9gqQMycviD3CIWSJVwpQ8soDVIDBxx2rZh%2BVcp5yQ1YQdBMlsRlsJR58fs8na6oESQ%3D%3D&city=17245&tick=639113194510&txtuuid=19c752aa-ce03-4887-aca7-19b05463a7b7&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=a12e6684-b7c2-4c8a-a729-1d9d0d6ddba7&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-b2xnp&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=Ninh+B%C3%ACnh&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Đà Nẵng", url: "https://www.agoda.com/search?guid=b1c4115c-9d78-47bb-95bd-686e5696c49c&lastSearchedCity=17245&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNj9s8EhKsXPD0AO44zjsgbJANSQdfkxHdfZfOfDXPAqCB5eiLNt%2FiOxI2w0rKiYCOK%2FxFNcxsCfGqSMx0bnHPtXSk%2FM8eVuQYqDHVLhv%2F6oNpnTPDlbEMsXesPXbacG2H6UTh5%2FXSpb0TmpN6C8Z5iw%3D%3D&city=16440&tick=639113194772&isdym=true&searchterm=%C4%90%C3%A0+N%E1%BA%B5ng&txtuuid=b1c4115c-9d78-47bb-95bd-686e5696c49c&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=776cbf69-62e0-42a5-b04d-95acc95d2491&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-wswg6&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=%C4%90%C3%A0+N%E1%BA%B5ng&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Hội An", url: "https://www.agoda.com/search?guid=8f821df7-0c3a-4687-a243-eb085479e6b6&lastSearchedCity=16440&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNPGfuYCzdZ8PQvbr1TuAQ5TNN3TFGNKSHShwfJQp2p%2BAO7xnflDpxOj0wWYGvFO846LP86KVYahuuarCi19HmyI1vXGtuywoUoaiplWNdnsW6SAmCI%2FjfDfUAt2jmrdnnA3OSEgjgDuO%2Fnvl%2F26EMLw%3D%3D&city=16552&tick=639113195016&isdym=true&searchterm=H%E1%BB%99i+An&txtuuid=8f821df7-0c3a-4687-a243-eb085479e6b6&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=8a56c1e6-a13c-413e-8b86-e74aea5c95ea&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-89tjm&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=H%E1%BB%99i+An&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Huế", url: "https://www.agoda.com/search?guid=37db94fd-1d62-4cfe-aa7c-7c96bfbdfa94&lastSearchedCity=16552&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNh8H4bQW6FEQkdHxdDIe7ugonpxW%2BT9aw7kdPc69SJ78Ta3VIvKanOHmagPJJU9qVD%2BhryppLJCuDrWZ0jMHzon1CgyHhNV29NWUEu3I%2FAo08VTnn5a7KC5sMfi3Z1v6tPFI%2FtuQonhI%2FJmLIoLJ%2F5Q%3D%3D&city=3738&tick=639113195198&isdym=true&searchterm=Hu%E1%BA%BF&txtuuid=37db94fd-1d62-4cfe-aa7c-7c96bfbdfa94&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=d9d3a6be-c20a-4276-bd62-b715517e48e7&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-ccx77&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=Hu%E1%BA%BF&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Phong Nha", url: "https://www.agoda.com/search?guid=0e90541f-f24d-4cbd-a962-7c37844d7e13&lastSearchedCity=3738&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNhl27euPCalCyeVYmZnw1J4sFg1JKBl5YE8lBwADSgLX4tkDimjSSCScEixPUmZNNPjVIAaFdCE3GSgdgwQhVUG0t3c82nJ%2Fp%2B0GXkwK5hQ8KLEyxkO8KwsS5yLkwKWXmDR97KTRVib9GD6t6lI6SNA%3D%3D&city=228387&tick=639113195417&txtuuid=0e90541f-f24d-4cbd-a962-7c37844d7e13&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=be700157-00f3-4943-8aa1-671a443f8948&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-7glmd&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=Phong+Nha&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Nha Trang", url: "https://agoda.com/search?guid=3747e9e5-9e2d-4ee6-b3f0-db17a3276498&lastSearchedCity=228387&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNu9EwBt0YuHOTV4xXrxcqXzxkkzM9ts4lwl1p9yKRqf74tkDimjSSCScEixPUmZNNPjVIAaFdCE3GSgdgwQhVUG0t3c82nJ%2Fp%2B0GXkwK5hQ9%2FXRjMzznjDe3Hky3PoqZKb9qudlfhltWcj5DfO93r0g%3D%3D&city=2679&tick=639113195592&txtuuid=3747e9e5-9e2d-4ee6-b3f0-db17a3276498&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=48ffae9f-78ee-4390-9e7a-303d6cdf6534&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-89tjm&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=Nha+Trang&productType=-1&travellerType=1&familyMode=off&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Hồ Chí Minh", url: "https://www.agoda.com/search?guid=9cfecfef-38be-44d8-ada9-8c1acff82e58&lastSearchedCity=2679&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNViu5iLS%2FKSOm4MK8ioftNdoWUEfCb0uc%2FDwpIDtwaYrwzeqwvyfzj%2FffCZq1V2ZujNn7wRkoUeZwmeO01cpMr5D4eVXQabVDBvcjHxVTVK07%2F4%2Fw%2FNEUCZ30DSkWzB%2FM22VvI9kcZMTbnfqsEmUKmP0htvn0tHpSR%2BhIv40Na48%3D&city=13170&tick=639113195771&isdym=true&searchterm=H%E1%BB%93+Ch%C3%AD+Minh&txtuuid=9cfecfef-38be-44d8-ada9-8c1acff82e58&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=373a1509-6199-41a9-8b0b-7fc5236ce555&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-9wpxh&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=H%E1%BB%93+Ch%C3%AD+Minh&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Phú Quốc", url: "https://www.agoda.com/search?guid=1a38ac16-ff7b-450d-8d89-e026717c8079&lastSearchedCity=13170&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNHLbwGWfc3J8Oa63KznkdTjdtBcLNBsnby%2BnDckFpmPKB5eiLNt%2FiOxI2w0rKiYCOK%2FxFNcxsCfGqSMx0bnHPtXSk%2FM8eVuQYqDHVLhv%2F6oNk3gHOqXxDM5BnZRwWxvDDL%2FU4q9OqgShz78IxlKE%2FvQ%3D%3D&city=17188&tick=639113196003&isdym=true&searchterm=Ph%C3%BA+Qu%E1%BB%91c&txtuuid=1a38ac16-ff7b-450d-8d89-e026717c8079&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=0350f709-9ec7-4714-8836-c137f996ae49&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-rdx5n&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=Ph%C3%BA+Qu%E1%BB%91c&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Đà Lạt", url: "https://www.agoda.com/search?guid=70af8a5a-7f69-4142-8c3b-aee787fa0670&lastSearchedCity=17188&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNrw8miQMTqbfxSv7KbFDCaizkEqJHfC%2BGu3NWnrnyLzk0rQCrxL61GXWCyBq7bfO1rBnKIr6csMJp%2F1YVJlfr9gqQMycviD3CIWSJVwpQ8sp%2BUcpEuCC8PUoivAfZQMSe7r0Fm%2Bbz9M3FUjajo4VkdA%3D%3D&city=15932&tick=639113196186&isdym=true&searchterm=%C4%90%C3%A0+L%E1%BA%A1t&txtuuid=70af8a5a-7f69-4142-8c3b-aee787fa0670&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=c605ee77-2de0-4e8f-90a2-b0051f3c563c&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-wm8qq&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=%C4%90%C3%A0+L%E1%BA%A1t&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Cần Thơ", url: "https://www.agoda.com/search?guid=85952d28-b723-4fff-8c23-e81bdba609d0&lastSearchedCity=15932&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyN1d%2FzrGq%2BrpLISkdGVbjXnfopWC5yfmzlq4QBohlz%2BiI0rQCrxL61GXWCyBq7bfO1rBnKIr6csMJp%2F1YVJlfr9gqQMycviD3CIWSJVwpQ8soUTzPsYpYJHPEOA4r%2F2dyKFE2tSa%2FNZdBIUasm2ycI6A%3D%3D&city=16079&tick=639113196419&txtuuid=85952d28-b723-4fff-8c23-e81bdba609d0&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=356dd5b3-f141-46a4-8093-746e2c0d84d8&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-f6mc4&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=C%E1%BA%A7n+Th%C6%A1&productType=-1&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9" },
+    { name: "Vũng Tàu", url: "https://www.agoda.com/search?guid=9eea32a8-9bb2-43b6-822c-237fff04df6e&lastSearchedCity=16079&asq=DGdSYo0CvFm6Ih0NBpaAPpufa9Vwpz6XltTHq4n%2B9gN5ZZLftax4Zadaq%2Flw%2FZyNdvDJyA09VO85o9GMbYrIZPr19L1%2BLXQvjcfazWQ9xzI0rQCrxL61GXWCyBq7bfO1rBnKIr6csMJp%2F1YVJlfr9gqQMycviD3CIWSJVwpQ8sqb3SmAJ%2FYEcJYp%2FvKuHO3orNPVBaFueep8gjtrYOvtug%3D%3D&city=17190&tick=639113196621&isdym=true&searchterm=V%C5%A9ng+T%C3%A0u&txtuuid=9eea32a8-9bb2-43b6-822c-237fff04df6e&locale=en-us&ckuid=a7ca1070-82f3-4117-83ed-64165f41ea55&prid=0&gclid=CjwKCAjw-dfOBhAjEiwAq0RwIxbpv_Ll1WeAajT5PpGOmzxNmLlI6hDbjt96TYaMwQNuUGKpl1iGBhoC6WEQAvD_BwE&currency=USD&correlationId=be1b9069-0123-41fa-8aef-cdb8f07d7f82&analyticsSessionId=-3531049014471292660&pageTypeId=103&realLanguageId=1&languageId=1&origin=VN&stateCode=HN&cid=1922896&tag=7adbeb35-4108-414c-9559-32893b4cdfe5&userId=a7ca1070-82f3-4117-83ed-64165f41ea55&whitelabelid=1&loginLvl=0&storefrontId=3&currencyId=7&currencyCode=USD&htmlLanguage=en-us&cultureInfoName=en-us&machineName=hk-pc-2f-acm-web-user-75fdd84df9-ppghd&trafficGroupId=5&trafficSubGroupId=122&aid=82361&useFullPageLogin=true&cttp=4&isRealUser=true&mode=production&browserFamily=Chrome&cdnDomain=agoda.net&checkIn=2026-04-13&checkOut=2026-04-14&rooms=1&adults=2&children=0&priceCur=USD&los=1&textToSearch=V%C5%A9ng+T%C3%A0u&travellerType=1&familyMode=off&ds=p64%2BkixeQmryMtyk&hotelStarRating=4%2C5&hotelReviewScore=9&productType=-1" }
+];
+
+// Custom authenticated URL dynamically generated in the loop
+
+async function scrapeAllDestinations() {
+    let browser;
+    try {
+        console.log("Khởi động Puppeteer (Chế độ Stealth đa tỉnh thành)...");
+        browser = await puppeteer.launch({
+            headless: false,
+            channel: 'chrome', // Use system chrome instead of bundled chromium
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1920,1080']
+        });
+
+        const page = await browser.newPage();
+        await page.setViewport({ width: 1920, height: 1080 });
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+
+        const allHotels = [];
+
+        for (let i = 0; i < DESTINATIONS.length; i++) {
+            const destObj = DESTINATIONS[i];
+            const dest = destObj.name;
+            let url = destObj.url;
+            // Force VND and Vietnamese Locale if user provided USD links
+            url = url.replace(/locale=en-us/gi, 'locale=vi-vn')
+                     .replace(/currency=USD/gi, 'currency=VND')
+                     .replace(/currencyCode=USD/gi, 'currencyCode=VND')
+                     .replace(/htmlLanguage=en-us/gi, 'htmlLanguage=vi-vn')
+                     .replace(/priceCur=USD/gi, 'priceCur=VND')
+                     .replace(/hotelReviewScore=9/gi, 'hotelReviewScore=8');
+            console.log(`\n======================================================`);
+            console.log(`[${i + 1}/${DESTINATIONS.length}] Đang cào khu vực: ${dest}`);
+            console.log(`======================================================`);
+
+            console.log(`Truy cập: ${url}`);
+
+            try {
+                await page.goto(url, { waitUntil: "load", timeout: 60000 });
+                await new Promise(r => setTimeout(r, 2000));
+            } catch (err) {
+                console.error(`Lỗi tải trang cho ${dest}, bỏ qua...`);
+                continue;
+            }
+            
+            console.log("Đang chờ DOM Hotel Item (Nếu thấy Captcha bảo mật trên màn hình Chrome, hãy giải trong 60s)...");
+            await page.waitForSelector('.PropertyCardItem, [data-selenium="hotel-item"], [data-selenium="hotel-name"]', { timeout: 60000 }).catch(() => console.log("Hết thời gian chờ Captcha (hoặc mốc hotel-name), chuyển sang Lazy load..."));
+
+            console.log("Đang cuộn trang để kích hoạt Lazy load (tăng cường để lấy nhiều khách sạn hơn)...");
+            for (let k = 0; k < 40; k++) {
+                try {
+                    await page.evaluate(() => window.scrollBy(0, 400));
+                    await new Promise(r => setTimeout(r, 800));
+                } catch (error) {
+                    console.log("Trang đang refresh (Datadome đang chuyển hướng), chờ 3s...");
+                    await new Promise(r => setTimeout(r, 3000));
+                }
+            }
+
+            console.log("Tiến hành bóc tách Dữ liệu Agoda...");
+            let hotels = [];
+            try {
+                hotels = await page.evaluate((destinationName) => {
+                    const items = document.querySelectorAll('li.PropertyCardItem, [data-selenium="hotel-item"]');
+                    const data = [];
+
+                    items.forEach((e) => {
+                        const nameEl = e.querySelector('[data-selenium="hotel-name"]') || e.querySelector('h3');
+                        const name = nameEl ? nameEl.innerText.trim() : null;
+
+                        const anchor = e.querySelector('a.PropertyCard__Link, a[data-selenium="hotel-link"]') || e.querySelector('a');
+                        let source_url = anchor ? anchor.href : null;
+                        if (source_url && !source_url.startsWith('http')) {
+                            source_url = "https://www.agoda.com" + source_url;
+                        }
+                        if (source_url && source_url.includes('?')) {
+                            source_url = source_url.split('?')[0];
+                        }
+
+                        let score = null;
+                        const scoreEl = e.querySelector('.Details__LabelText, [data-selenium="rating-text"], .Box-sc-kv6pi1-0.ekUqku');
+                        const rMatch = e.innerText.match(/(\d[\.,]\d+)\s*(?:Tuyệt hảo|Xuất sắc|Trên cả tuyệt vời|Tuyệt vời|Rất tốt|Tốt|Đặc biệt|Hoàn hảo|Khá|Hài lòng|Xuất chúng|Exceptional|Excellent|Superb|Fabulous|Very good|Good|Wonderful|Fantastic)/i);
+                        if (rMatch) {
+                            score = parseFloat(rMatch[1].replace(',', '.'));
+                        } else if (e.innerText.match(/(\d[\.,]\d+)/)) {
+                            // Try to find any decimal number like 9.2 in the card if text missing
+                            const decMatch = e.innerText.match(/(\d[\.,]\d+)/);
+                            if (decMatch && parseFloat(decMatch[1].replace(',', '.')) <= 10) {
+                                score = parseFloat(decMatch[1].replace(',', '.'));
+                            }
+                        }
+
+                        let reviews = null;
+                        const revMatch = e.innerText.match(/([\d\.,]+)\s*(?:bài đánh giá|đánh giá|nhận xét|reviews|review)/i);
+                        if (revMatch) reviews = parseInt(revMatch[1].replace(/[\.,]/g, ''));
+
+                        let price = null;
+                        const priceEl = e.querySelector('.PropertyCardPrice__Value, [data-selenium="display-price"]');
+                        if (priceEl) {
+                            price = parseInt(priceEl.innerText.replace(/[^\d]/g, ''));
+                        } else {
+                            const allNumbers = e.innerText.match(/(?:\d{1,3}(?:[\.,]\d{3})+)/g);
+                            if (allNumbers) {
+                                const maxVal = Math.max(...allNumbers.map(n => parseInt(n.replace(/[\.,]/g, ''))));
+                                if (maxVal > 0) price = maxVal;
+                            } else {
+                                // Maybe it's a small USD price like $85 without commas
+                                const usdMatch = e.innerText.match(/\$\s*(\d+)/) || e.innerText.match(/USD\s*(\d+)/i);
+                                if (usdMatch) price = parseInt(usdMatch[1]);
+                            }
+                        }
+
+                        const locEl = e.querySelector('[data-selenium="area-city-text"]') || e.querySelector('.PropertyCardItem__Area');
+                        const location = locEl ? locEl.innerText.trim() : destinationName;
+
+                        const imgEl = e.querySelector('img.SquareImage, .PropertyCardImage img') || e.querySelector('img');
+                        let photo_url = null;
+                        if (imgEl) {
+                            photo_url = imgEl.src || imgEl.getAttribute('data-src') || null;
+                            if (photo_url && photo_url.includes('square')) {
+                                photo_url = photo_url.replace(/square\d+/g, 'max1024x768');
+                            }
+                        }
+
+                        if (name && source_url) {
+                            data.push({
+                                platform: "agoda",
+                                name: name,
+                                agoda_url: source_url,
+                                price: price,
+                                rating: score,
+                                reviews: reviews,
+                                location: location,
+                                photo_url: photo_url
+                            });
+                        }
+                    });
+                    return data;
+                }, dest);
+            } catch (err) {
+                console.error("Lỗi khi đánh giá evaluate (có thể do load trang lúc đang tính toán):", err.message);
+            }
+
+            console.log(`-> Tìm thấy ${hotels.length} khách sạn tại ${dest}.`);
+            allHotels.push(...hotels);
+
+            // Ghi file liên tục phòng trừ sự cố crash ngang
+            fs.writeFileSync('all_hotels_agoda_mapper.json', JSON.stringify(allHotels, null, 2));
+            console.log(`-> Tổng tích lũy: ${allHotels.length} khách sạn đã được cào!`);
+
+            // Giải lao 10s để Agoda không khóa cổ
+            console.log("Đang nghỉ 10s tránh CAPTCHA...");
+            await new Promise(r => setTimeout(r, 10000));
+        }
+
+        console.log("\n🎉 XONG TOÀN TẬP! Đã lưu mọi dữ liệu vào all_hotels_agoda_mapper.json");
+
+    } catch (e) {
+        console.error("LỖI SYSTEM: ", e);
+    } finally {
+        if (browser) await browser.close();
+    }
+}
+
+scrapeAllDestinations();

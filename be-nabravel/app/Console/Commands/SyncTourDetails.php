@@ -37,7 +37,6 @@ class SyncTourDetails extends Command
                     'itinerary_json' => $item['itinerary_json'] ?? null,
                     'highlights_json' => $item['highlights_json'] ?? null,
                     'inclusions_json' => $item['inclusions_json'] ?? null,
-                    'exclusions_json' => $item['exclusions_json'] ?? null,
                 ]
             );
         }

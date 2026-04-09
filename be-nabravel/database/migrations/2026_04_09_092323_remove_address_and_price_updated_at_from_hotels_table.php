@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('hotels', function (Blueprint $table) {
-            $table->string('agoda_id')->nullable()->after('booking_id');
-            $table->decimal('agoda_price', 15, 2)->nullable()->after('price');
+            $table->dropColumn(['address', 'price_updated_at']);
         });
     }
 
@@ -23,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('hotels', function (Blueprint $table) {
-            $table->dropColumn(['agoda_id', 'agoda_price']);
+            //
         });
     }
 };

@@ -51,14 +51,14 @@ class ArticleGeneratorController extends Controller
 
         // 1. CHỌN CHỦ ĐỀ
         $topics = [
-            "Top 5 khách sạn sang chảnh nhất đáng để tiêu tiền",
-            "Sự thật mất lòng về top các khu nghỉ dưỡng hot nhất",
-            "Đại hạ giá bất ngờ: Những khách sạn giảm sâu nhất tháng này",
-            "Nên ở đâu để sống ảo tung chảo? Bóc giá các khách sạn",
-            "Cuối tuần trốn việc: Resort ngoại ô đáng giá từng xu",
-            "Staycation tại thành phố: Bất ngờ với view triệu đô",
-            "Đừng đặt phòng trước khi đọc bài vạch trần chất lượng các khách sạn này",
-            "Review chân thực nhất: Sự thật ngã ngửa đằng sau ảnh mạng khách sạn"
+            "Khám phá top những khách sạn mang lại trải nghiệm nghỉ dưỡng tuyệt vời",
+            "Gợi ý những điểm dừng chân lý tưởng cho kỳ nghỉ trọn vẹn",
+            "Tận hưởng không gian thư giãn tại các khu nghỉ dưỡng đáng mơ ước",
+            "Cẩm nang chọn phòng: Những góc lưu trú xinh đẹp bạn không nên bỏ lỡ",
+            "Staycation trọn niềm vui: Điểm danh loạt khách sạn với dịch vụ chu đáo",
+            "Lạc bước vào không gian yên bình tại những khách sạn nổi bật",
+            "Review chi tiết: Những địa điểm lưu trú mang đến sự hài lòng tuyệt đối",
+            "Chuyến đi thêm hoàn hảo với những gợi ý khách sạn đánh giá cao"
         ];
         $topic = $request->input('topic', $topics[array_rand($topics)]);
 
@@ -72,13 +72,31 @@ class ArticleGeneratorController extends Controller
 
         $hotelList = [];
         foreach ($hotels as $h) {
+            $imageUrl = $h->image;
+            // Tự động tải hình ảnh về server nếu là link ngoài
+            if (!empty($imageUrl) && str_starts_with($imageUrl, 'http') && !str_contains($imageUrl, env('APP_URL'))) {
+                try {
+                    $contents = file_get_contents($imageUrl);
+                    $filename = basename(parse_url($imageUrl, PHP_URL_PATH));
+                    if (!$filename) $filename = uniqid() . '.jpg';
+                    $localPath = 'articles/hotels/' . uniqid() . '_' . $filename;
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($localPath, $contents);
+                    $imageUrl = env('APP_URL') . '/storage/' . $localPath;
+                    
+                    // Cập nhật luôn cho khách sạn để dùng lại lần sau
+                    $h->update(['image' => $imageUrl]);
+                } catch (\Exception $e) {
+                    // Bỏ qua nếu lỗi tải ảnh
+                }
+            }
+
             $hotelList[] = [
                 'name' => $h->name,
                 'slug' => $h->slug,
                 'location' => $h->location,
                 'score' => $h->rating ?? 4.0,
                 'amenities' => is_array($h->amenities) ? array_slice($h->amenities, 0, 3) : ['Bể bơi', 'Wifi miễn phí'],
-                'image' => $h->image
+                'image' => $imageUrl
             ];
         }
 
@@ -93,7 +111,7 @@ class ArticleGeneratorController extends Controller
 
         try {
             // Thử model chính trước, fallback sang model nhẹ hơn nếu bị rate limit
-            $models = ['gemini-2.5-flash', 'gemini-2.5-pro'];
+            $models = ['gemini-2.5-pro'];
             $response = null;
 
             foreach ($models as $model) {
@@ -227,7 +245,7 @@ class ArticleGeneratorController extends Controller
      */
     private function buildPrompt(array $hotels, string $topic): string
     {
-        $frontendUrl = rtrim(env('FRONTEND_URL', 'https://nabtravel.vn'), '/');
+        $frontendUrl = rtrim(env('FRONTEND_URL', 'https://nabtravel.com'), '/');
 
         // Format danh sách khách sạn ngắn gọn
         $hotelLines = [];
@@ -244,8 +262,8 @@ KHÁCH SẠN (bắt buộc dùng):
 {$hotelText}
 
 YÊU CẦU:
-- Giọng: kịch tính, hài hước, lôi cuốn, đánh giá khách quan
-- Bố cục HTML: mở bài hấp dẫn → review từng khách sạn (h2/h3) → kết bài
+- Giọng văn: nhẹ nhàng, lịch sự, truyền cảm hứng và mang phong cách review du lịch chuyên nghiệp, khách quan
+- Bố cục HTML: mở bài thư giãn → review chi tiết từng khách sạn (h2/h3) nêu bật ưu điểm → kết bài ấm áp
 - Mỗi KS phải có thẻ <img src='...' alt='...' class='rounded-xl shadow-lg my-6 w-full object-cover aspect-video'/>
 - Tên KS bọc thẻ <a href='...' class='text-[#004f32] font-bold underline'>Tên</a>
 - CHÚ Ý: CHỈ SỬ DỤNG DẤU NHÁY ĐƠN (') TRONG CÁC THẺ HTML, KHÔNG DÙNG DẤU NHÁY KÉP (") ĐỂ TRÁNH LỖI JSON.

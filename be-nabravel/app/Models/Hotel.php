@@ -18,31 +18,26 @@ class Hotel extends Model
         'rating',
         'reviews',
         'price',
-        'stars',
-        'property_type',
-        'price_level',
-        'neighborhood',
-        'amenities',
-        'description',
-        'photos',
-        'latest_reviews',
         'booking_id',
         'agoda_id',
-        'price_updated_at',
-        'address',
-        'latitude',
-        'longitude',
         'agoda_price',
+        'name_en',
+        'name_vi',
+        'location_en',
+        'location_vi',
+        'booking_url',
+        'agoda_url',
     ];
 
     protected function casts(): array
     {
         return [
-            'amenities' => 'json',
-            'photos' => 'json',
-            'latest_reviews' => 'json',
             'rating' => 'decimal:1',
-            'price_updated_at' => 'datetime',
         ];
+    }
+
+    public function detail()
+    {
+        return $this->hasOne(HotelDetail::class);
     }
 }
