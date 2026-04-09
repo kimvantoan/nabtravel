@@ -15,9 +15,9 @@ export const getCachedArticles = cache(async (): Promise<ArticleData[]> => {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
     const response = await fetch(`${backendUrl}/api/articles`, {
-      next: { revalidate: 60 } // Revalidate every 60 seconds (ISR)
+      next: { revalidate: 3600 } // Revalidate every 1 hour (ISR)
     });
-    
+
     if (!response.ok) {
       console.error('Failed to fetch articles from backend');
       return [];
@@ -36,7 +36,7 @@ export const getCachedArticleBySlug = cache(async (slug: string): Promise<Articl
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
     const response = await fetch(`${backendUrl}/api/articles/${slug}`, {
-      next: { revalidate: 60 }
+      next: { revalidate: 3600 }
     });
 
     if (!response.ok) {

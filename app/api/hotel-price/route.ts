@@ -78,6 +78,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Price not found for these dates' }, { status: 404 });
   } catch (error) {
     console.error("Pricing API Error:", error);
-    return NextResponse.json({ error: 'Failed to fetch price' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch accurate price from Booking.com' }, { status: 500 });
   }
 }

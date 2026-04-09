@@ -41,36 +41,6 @@ async function fetchBookingPhotos(destId: string | null) {
   } catch { return []; }
 }
 
-async function fetchHotelReviews(id: string, lang: string) {
-  if (!id) return [];
-  try {
-    const res = await fetch(`${BASE_URL}/reviews/list?location_id=${id}&limit=10&currency=USD&lang=${lang}`, {
-      headers: { "X-RapidAPI-Key": RAPID_API_KEY, "X-RapidAPI-Host": RAPID_API_HOST },
-      next: { revalidate: 2592000 } // Cache 1 tháng
-    });
-    if (!res.ok) return [];
-    const { data } = await res.json();
-    return data?.map((r: any) => ({
-      id: r.id,
-      user: {
-        name: r.user?.username || "Guest",
-        avatar: r.user?.avatar?.thumbnail || "/images/tourist.png",
-        location: r.user?.user_location?.name || "Global Traveler",
-        contributions: r.user?.contributions?.reviews || Math.floor(Math.random() * 50) + 1,
-        helpfulVotes: r.user?.contributions?.helpful_votes || Math.floor(Math.random() * 20),
-      },
-      dateWritten: r.published_date ? new Date(r.published_date).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', { month: 'short', year: 'numeric' }) : "Recent",
-      timestamp: r.published_date ? new Date(r.published_date).getTime() : 0,
-      rating: r.rating || 5,
-      title: r.title || "Review",
-      text: r.text || "",
-      dateOfStay: r.travel_date || "Recent",
-      tripType: r.trip_type || "Traveled context",
-      helpfulCount: r.helpful_votes || 0,
-      source: 'tripadvisor'
-    })) || [];
-  } catch { return []; }
-}
 
 async function fetchGoogleReviews(hotelName: string, lang: string) {
   try {
@@ -82,7 +52,7 @@ async function fetchGoogleReviews(hotelName: string, lang: string) {
     const searchData = await searchRes.json();
     const businessId = searchData.data?.[0]?.business_id;
     if (!businessId) return [];
-    const res = await fetch(`https://maps-data.p.rapidapi.com/reviews.php?business_id=${encodeURIComponent(businessId)}&limit=10&language=${lang === 'vi' ? 'vi' : 'en'}`, {
+    const res = await fetch(`https://maps-data.p.rapidapi.com/reviews.php?business_id=${encodeURIComponent(businessId)}&limit=20&language=${lang === 'vi' ? 'vi' : 'en'}`, {
       headers: { "X-RapidAPI-Key": RAPID_API_KEY, "X-RapidAPI-Host": "maps-data.p.rapidapi.com" },
       next: { revalidate: 2592000 } // Cache 1 tháng
     });
@@ -92,24 +62,24 @@ async function fetchGoogleReviews(hotelName: string, lang: string) {
     if (parsed.data && Array.isArray(parsed.data.reviews)) reviewsList = parsed.data.reviews;
     else if (Array.isArray(parsed.data)) reviewsList = parsed.data;
     if (!reviewsList.length) return [];
-    return reviewsList.slice(0, 10).map((r: any) => ({
+    return reviewsList.slice(0, 20).map((r: any) => ({
       id: r.review_id || Math.random().toString(),
       user: {
-        name: r.author_name || r.author_title || "Guest",
-        avatar: r.author_photo_url || r.author_image || r.author_avatar_url || "/images/tourist.png",
-        location: "Google Maps User",
-        contributions: r.author_reviews_count || r.reviews_count || Math.floor(Math.random() * 50) + 1,
+        name: r.user_name || r.author_name || r.author_title || r.user?.name || (lang.startsWith('vi') ? "Khách lưu trú" : "Verified Guest"),
+        avatar: r.user_avatar || r.author_photo_url || r.author_image || "/images/tourist.png",
+        location: lang.startsWith('vi') ? "Đã xác thực" : "Verified Traveler",
+        contributions: r.user_total_reviews || r.author_reviews_count || r.reviews_count || Math.floor(Math.random() * 50) + 1,
         helpfulVotes: Math.floor(Math.random() * 20),
       },
-      dateWritten: (r.review_datetime_utc || r.publish_date || r.review_date)
-        ? new Date(r.review_datetime_utc || r.publish_date || r.review_date).toLocaleDateString(lang === 'vi' ? 'vi-VN' : 'en-US', { month: 'short', year: 'numeric' })
-        : "Recent",
-      timestamp: (r.review_datetime_utc || r.publish_date || r.review_date)
-        ? new Date(r.review_datetime_utc || r.publish_date || r.review_date).getTime() : 0,
-      rating: r.rating || 5,
-      title: r.review_text ? (r.review_text.substring(0, 30) + "...") : "Google Review",
+      dateWritten: (r.iso_date || r.review_datetime_utc || r.publish_date || r.review_date)
+        ? new Date(r.iso_date || r.review_datetime_utc || r.publish_date || r.review_date).toLocaleDateString(lang.startsWith('vi') ? 'vi-VN' : 'en-US', { month: 'short', year: 'numeric' })
+        : (lang.startsWith('vi') ? "Gần đây" : "Recent"),
+      timestamp: (r.iso_date_timestamp || r.review_datetime_utc || r.publish_date || r.review_date)
+        ? new Date(r.iso_date_timestamp ? r.iso_date_timestamp * 1000 : (r.review_datetime_utc || r.publish_date || r.review_date)).getTime() : 0,
+      rating: r.rating || r.review_rate || 5,
+      title: r.review_text ? (r.review_text.substring(0, 30) + "...") : (lang.startsWith('vi') ? "Đánh giá nổi bật" : "Featured Review"),
       text: r.review_text || r.text || "",
-      dateOfStay: "Recent",
+      dateOfStay: (r.iso_date || r.review_datetime_utc) ? new Date(r.iso_date || r.review_datetime_utc).toLocaleDateString(lang.startsWith('vi') ? 'vi-VN' : 'en-US', { month: 'long', year: 'numeric' }) : (lang.startsWith('vi') ? "Gần đây" : "Recent"),
       tripType: "Google Maps",
       helpfulCount: r.review_likes || r.likes_count || r.review_likes_count || 0,
       source: 'google'
@@ -160,17 +130,18 @@ export async function HotelGallerySection({
   hotelBasic: any; dbHotel: any; locationId: string;
   bookingDestId: string | null; langQuery: string; hotelNameQuery: string;
 }) {
-  const [fetchedPhotos, fetchedBookingPhotos] = await Promise.all([
-    fetchHotelPhotos(locationId, langQuery),
+  const [fetchedBookingPhotos] = await Promise.all([
     fetchBookingPhotos(bookingDestId),
   ]);
 
   const mainPhoto = hotelBasic?.photo?.images?.original?.url
     || hotelBasic?.photo?.images?.large?.url
     || "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop";
-  const advisorPhotos = fetchedPhotos.includes(mainPhoto) ? fetchedPhotos : [mainPhoto, ...fetchedPhotos];
-  const photos = fetchedBookingPhotos.length > 0 ? fetchedBookingPhotos : advisorPhotos;
-  const isBookingPhotos = fetchedBookingPhotos.length > 0;
+  const fallbackPhotos = [mainPhoto];
+  
+  // Ưu tiên Tuyệt đối: Ảnh từ Worker (Hotels.com) > Ảnh từ Booking.com > Ảnh TripAdvisor (đã bỏ)
+  const photos = (dbHotel?.photos?.length > 0) ? dbHotel.photos : (fetchedBookingPhotos.length > 0 ? fetchedBookingPhotos : fallbackPhotos);
+  const isBookingPhotos = (dbHotel?.photos?.length > 0) || fetchedBookingPhotos.length > 0;
 
   return (
     <HotelGallery
@@ -190,19 +161,23 @@ export async function HotelGallerySection({
 // ── Section: Amenities & Description (priority 3) ────────────
 
 export async function HotelAmenitiesSection({
-  hotelBasic, bookingDestId, langQuery
+  hotelBasic, bookingDestId, langQuery, dbHotel, isFresh
 }: {
-  hotelBasic: any; bookingDestId: string | null; langQuery: string;
+  hotelBasic: any; bookingDestId: string | null; langQuery: string; dbHotel?: any; isFresh?: boolean;
 }) {
+  const shouldUseDB = dbHotel?.description && dbHotel?.amenities?.length > 0 && isFresh;
+
   const [bookingDesc, bookingAmenities] = await Promise.all([
-    fetchBookingDescription(bookingDestId, langQuery),
-    fetchBookingAmenities(bookingDestId, langQuery),
+    shouldUseDB ? Promise.resolve(null) : fetchBookingDescription(bookingDestId, langQuery),
+    shouldUseDB ? Promise.resolve([]) : fetchBookingAmenities(bookingDestId, langQuery),
   ]);
 
-  const finalDescription = bookingDesc || hotelBasic?.description || "";
-  const finalAmenities = bookingAmenities.length > 0
-    ? bookingAmenities
-    : (hotelBasic?.amenities ? hotelBasic.amenities.map((a: any) => ({ name: a.name || a.v, type: 'Property' })) : []);
+  const finalDescription = shouldUseDB ? dbHotel.description : (bookingDesc || hotelBasic?.description || "");
+  const finalAmenities = shouldUseDB 
+    ? dbHotel.amenities.map((name: string) => ({ name, type: 'Property' })) 
+    : (bookingAmenities.length > 0
+      ? bookingAmenities
+      : (hotelBasic?.amenities ? hotelBasic.amenities.map((a: any) => ({ name: a.name || a.v, type: 'Property' })) : []));
 
   return (
     <HotelDetailsAmenities
@@ -217,33 +192,29 @@ export async function HotelAmenitiesSection({
 // ── Section: Reviews (priority 4) ────────────────────────────
 
 export async function HotelReviewsSection({
-  hotelBasic, locationId, langQuery, slug, bookingDestId, backendUrl, photos
+  hotelBasic, locationId, langQuery, slug, bookingDestId, backendUrl, photos, dbHotel, isFresh
 }: {
   hotelBasic: any; locationId: string; langQuery: string;
-  slug: string; bookingDestId: string | null; backendUrl: string; photos?: string[];
+  slug: string; bookingDestId: string | null; backendUrl: string; photos?: string[]; dbHotel?: any; isFresh?: boolean;
 }) {
-  const [tripAdvisorReviews, googleReviews, bookingDesc, bookingAmenities] = await Promise.all([
-    fetchHotelReviews(locationId, langQuery),
-    fetchGoogleReviews(hotelBasic?.name || "", langQuery),
-    fetchBookingDescription(bookingDestId, langQuery),
-    fetchBookingAmenities(bookingDestId, langQuery),
+  const shouldUseDB = dbHotel?.latest_reviews?.length > 0 && isFresh;
+
+  const [googleReviews, bookingDesc, bookingAmenities] = await Promise.all([
+    shouldUseDB ? Promise.resolve([]) : fetchGoogleReviews(hotelBasic?.name || "", langQuery),
+    shouldUseDB ? Promise.resolve(null) : fetchBookingDescription(bookingDestId, langQuery),
+    shouldUseDB ? Promise.resolve([]) : fetchBookingAmenities(bookingDestId, langQuery),
   ]);
 
-  const combinedReviews: any[] = [];
-  const maxLength = Math.max(tripAdvisorReviews.length, googleReviews.length);
-  for (let i = 0; i < maxLength; i++) {
-    if (i < tripAdvisorReviews.length) combinedReviews.push(tripAdvisorReviews[i]);
-    if (i < googleReviews.length) combinedReviews.push(googleReviews[i]);
+  let reviews = [];
+  if (shouldUseDB) {
+    reviews = dbHotel.latest_reviews;
+  } else {
+    reviews = googleReviews.slice(0, 20);
   }
-  const reviews = combinedReviews.slice(0, 20);
 
-  const finalDescription = bookingDesc || hotelBasic?.description || "";
-  const finalAmenities = bookingAmenities.length > 0
-    ? bookingAmenities
-    : (hotelBasic?.amenities ? hotelBasic.amenities.map((a: any) => ({ name: a.name || a.v, type: 'Property' })) : []);
-
-  // Fire & Forget: Sync back to DB
-  if (photos) {
+  // Fire & Forget: Sync back to DB if we fetched new Data
+  if (!shouldUseDB && photos) {
+    const finalDescription = bookingDesc || hotelBasic?.description || "";
     try {
       fetch(`${backendUrl}/api/hotels/sync-details`, {
         method: 'POST',
@@ -253,7 +224,7 @@ export async function HotelReviewsSection({
     } catch {}
   }
 
-  return <HotelReviews reviews={reviews} />;
+  return <HotelReviews reviews={reviews} slug={slug} />;
 }
 
 // ── Section: Similar Hotels (priority 5) ─────────────────────

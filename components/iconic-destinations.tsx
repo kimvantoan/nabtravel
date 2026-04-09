@@ -34,24 +34,30 @@ export function IconicDestinations({ destinations }: IconicDestinationsProps) {
           // 2 items in first row (span-3), 3 items in second row (span-2)
           const spanClass = index < 2 ? "md:col-span-3" : "md:col-span-2";
           const searchSlug = dest.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-").toLowerCase();
-          
+
           return (
             <Link
               href={`/hotels?search=${searchSlug}`}
               key={dest.id}
               className={`relative h-[220px] md:h-[280px] rounded-xl overflow-hidden cursor-pointer group/card block ${spanClass}`}
             >
-              <Image
-                src={dest.image}
-                alt={dest.name}
-                fill
-                className="object-cover transition-transform duration-700 group-hover/card:scale-105"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-              
+              {dest.image ? (
+                <Image
+                  src={dest.image}
+                  alt={dest.name}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover/card:scale-105"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                  <span className="text-sm text-gray-500">No Image</span>
+                </div>
+              )}
+
               {/* Top Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-transparent pointer-events-none" />
-              
+
               {/* Text Top Left */}
               <div className="absolute top-4 left-4 right-4 flex items-center gap-2">
                 <h3 className="text-white text-xl md:text-2xl font-bold drop-shadow-md leading-tight">

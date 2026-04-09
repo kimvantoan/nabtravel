@@ -27,10 +27,12 @@ class Hotel extends Model
         'photos',
         'latest_reviews',
         'booking_id',
+        'agoda_id',
         'price_updated_at',
         'address',
         'latitude',
         'longitude',
+        'agoda_price',
     ];
 
     protected function casts(): array

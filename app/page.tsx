@@ -1,10 +1,12 @@
 import { SearchHero } from "@/components/search-hero";
 import { IconicDestinations, IconicDestination } from "@/components/iconic-destinations";
 import { HotelRecommendations } from "@/components/hotel-recommendations";
+import { TourRecommendations } from "@/components/tour-recommendations";
 import { InspirationSection } from "@/components/inspiration-section";
 import { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n";
 import { getCachedArticles } from "@/lib/data";
+import { TourItemData } from "@/components/tour-list-card";
 
 export async function generateMetadata(): Promise<Metadata> {
   const dict = await getDictionary();
@@ -20,49 +22,23 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const dynamic = 'force-dynamic';
-
-
+export const revalidate = 3600; // Cache 1 giờ
 const RAPID_API_KEY = process.env.RAPID_API_KEY as string;
 
 async function searchAttractions(): Promise<IconicDestination[]> {
-  const targetCities = ["Hà Nội", "Đà Nẵng", "Nha Trang", "Đà Lạt", "Sa Pa", "Hội An"];
   try {
-    const promises = targetCities.map(async (city) => {
-      const response = await fetch(
-        `https://travel-advisor.p.rapidapi.com/locations/search?query=${city}&limit=5`,
-        {
-          headers: {
-            "X-RapidAPI-Key": RAPID_API_KEY,
-            "X-RapidAPI-Host": "travel-advisor.p.rapidapi.com",
-            Accept: "application/json"
-          },
-          next: { revalidate: 2592000 } // Cache 1 tháng — destinations hiếm thay đổi
-        }
-      );
-      if (!response.ok) return null;
-      const data = await response.json();
-      const place = data?.data?.find((d: any) => d.result_type === 'geos')?.result_object || data?.data?.[0]?.result_object;
-      if (!place) return null;
-
-      const photo = place.photo?.images?.large?.url || 'https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=600&auto=format&fit=crop';
-      return {
-        id: place.location_id?.toString() || Math.random().toString(),
-        name: city,
-        image: photo
-      };
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+    // Lấy dữ liệu từ DB, backend đã tự động lo phần đối soát logic cập nhật 30 ngày/lần với RapidAPI.
+    const response = await fetch(`${backendUrl}/api/destinations`, {
+      next: { revalidate: 3600 } // Cache dữ liệu trả về trong 1 giờ
     });
-
-    const results = await Promise.all(promises);
-    const validResults = results.filter(Boolean) as IconicDestination[];
-
-    if (validResults.length === 0) {
-      console.warn(`⚠️ Tất cả request RapidAPI Điểm đến đều lỗi. Đang trả về mảng rỗng.`);
-      return [];
-    }
-    return validResults;
+    
+    if (!response.ok) return [];
+    
+    const data = await response.json();
+    return data;
   } catch (error) {
-    console.warn("⚠️ Lỗi kết nối RapidAPI Điểm đến:", error);
+    console.warn("⚠️ Lỗi kết nối lấy Destinations từ Backend:", error);
     return [];
   }
 }
@@ -103,11 +79,33 @@ async function fetchTopHotels(): Promise<HotelData[]> {
   }
 }
 
+async function fetchHomeTours(): Promise<TourItemData[]> {
+  try {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+    const url = new URL(`${backendUrl}/api/tours`);
+    url.searchParams.set('limit', '12'); // Fetch top 12 tours for horizontal scroll
+    url.searchParams.set('skip', '0');
+    
+    const res = await fetch(url.toString(), {
+      next: { revalidate: 3600 }
+    });
+    
+    if (res.ok) {
+      const data = await res.json();
+      return data.tours || [];
+    }
+  } catch (error) {
+    console.error("Error loading tours from API", error);
+  }
+  return [];
+}
+
 export default async function Home() {
-  const [destinations, hotels, articles] = await Promise.all([
+  const [destinations, hotels, articles, tours] = await Promise.all([
     searchAttractions(),
     fetchTopHotels(),
-    getCachedArticles()
+    getCachedArticles(),
+    fetchHomeTours()
   ]);
 
   return (
@@ -115,6 +113,7 @@ export default async function Home() {
       <SearchHero />
       <IconicDestinations destinations={destinations} />
       <HotelRecommendations hotels={hotels} />
+      <TourRecommendations tours={tours} />
       <InspirationSection articles={articles} />
     </div>
   );

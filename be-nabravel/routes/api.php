@@ -24,13 +24,28 @@ Route::get('/generate-article/quota', [ArticleGeneratorController::class, 'quota
 // --- ROUTES MỚI CHO FRONTEND NEXT.JS ---
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\HotelController;
+use App\Http\Controllers\DestinationController;
 
+Route::get('/destinations', [DestinationController::class, 'index']);
 Route::get('/articles', [ArticleController::class, 'index']);
 Route::get('/articles/{slug}', [ArticleController::class, 'show']);
+
+use App\Http\Controllers\TourController;
+Route::get('/tours', [TourController::class, 'index']);
+Route::get('/tours/{slug}', [TourController::class, 'show']);
 
 Route::get('/hotels', [HotelController::class, 'index']);
 Route::get('/hotels/sync', [HotelController::class, 'sync']);
 Route::get('/hotels/top', [HotelController::class, 'topHotels']);
 Route::get('/hotels/{slug}', [HotelController::class, 'show']);
-Route::post('/hotels/sync-details', [HotelController::class, 'syncDetails']);
+// Reviews Routing
+Route::get('/hotels/{slug}/reviews', [App\Http\Controllers\ReviewController::class, 'index']);
+Route::post('/hotels/{slug}/reviews', [App\Http\Controllers\ReviewController::class, 'store']);
 Route::post('/hotels/sync-price', [HotelController::class, 'syncPrice']);
+
+use App\Http\Controllers\FavoriteController;
+Route::get('/favorites', [FavoriteController::class, 'getFavorites']);
+Route::post('/favorites/toggle', [FavoriteController::class, 'toggleFavorite']);
+
+use App\Http\Controllers\TourInquiryController;
+Route::post('/tour-inquiries', [TourInquiryController::class, 'store']);
