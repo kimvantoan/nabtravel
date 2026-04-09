@@ -5,7 +5,7 @@ import { HotelFilters } from "@/components/hotel-filters";
 import { HotelGridCard, HotelGridData } from "@/components/hotel-grid-card";
 import { ChevronDown, SlidersHorizontal, Search } from "lucide-react";
 import Image from "next/image";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { format, addDays } from "date-fns";
 import { enUS, vi } from "date-fns/locale";
 import { Calendar as CalendarIcon, Users } from "lucide-react";
@@ -26,6 +26,28 @@ const SORT_OPTIONS = [
   { id: "topReviewed", labelKey: "topReviewed" },
 ];
 
+function SkeletonHotelGridCard() {
+  return (
+    <div className="bg-white rounded-[16px] md:rounded-[20px] shadow-sm border border-gray-100 overflow-hidden flex flex-col w-full min-h-[380px] animate-pulse">
+      <div className="relative w-full aspect-[4/3] bg-gray-200 shrink-0"></div>
+      <div className="p-3.5 flex flex-col flex-1 justify-between">
+        <div className="flex flex-col gap-3">
+          <div className="h-5 bg-gray-200 rounded-md w-full"></div>
+          <div className="h-5 bg-gray-200 rounded-md w-2/3"></div>
+          <div className="flex gap-2">
+            <div className="w-10 h-4 bg-gray-200 rounded"></div>
+            <div className="w-16 h-4 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+        <div className="mt-4 pt-4 border-t border-gray-50 flex justify-between items-end">
+          <div className="h-3 bg-gray-200 rounded-md w-20"></div>
+          <div className="h-6 bg-gray-200 rounded-md w-24"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const VIETNAM_DESTINATIONS = [
   "Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Đà Lạt", "Nha Trang", 
   "Phú Quốc", "Vũng Tàu", "Hội An", "Sapa", "Quy Nhơn", 
@@ -45,14 +67,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
   const [currentPage, setCurrentPage] = useState(1);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const createSlug = (str: string) => {
-    return str.normalize('NFD') 
-      .replace(/[\u0300-\u036f]/g, '') 
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '');
-  };
+    // createSlug method removed in favor of URL parameter encoding
   
   // Hydrate currentPage safely without branching SSR/Client rendering logic
   useEffect(() => {
@@ -62,6 +77,8 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
     }
   }, []);
   const ITEMS_PER_PAGE = 18;
+
+  const loaderRef = useRef<HTMLDivElement>(null);
 
   // Filter States
   const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>([]);
@@ -202,6 +219,24 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
   const totalPages = Math.ceil(sortedHotels.length / ITEMS_PER_PAGE);
   const paginatedHotels = sortedHotels.slice(0, currentPage * ITEMS_PER_PAGE);
 
+  // Intersection Observer for Infinite Scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && currentPage < totalPages) {
+          setCurrentPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [currentPage, totalPages]);
+
   return (
     <div className="min-h-[calc(100vh-80px)] bg-gray-50/50 pb-20">
 
@@ -232,7 +267,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               onSubmit={(e) => {
                 e.preventDefault();
                 if (searchQuery.trim()) {
-                  window.location.href = `/hotels?search=${createSlug(searchQuery.trim())}`;
+                  window.location.href = `/hotels?search=${encodeURIComponent(searchQuery.trim())}`;
                 } else {
                   window.location.href = `/hotels`;
                 }
@@ -374,28 +409,27 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
             </form>
 
             {/* Sort Bar */}
-            <div className="flex justify-between items-center mb-6 relative z-30">
-              <span className="font-bold text-[16px] text-gray-900">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 relative z-30 gap-4">
+              <span className="font-bold text-[16px] text-gray-900 order-2 md:order-1 text-gray-600 md:text-gray-900 text-sm md:text-[16px]">
                 {filteredHotels.length} {hp?.suitableHotels ?? dict.searchHero?.hotels ?? "properties found"}
               </span>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 justify-start md:justify-end w-full md:w-auto order-1 md:order-2">
                 <button
                   onClick={() => setIsMobileFilterOpen(true)}
-                  className="flex lg:hidden items-center justify-center gap-1.5 bg-white border border-gray-300 rounded-xl px-4 py-2 font-bold text-[14px] text-gray-900 hover:bg-gray-50 transition-colors"
+                  className="flex lg:hidden items-center justify-center w-10 h-10 bg-white border border-gray-300 rounded-xl text-gray-900 hover:bg-gray-50 transition-colors shrink-0"
                 >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  {hp?.filterBtn ?? "Filter"}
+                  <SlidersHorizontal className="w-5 h-5" />
                 </button>
 
                 <div className="relative">
                   <button
                     onClick={() => setIsSortOpen(!isSortOpen)}
-                    className="flex items-center gap-2 bg-white border border-gray-300 rounded-xl px-4 py-2 font-bold text-[14px] shadow-sm hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-1.5 bg-white border border-gray-300 rounded-xl px-4 h-10 font-bold text-[14px] shadow-sm hover:bg-gray-50 transition-colors shrink-0 whitespace-nowrap"
                   >
                     <span className="hidden md:inline">{dict.hotelsPage?.sortBy || "Sắp xếp theo"}:</span>
                     <span>{dict.hotelsPage?.[sortOption as keyof typeof dict.hotelsPage] || "Đề xuất"}</span>
-                    <ChevronDown className={`w-4 h-4 ml-1 text-gray-500 transition-transform ${isSortOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-4 h-4 ml-0.5 text-gray-500 transition-transform ${isSortOpen ? "rotate-180" : ""}`} />
                   </button>
 
                   {isSortOpen && (
@@ -404,7 +438,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
                         className="fixed inset-0 z-40"
                         onClick={() => setIsSortOpen(false)}
                       />
-                      <div className="absolute top-full right-0 mt-2 w-56 bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-100">
+                      <div className="absolute top-full left-0 md:left-auto md:right-0 mt-2 w-56 bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-100">
                         {SORT_OPTIONS.map((opt) => (
                           <button
                             key={opt.id}
@@ -463,15 +497,14 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               </div>
             )}
 
-            {/* Load More Button */}
+            {/* Infinite Scroll Loader */}
             {currentPage < totalPages && (
-              <div className="mt-12 flex justify-center">
-                <button
-                  onClick={() => setCurrentPage(prev => prev + 1)}
-                  className="bg-white border-2 border-black text-black font-extrabold rounded-full px-8 py-3.5 hover:bg-gray-50 transition-colors text-[15px]"
-                >
-                  {hp?.showMore ?? "Load more"}
-                </button>
+              <div ref={loaderRef} className="mt-8 pt-4 pb-12 w-full">
+                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+                   {[1, 2, 3].map((i) => (
+                     <SkeletonHotelGridCard key={`hotel-skel-${i}`} />
+                   ))}
+                 </div>
               </div>
             )}
 

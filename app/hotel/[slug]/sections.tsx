@@ -139,9 +139,16 @@ export async function HotelGallerySection({
     || "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop";
   const fallbackPhotos = [mainPhoto];
   
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+  
+  // Format local storage paths for Next.js to pull from Laravel
+  const formattedDbPhotos = (dbHotel?.photos && Array.isArray(dbHotel.photos)) 
+    ? dbHotel.photos.map((p: string) => p.startsWith('/') ? `${backendUrl}${p}` : p)
+    : [];
+  
   // Ưu tiên Tuyệt đối: Ảnh từ Worker (Hotels.com) > Ảnh từ Booking.com > Ảnh TripAdvisor (đã bỏ)
-  const photos = (dbHotel?.photos?.length > 0) ? dbHotel.photos : (fetchedBookingPhotos.length > 0 ? fetchedBookingPhotos : fallbackPhotos);
-  const isBookingPhotos = (dbHotel?.photos?.length > 0) || fetchedBookingPhotos.length > 0;
+  const photos = (formattedDbPhotos.length > 0) ? formattedDbPhotos : (fetchedBookingPhotos.length > 0 ? fetchedBookingPhotos : fallbackPhotos);
+  const isBookingPhotos = (formattedDbPhotos.length > 0) || fetchedBookingPhotos.length > 0;
 
   return (
     <HotelGallery
@@ -165,19 +172,26 @@ export async function HotelAmenitiesSection({
 }: {
   hotelBasic: any; bookingDestId: string | null; langQuery: string; dbHotel?: any; isFresh?: boolean;
 }) {
-  const shouldUseDB = dbHotel?.description && dbHotel?.amenities?.length > 0 && isFresh;
+  const isVi = langQuery === 'vi_VN' || langQuery === 'vi';
+  const dbOverview = isVi ? dbHotel?.overview_vi : dbHotel?.overview_en;
+  const dbAmenities = isVi ? dbHotel?.amenities_vi : dbHotel?.amenities_en;
+
+  const shouldUseDB = (dbOverview || dbHotel?.description) && (isFresh);
 
   const [bookingDesc, bookingAmenities] = await Promise.all([
     shouldUseDB ? Promise.resolve(null) : fetchBookingDescription(bookingDestId, langQuery),
-    shouldUseDB ? Promise.resolve([]) : fetchBookingAmenities(bookingDestId, langQuery),
+    (dbAmenities && dbAmenities.length > 0) || (dbHotel?.amenities && dbHotel.amenities.length > 0) ? Promise.resolve([]) : fetchBookingAmenities(bookingDestId, langQuery),
   ]);
 
-  const finalDescription = shouldUseDB ? dbHotel.description : (bookingDesc || hotelBasic?.description || "");
-  const finalAmenities = shouldUseDB 
-    ? dbHotel.amenities.map((name: string) => ({ name, type: 'Property' })) 
-    : (bookingAmenities.length > 0
-      ? bookingAmenities
-      : (hotelBasic?.amenities ? hotelBasic.amenities.map((a: any) => ({ name: a.name || a.v, type: 'Property' })) : []));
+  const finalDescription = dbOverview ? dbOverview : (shouldUseDB ? dbHotel.description : (bookingDesc || hotelBasic?.description || ""));
+  
+  const finalAmenities = (dbAmenities && dbAmenities.length > 0)
+    ? dbAmenities.map((name: string) => ({ name, type: 'Property' }))
+    : ((dbHotel?.amenities && dbHotel.amenities.length > 0) 
+      ? dbHotel.amenities.map((name: string) => ({ name, type: 'Property' })) 
+      : (bookingAmenities.length > 0
+        ? bookingAmenities
+        : (hotelBasic?.amenities ? hotelBasic.amenities.map((a: any) => ({ name: a.name || a.v, type: 'Property' })) : [])));
 
   return (
     <HotelDetailsAmenities
@@ -259,14 +273,23 @@ export async function SimilarHotelsSection({
       return scoreB - scoreA;
     });
 
-    const suggestedHotels = filtered.slice(0, 4).map((h: any) => ({
-      id: h.id || h.slug,
-      name: h.name,
-      image: h.image || (h.photos && h.photos.length > 0 ? h.photos[0] : "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070"),
-      rating: h.rating ? Number(h.rating) : 4.5,
-      reviews: h.reviews ? Number(h.reviews) : 50,
-      price: h.price ? Number(h.price) : 100
-    }));
+    const suggestedHotels = filtered.slice(0, 4).map((h: any) => {
+      let hotelImage = h.image;
+      if (h.photos && h.photos.length > 0) {
+        hotelImage = h.photos[0].startsWith('/') ? `${backendUrl}${h.photos[0]}` : h.photos[0];
+      } else if (h.image && h.image.startsWith('/')) {
+        hotelImage = `${backendUrl}${h.image}`;
+      }
+      
+      return {
+        id: h.id || h.slug,
+        name: h.name,
+        image: hotelImage || "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070",
+        rating: h.rating ? Number(h.rating) : 4.5,
+        reviews: h.reviews ? Number(h.reviews) : 50,
+        price: h.price ? Number(h.price) : 100
+      };
+    });
 
     return <SimilarHotels hotels={suggestedHotels} />;
   } catch {

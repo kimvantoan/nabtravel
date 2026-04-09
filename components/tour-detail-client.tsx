@@ -66,6 +66,38 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
          });
    }, [tourId]);
 
+   const photos = tour?.gallery?.length > 0 ? tour.gallery : (tour?.photoUrl ? [tour.photoUrl] : []);
+
+   const openModal = (index: number) => {
+     setModalPhotoIndex(index);
+     setIsModalOpen(true);
+     document.body.style.overflow = "hidden";
+   };
+
+   const closeModal = () => {
+     setIsModalOpen(false);
+     document.body.style.overflow = "auto";
+   };
+
+   const handlePrev = () => {
+     if (modalPhotoIndex > 0) setModalPhotoIndex(prev => prev - 1);
+   };
+
+   const handleNext = () => {
+     if (photos && modalPhotoIndex < photos.length - 1) setModalPhotoIndex(prev => prev + 1);
+   };
+
+   useEffect(() => {
+     const handleKeyDown = (e: KeyboardEvent) => {
+       if (!isModalOpen) return;
+       if (e.key === "Escape") closeModal();
+       if (e.key === "ArrowLeft") handlePrev();
+       if (e.key === "ArrowRight") handleNext();
+     };
+     window.addEventListener("keydown", handleKeyDown);
+     return () => window.removeEventListener("keydown", handleKeyDown);
+   }, [isModalOpen, modalPhotoIndex, photos?.length]);
+
    if (isLoading) {
       return <TourSkeleton />;
    }
@@ -76,9 +108,16 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
 
    const name = typeof tour.name === 'object' ? (tour.name[locale] || tour.name.en) : tour.name;
    const places = Array.isArray(tour.destinations) ? tour.destinations.join(' - ') : tour.locations_applied;
-   const photos = tour.gallery && tour.gallery.length > 0 ? tour.gallery : [tour.photoUrl];
+   
+   // Handle dynamic locale fields with fallbacks
+   const activeItinerary = tour.itinerary ? (tour.itinerary[locale] || tour.itinerary.en) : null;
+   const activeInclusions = tour.inclusions ? (tour.inclusions[locale] || tour.inclusions.en) : null;
+   const activePrices = tour.prices ? (tour.prices[locale] || tour.prices.en) : null;
+   const activeFaqs = tour.faqs ? (tour.faqs[locale] || tour.faqs.en) : null;
+   const activeGroupSize = tour.group_size ? (typeof tour.group_size === 'object' ? (tour.group_size[locale] || tour.group_size.en) : tour.group_size) : '';
+   const activeMealsSummary = tour.meals_summary ? (typeof tour.meals_summary === 'object' ? (tour.meals_summary[locale] || tour.meals_summary.en) : tour.meals_summary) : '';
 
-   const itineraryDays = tour.itinerary ? tour.itinerary.map((item: any, idx: number, arr: any[]) => ({
+   const itineraryDays = activeItinerary ? activeItinerary.map((item: any, idx: number, arr: any[]) => ({
       id: idx + 1,
       title: `${item.title}`,
       content: item.description || item.content,
@@ -101,36 +140,6 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
       if (index !== currentImageIndex) {
          setCurrentImageIndex(index);
       }
-   };
-
-   useEffect(() => {
-     const handleKeyDown = (e: KeyboardEvent) => {
-       if (!isModalOpen) return;
-       if (e.key === "Escape") closeModal();
-       if (e.key === "ArrowLeft") handlePrev();
-       if (e.key === "ArrowRight") handleNext();
-     };
-     window.addEventListener("keydown", handleKeyDown);
-     return () => window.removeEventListener("keydown", handleKeyDown);
-   }, [isModalOpen, modalPhotoIndex, photos?.length]);
-
-   const openModal = (index: number) => {
-     setModalPhotoIndex(index);
-     setIsModalOpen(true);
-     document.body.style.overflow = "hidden";
-   };
-
-   const closeModal = () => {
-     setIsModalOpen(false);
-     document.body.style.overflow = "auto";
-   };
-
-   const handlePrev = () => {
-     if (modalPhotoIndex > 0) setModalPhotoIndex(prev => prev - 1);
-   };
-
-   const handleNext = () => {
-     if (photos && modalPhotoIndex < photos.length - 1) setModalPhotoIndex(prev => prev + 1);
    };
 
    const formatCurrency = (value: number) => {
@@ -273,7 +282,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                               <CheckCircle2 className="w-6 h-6 text-[#10a36e]" /> {dict.tourDetail.inclusionsTitle}
                            </h4>
                            <ul className="flex flex-col gap-3">
-                              {tour.inclusions ? tour.inclusions.map((inc: string, i: number) => (
+                              {activeInclusions ? activeInclusions.map((inc: string, i: number) => (
                                  <li key={i} className="flex items-start gap-2 text-[14px] text-gray-700">
                                     <div className="w-1.5 h-1.5 rounded-full bg-[#10a36e] shrink-0 mt-2"></div>
                                     <span className="leading-relaxed">{inc}</span>
@@ -295,7 +304,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                            
                            {/* Rows */}
                            <div className="flex flex-col">
-                              {tour.prices && tour.prices.length > 0 ? tour.prices.map((p: any, idx: number) => (
+                              {activePrices && activePrices.length > 0 ? activePrices.map((p: any, idx: number) => (
                                  <div key={idx} className="px-6 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-0 border-b border-gray-100 hover:bg-gray-50 transition-colors flex-wrap">
                                     <div className="text-[15px] text-[#444] leading-relaxed flex-1 w-full md:w-auto">{p.tier}</div>
                                     <div className="flex items-center justify-end w-full md:w-auto shrink-0 mt-1 md:mt-0">
@@ -316,11 +325,11 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                         </div>
                      </div>
                   )}
-                  {activeTab === 'qanda' && tour.faqs && (
+                  {activeTab === 'qanda' && activeFaqs && (
                      <div className="py-6">
                         <h4 className="font-bold text-[24px] text-[#333] mb-6">{dict.tourDetail.faqsTitle}</h4>
                         <div className="flex flex-col gap-4">
-                           {tour.faqs.map((faq: any, idx: number) => (
+                           {activeFaqs.map((faq: any, idx: number) => (
                               <AccordionFAQ key={idx} faq={faq} defaultOpen={idx === 0} />
                            ))}
                         </div>
@@ -336,7 +345,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                      <ul className="flex flex-col gap-4 text-[#333]">
                         <li className="flex items-start gap-3">
                            <Clock className="w-5 h-5 shrink-0 mt-0.5 text-gray-700" strokeWidth={1.5} />
-                           <div className="leading-relaxed"><span className="font-bold">{dict.tourDetail.duration}</span> <span className="text-gray-700 ml-1">{tour.duration_text || ((tour.itinerary ? tour.itinerary.length : 1) + (locale === 'vi' ? ' ngày' : ' days'))}</span></div>
+                           <div className="leading-relaxed"><span className="font-bold">{dict.tourDetail.duration}</span> <span className="text-gray-700 ml-1">{((activeItinerary ? activeItinerary.length : 1) + (locale === 'vi' ? ' ngày' : ' days'))}</span></div>
                         </li>
                         <li className="flex items-start gap-3">
                            <MapPin className="w-5 h-5 shrink-0 mt-0.5 text-gray-700" strokeWidth={1.5} />
@@ -344,11 +353,11 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                         </li>
                         <li className="flex items-start gap-3">
                            <Utensils className="w-5 h-5 shrink-0 mt-0.5 text-gray-700" strokeWidth={1.5} />
-                           <div className="leading-relaxed"><span className="font-bold">{dict.tourDetail.meals}</span> <span className="text-gray-700 ml-1">{tour.meals_summary}</span></div>
+                           <div className="leading-relaxed"><span className="font-bold">{dict.tourDetail.meals}</span> <span className="text-gray-700 ml-1">{activeMealsSummary}</span></div>
                         </li>
                         <li className="flex items-start gap-3">
                            <Users className="w-5 h-5 shrink-0 mt-0.5 text-gray-700" strokeWidth={1.5} />
-                           <div className="leading-relaxed"><span className="font-bold">{dict.tourDetail.groupSize}</span> <span className="text-gray-700 ml-1">{tour.group_size}</span></div>
+                           <div className="leading-relaxed"><span className="font-bold">{dict.tourDetail.groupSize}</span> <span className="text-gray-700 ml-1">{activeGroupSize}</span></div>
                         </li>
                         <li className="flex items-start gap-3">
                            <ShipWheel className="w-5 h-5 shrink-0 mt-0.5 text-gray-700" strokeWidth={1.5} />

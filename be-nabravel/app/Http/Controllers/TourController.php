@@ -161,25 +161,44 @@ class TourController extends Controller
             'photoUrl' => $tour->local_photo_path ? (url($tour->local_photo_path)) : $tour->photo_url,
             
             // From detail table (scraped data)
-            'itinerary' => $tour->detail ? $tour->detail->itinerary_json : null,
-            'highlights' => $tour->detail ? $tour->detail->highlights_json : null,
-            'inclusions' => $tour->detail ? $tour->detail->inclusions_json : null,
-            'exclusions' => $tour->detail ? $tour->detail->exclusions_json : null,
-            'policies' => $tour->detail ? $tour->detail->policies_json : null,
-            'faqs' => $tour->detail ? $tour->detail->faqs_json : null,
-            'prices' => $tour->detail ? $tour->detail->prices_json : null,
+            'itinerary' => [
+                'en' => $tour->detail ? $tour->detail->itinerary_json : null,
+                'vi' => $tour->detail ? $tour->detail->itinerary_vi_json : null,
+            ],
+            'highlights' => [
+                'en' => $tour->detail ? $tour->detail->highlights_json : null,
+                'vi' => $tour->detail ? $tour->detail->highlights_vi_json : null,
+            ],
+            'inclusions' => [
+                'en' => $tour->detail ? $tour->detail->inclusions_json : null,
+                'vi' => $tour->detail ? $tour->detail->inclusions_vi_json : null,
+            ],
+            'policies' => [
+                'en' => $tour->detail ? $tour->detail->policies_json : null,
+                'vi' => $tour->detail ? $tour->detail->policies_vi_json : null,
+            ],
+            'faqs' => [
+                'en' => $tour->detail ? $tour->detail->faqs_json : null,
+                'vi' => $tour->detail ? $tour->detail->faqs_vi_json : null,
+            ],
+            'prices' => [
+                'en' => $tour->detail ? $tour->detail->prices_json : null,
+                'vi' => $tour->detail ? $tour->detail->prices_vi_json : null,
+            ],
             'gallery' => ($tour->detail && $tour->detail->gallery_json && is_array($tour->detail->gallery_json)) 
                          ? array_map(function($path) { 
                              $clean = ltrim(str_replace(['/images/tours/', 'images/tours/'], 'storage/tours/', $path), '/');
                              return url($clean); 
                          }, $tour->detail->gallery_json) 
                          : null,
-            'tour_type' => $tour->detail ? $tour->detail->tour_type : null,
-            'duration_text' => $tour->detail ? $tour->detail->duration_text : null,
-            'group_size' => $tour->detail ? $tour->detail->group_size : null,
-            'suitable_for' => $tour->detail ? $tour->detail->suitable_for : null,
-            'themes' => $tour->detail ? $tour->detail->themes : null,
-            'meals_summary' => $tour->detail ? $tour->detail->meals_summary : null,
+            'group_size' => [
+                'en' => $tour->detail ? $tour->detail->group_size : null,
+                'vi' => $tour->detail ? $tour->detail->group_size_vi : null,
+            ],
+            'meals_summary' => [
+                'en' => $tour->detail ? $tour->detail->meals_summary : null,
+                'vi' => $tour->detail ? $tour->detail->meals_summary_vi : null,
+            ],
             'operator' => $tour->detail ? $tour->detail->operated_by : null,
         ];
         

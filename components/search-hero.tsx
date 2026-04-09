@@ -23,8 +23,7 @@ export function SearchHero() {
             const formData = new FormData(e.currentTarget);
             const q = formData.get('q') as string;
             if (q && q.trim()) {
-              const createSlug = (str: string) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-              window.location.href = `/hotels?search=${createSlug(q)}`;
+              window.location.href = `/hotels?search=${encodeURIComponent(q.trim())}`;
             } else {
               window.location.href = `/hotels`;
             }

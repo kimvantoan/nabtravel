@@ -56,26 +56,5 @@ export default async function HotelsPage({
 
   const hotels = await fetchVietnamHotels(search);
 
-  // Map slug back to readable name for display in the Search Input
-  let displaySearch = search;
-  if (search) {
-    const slugMap: Record<string, string> = {
-      'ha-noi': 'Hà Nội',
-      'da-nang': 'Đà Nẵng',
-      'nha-trang': 'Nha Trang',
-      'da-lat': 'Đà Lạt',
-      'sa-pa': 'Sa Pa',
-      'hoi-an': 'Hội An',
-      'phu-quoc': 'Phú Quốc',
-      'ho-chi-minh': 'Hồ Chí Minh'
-    };
-    if (slugMap[search.toLowerCase()]) {
-      displaySearch = slugMap[search.toLowerCase()];
-    } else {
-      // Fallback: capitalize first letter of each word
-      displaySearch = search.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-    }
-  }
-
-  return <HotelsClientView initialHotels={hotels} initialSearchQuery={displaySearch} />;
+  return <HotelsClientView initialHotels={hotels} initialSearchQuery={search} />;
 }
