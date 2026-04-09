@@ -60,10 +60,10 @@ export function HotelGallery({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasEnded, setHasEnded] = useState(isBookingPhotos ?? false);
 
-  // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [loadedModalImages, setLoadedModalImages] = useState<Record<number, boolean>>({});
+  const [desktopInlineIndex, setDesktopInlineIndex] = useState(0);
 
   const scrollToReviews = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -144,8 +144,23 @@ export function HotelGallery({
     }
   };
 
-  // Safe slice for the basic 4 grid desktop view
-  const displayPhotos = activePhotos.length >= 4 ? activePhotos : [...activePhotos, ...DEFAULT_PHOTOS].slice(0, 4);
+  const handleDesktopInlineNext = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (desktopInlineIndex < activePhotos.length - 1) {
+      setDesktopInlineIndex(prev => prev + 1);
+      if (desktopInlineIndex === activePhotos.length - 3) {
+        loadMorePhotos();
+      }
+    } else {
+      await loadMorePhotos();
+      if (!hasEnded && activePhotos.length > desktopInlineIndex + 1) {
+        setDesktopInlineIndex(prev => prev + 1);
+      }
+    }
+  };
+
+  // Safe slice for the basic view
+  const displayPhotos = activePhotos.length > 0 ? activePhotos : DEFAULT_PHOTOS;
 
   return (
     <div className="w-full pb-8">
@@ -240,48 +255,41 @@ export function HotelGallery({
         )}
       </div>
 
-      {/* DESKTOP GALLERY: Masonry Grid (Hidden on Mobile) */}
-      <div className="hidden md:flex flex-row gap-1 h-[460px] rounded-xl overflow-hidden bg-gray-100">
-        {/* Main large image */}
-        <div
-          className="relative w-2/3 h-full cursor-pointer group"
-          onClick={() => openModal(0)}
+      {/* DESKTOP GALLERY: Single Image with Hover Slider (Hidden on Mobile) */}
+      <div className="hidden md:block relative w-full h-[460px] rounded-xl overflow-hidden bg-gray-100 group cursor-pointer" onClick={() => openModal(desktopInlineIndex)}>
+        <Image
+          src={displayPhotos[desktopInlineIndex] || DEFAULT_PHOTOS[0]}
+          alt={`${name} Main Photo`}
+          fill
+          unoptimized={(displayPhotos[desktopInlineIndex] || DEFAULT_PHOTOS[0]).includes('127.0.0.1') || (displayPhotos[desktopInlineIndex] || DEFAULT_PHOTOS[0]).includes('localhost')}
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+          sizes="100vw"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+        {/* Navigation Buttons appear on hover */}
+        <button 
+           onClick={(e) => { e.stopPropagation(); setDesktopInlineIndex(prev => Math.max(0, prev - 1)); }}
+           className={`absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10 hover:scale-110 duration-200 ${desktopInlineIndex === 0 ? 'hidden' : ''}`}
         >
-          <Image
-            src={displayPhotos[0]}
-            alt={`${name} Main Photo`}
-            fill
-            unoptimized={displayPhotos[0] ? (displayPhotos[0].includes('127.0.0.1') || displayPhotos[0].includes('localhost')) : false}
-            className="object-cover transition-transform duration-500 hover:scale-[1.02]"
-            sizes="(max-width: 1200px) 66vw, 800px"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-        </div>
+          <ChevronLeft className="w-6 h-6 mr-0.5" />
+        </button>
 
-        {/* Right side 3 small images */}
-        <div className="w-1/3 flex flex-col gap-1 h-full relative">
-          <div className="relative w-full h-1/3 cursor-pointer group overflow-hidden" onClick={() => openModal(1)}>
-            <Image src={displayPhotos[1]} alt="Gallery 1" fill unoptimized={displayPhotos[1] ? (displayPhotos[1].includes('127.0.0.1') || displayPhotos[1].includes('localhost')) : false} className="object-cover transition-transform duration-500 hover:scale-105" sizes="33vw" />
-            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </div>
+        <button 
+           onClick={handleDesktopInlineNext}
+           className={`absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white text-gray-800 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10 hover:scale-110 duration-200 ${hasEnded && desktopInlineIndex === activePhotos.length - 1 ? 'hidden' : ''}`}
+        >
+          <ChevronRight className="w-6 h-6 ml-0.5" />
+        </button>
 
-          <div className="relative w-full h-1/3 cursor-pointer group overflow-hidden" onClick={() => openModal(2)}>
-            <Image src={displayPhotos[2]} alt="Gallery 2" fill unoptimized={displayPhotos[2] ? (displayPhotos[2].includes('127.0.0.1') || displayPhotos[2].includes('localhost')) : false} className="object-cover transition-transform duration-500 hover:scale-105" sizes="33vw" />
-            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </div>
-
-          <div className="relative w-full h-1/3 cursor-pointer group overflow-hidden" onClick={() => openModal(3)}>
-            <Image src={displayPhotos[3]} alt="Gallery 3" fill unoptimized={displayPhotos[3] ? (displayPhotos[3].includes('127.0.0.1') || displayPhotos[3].includes('localhost')) : false} className="object-cover transition-transform duration-500 hover:scale-105" sizes="33vw" />
-
-            {/* Dark gradient overlay for "View All" button */}
-            <div className="absolute inset-0 bg-gray-900/40 group-hover:bg-gray-900/60 transition-colors flex items-center justify-center backdrop-blur-[2px]">
-              <div className="text-white font-bold text-lg tracking-wide border-2 border-white/80 px-4 py-2 rounded-lg flex items-center gap-2">
-                Hiển thị tất cả ảnh
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* View All Button */}
+        <button 
+          onClick={(e) => { e.stopPropagation(); openModal(0); }}
+          className="absolute bottom-4 right-4 bg-white/95 hover:bg-white text-gray-900 font-bold px-4 py-2.5 rounded-lg shadow-md text-sm opacity-0 group-hover:opacity-100 transition-all hover:scale-105 z-10"
+        >
+          Hiển thị tất cả ảnh
+        </button>
       </div>
 
       {/* DESKTOP MODAL LIGHTBOX */}

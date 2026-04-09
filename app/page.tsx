@@ -26,9 +26,8 @@ const RAPID_API_KEY = process.env.RAPID_API_KEY as string;
 async function searchAttractions(): Promise<IconicDestination[]> {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    // Lấy dữ liệu từ DB, backend đã tự động lo phần đối soát logic cập nhật 30 ngày/lần với RapidAPI.
     const response = await fetch(`${backendUrl}/api/destinations`, {
-      next: { revalidate: 3600 } // Cache dữ liệu trả về trong 1 giờ
+      next: { revalidate: 3600 }
     });
 
     if (!response.ok) return [];

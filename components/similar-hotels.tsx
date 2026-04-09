@@ -76,6 +76,7 @@ export function SimilarHotels({ hotels = [] }: { hotels?: SimilarHotelData[] }) 
                   src={hotel.image}
                   alt={hotel.name}
                   fill
+                  unoptimized={hotel.image ? (hotel.image.includes('127.0.0.1') || hotel.image.includes('localhost')) : false}
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 />
