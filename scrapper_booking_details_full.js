@@ -9,7 +9,7 @@ async function scrapeBookingDetails() {
         // CẤU HÌNH CHO TEST LOCAL
         browser = await puppeteer.launch({ 
             headless: false,
-            executablePath: '/usr/bin/google-chrome',
+            channel: 'chrome',
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
         

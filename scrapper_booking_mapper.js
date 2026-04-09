@@ -10,14 +10,15 @@ const DESTINATIONS = [
 ];
 
 // URL do người dùng cung cấp (đã cắt phần rác ssne và dest_id để tìm tự do cho mọi tỉnh)
-const BASE_URL = "https://www.booking.com/searchresults.vi.html?label=gen173nr-10CAEoggI46AdIM1gEaPQBiAEBmAEzuAEXyAEM2AED6AEB-AEBiAIBqAIBuALL0sHOBsACAdICJGI0NzE0YzQ3LTc1NzAtNGE2My1iM2Y1LTMyMTc0ZjQ5MmQ3MdgCAeACAQ&aid=304142&lang=vi&src=index&checkin=2026-04-15&checkout=2026-04-18&group_adults=2&no_rooms=1&group_children=0&nflt=class%3D4%3Bclass%3D5%3Breview_score%3D90&ss=";
+const BASE_URL = "https://www.booking.com/searchresults.vi.html?label=gen173nr-10CAEoggI46AdIM1gEaPQBiAEBmAEzuAEXyAEM2AED6AEB-AEBiAIBqAIBuALL0sHOBsACAdICJGI0NzE0YzQ3LTc1NzAtNGE2My1iM2Y1LTMyMTc0ZjQ5MmQ3MdgCAeACAQ&aid=304142&lang=vi&src=index&checkin=2026-04-15&checkout=2026-04-18&group_adults=2&no_rooms=1&group_children=0&nflt=class%3D4%3Bclass%3D5%3Breview_score%3D80&ss=";
 
 async function scrapeBookingMaster() {
     let browser;
     try {
         console.log("Khởi động Puppeteer (Chế độ Stealth Booking đa khu vực)...");
         browser = await puppeteer.launch({ 
-            headless: 'new', // Chạy chế độ ngầm để không bị lỗi trên linux server
+            headless: false,
+            channel: 'chrome',
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--window-size=1920,1080']
         });
         
@@ -53,8 +54,8 @@ async function scrapeBookingMaster() {
             console.log("Đang chờ DOM Hotel Item...");
             await page.waitForSelector('[data-testid="property-card"]', { timeout: 30000 }).catch(() => console.log("Không tìm thấy Box, chuyển sang Lazy load..."));
 
-            console.log("Đang cuộn trang để kích hoạt Lazy load...");
-            for (let k = 0; k < 12; k++) {
+            console.log("Đang cuộn trang để kích hoạt Lazy load (tăng cường để lấy nhiều khách sạn hơn)...");
+            for (let k = 0; k < 40; k++) {
                 await page.evaluate(() => window.scrollBy(0, 600));
                 await new Promise(r => setTimeout(r, 800));
             }
