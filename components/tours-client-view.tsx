@@ -59,8 +59,8 @@ function SkeletonTourCard() {
         {/* Footer Skeleton */}
         <div className="mt-5 md:mt-8 pt-4 border-t border-gray-50 flex flex-col md:flex-row md:justify-between items-start md:items-end gap-4">
           <div className="w-full md:w-1/2 flex flex-col gap-2">
-             <div className="h-3 bg-gray-200 rounded-md w-3/4"></div>
-             <div className="h-3 bg-gray-200 rounded-md w-2/3"></div>
+            <div className="h-3 bg-gray-200 rounded-md w-3/4"></div>
+            <div className="h-3 bg-gray-200 rounded-md w-2/3"></div>
           </div>
           <div className="w-full md:w-28 h-10 bg-gray-200 rounded-md md:self-end mt-2 md:mt-0"></div>
         </div>
@@ -115,7 +115,7 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
   const fetchTours = async (skip: number, reset: boolean = false, currentSort: string = sortOption) => {
     try {
       setLoading(true);
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const url = new URL(`${backendUrl}/api/tours`);
       url.searchParams.set('limit', LIMIT.toString());
       url.searchParams.set('skip', skip.toString());
@@ -399,13 +399,13 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
             {/* Pagination Infinite Loader */}
             {hasMore ? (
               <div ref={loaderRef} className="mt-8 pb-20 w-full relative">
-                 {loading && (
-                   <div className="grid grid-cols-2 md:grid-cols-1 gap-3 md:gap-6 w-full">
-                     {[1, 2, 3].map((i) => (
-                       <SkeletonTourCard key={`skeleton-more-${i}`} />
-                     ))}
-                   </div>
-                 )}
+                {loading && (
+                  <div className="grid grid-cols-2 md:grid-cols-1 gap-3 md:gap-6 w-full">
+                    {[1, 2, 3].map((i) => (
+                      <SkeletonTourCard key={`skeleton-more-${i}`} />
+                    ))}
+                  </div>
+                )}
               </div>
             ) : null}
           </div>
