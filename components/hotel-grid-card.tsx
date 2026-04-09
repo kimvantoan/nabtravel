@@ -43,16 +43,22 @@ export function HotelGridCard({ hotel, checkin, checkout, adults, rooms, bulkPri
     nights = 1;
   }
 
+  let displayImage = hotel?.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80';
+  if (displayImage.startsWith('/storage/')) {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    displayImage = `${backendUrl}${displayImage}`;
+  }
+
   return (
     <div className="group bg-white rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col overflow-hidden h-full relative">
 
       {/* Image Container */}
       <Link href={`/hotel/${hotel?.slug || '#'}`} className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 flex-shrink-0 cursor-pointer block">
         <Image
-          src={hotel?.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80'}
+          src={displayImage}
           alt={hotel?.name || 'Hotel'}
           fill
-          unoptimized={hotel?.image ? (hotel.image.includes('127.0.0.1') || hotel.image.includes('localhost')) : false}
+          unoptimized={displayImage.includes('127.0.0.1') || displayImage.includes('localhost')}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover group-hover:scale-105 transition-transform duration-700 will-change-transform"
         />

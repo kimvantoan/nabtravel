@@ -53,7 +53,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
    const [isLoading, setIsLoading] = useState(true);
 
    useEffect(() => {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       fetch(`${backendUrl}/api/tours/${tourId}`)
          .then(res => res.json())
          .then(data => {
@@ -69,33 +69,33 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
    const photos = tour?.gallery?.length > 0 ? tour.gallery : (tour?.photoUrl ? [tour.photoUrl] : []);
 
    const openModal = (index: number) => {
-     setModalPhotoIndex(index);
-     setIsModalOpen(true);
-     document.body.style.overflow = "hidden";
+      setModalPhotoIndex(index);
+      setIsModalOpen(true);
+      document.body.style.overflow = "hidden";
    };
 
    const closeModal = () => {
-     setIsModalOpen(false);
-     document.body.style.overflow = "auto";
+      setIsModalOpen(false);
+      document.body.style.overflow = "auto";
    };
 
    const handlePrev = () => {
-     if (modalPhotoIndex > 0) setModalPhotoIndex(prev => prev - 1);
+      if (modalPhotoIndex > 0) setModalPhotoIndex(prev => prev - 1);
    };
 
    const handleNext = () => {
-     if (photos && modalPhotoIndex < photos.length - 1) setModalPhotoIndex(prev => prev + 1);
+      if (photos && modalPhotoIndex < photos.length - 1) setModalPhotoIndex(prev => prev + 1);
    };
 
    useEffect(() => {
-     const handleKeyDown = (e: KeyboardEvent) => {
-       if (!isModalOpen) return;
-       if (e.key === "Escape") closeModal();
-       if (e.key === "ArrowLeft") handlePrev();
-       if (e.key === "ArrowRight") handleNext();
-     };
-     window.addEventListener("keydown", handleKeyDown);
-     return () => window.removeEventListener("keydown", handleKeyDown);
+      const handleKeyDown = (e: KeyboardEvent) => {
+         if (!isModalOpen) return;
+         if (e.key === "Escape") closeModal();
+         if (e.key === "ArrowLeft") handlePrev();
+         if (e.key === "ArrowRight") handleNext();
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
    }, [isModalOpen, modalPhotoIndex, photos?.length]);
 
    if (isLoading) {
@@ -108,7 +108,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
 
    const name = typeof tour.name === 'object' ? (tour.name[locale] || tour.name.en) : tour.name;
    const places = Array.isArray(tour.destinations) ? tour.destinations.join(' - ') : tour.locations_applied;
-   
+
    // Handle dynamic locale fields with fallbacks
    const activeItinerary = tour.itinerary ? (tour.itinerary[locale] || tour.itinerary.en) : null;
    const activeInclusions = tour.inclusions ? (tour.inclusions[locale] || tour.inclusions.en) : null;
@@ -199,8 +199,8 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                         className="flex w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth"
                      >
                         {photos.map((photo: string, index: number) => (
-                           <div 
-                              key={index} 
+                           <div
+                              key={index}
                               className="relative w-full h-full shrink-0 snap-center md:cursor-pointer"
                               onClick={() => {
                                  if (window.innerWidth >= 768) {
@@ -301,7 +301,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                               <div className="font-semibold text-[#333] text-[16px]">01 Jan 2026 - 30 Apr 2027</div>
                               <div className="text-[13px] font-semibold text-gray-500 uppercase tracking-wide">{dict.tourDetail.privateTour}</div>
                            </div>
-                           
+
                            {/* Rows */}
                            <div className="flex flex-col">
                               {activePrices && activePrices.length > 0 ? activePrices.map((p: any, idx: number) => (
@@ -377,7 +377,7 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                      </div>
 
                      <div className="flex gap-4">
-                        <button 
+                        <button
                            onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -389,9 +389,8 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
                                  url: `/tour/${tour?.slug || tour?.id || tourId}`
                               });
                            }}
-                           className={`w-12 h-12 border rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                              isLiked ? 'bg-[#10a36e] border-[#10a36e] text-white shadow-sm' : 'bg-white border-gray-300 text-[#10a36e] hover:border-[#10a36e] hover:bg-[#f0faf5]'
-                           }`}
+                           className={`w-12 h-12 border rounded-full flex items-center justify-center shrink-0 transition-colors ${isLiked ? 'bg-[#10a36e] border-[#10a36e] text-white shadow-sm' : 'bg-white border-gray-300 text-[#10a36e] hover:border-[#10a36e] hover:bg-[#f0faf5]'
+                              }`}
                         >
                            <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                         </button>
@@ -424,59 +423,59 @@ export function TourDetailClient({ tourId }: { tourId: string }) {
 
          {/* DESKTOP MODAL LIGHTBOX */}
          {isModalOpen && (
-           <div className="fixed inset-0 z-[9999] bg-black/95 hidden md:flex items-center justify-center backdrop-blur-md">
-             <div className="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-50 pointer-events-none">
-               <span className="text-white/80 font-medium tracking-widest text-sm bg-black/50 px-4 py-1.5 rounded-full pointer-events-auto select-none">
-                 {modalPhotoIndex + 1} / {photos.length}
-               </span>
-               <button
-                 onClick={closeModal}
-                 className="pointer-events-auto p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors group"
-               >
-                 <X className="w-6 h-6 group-hover:scale-110 transition-transform" />
-               </button>
-             </div>
-
-             <button
-               onClick={handlePrev}
-               disabled={modalPhotoIndex === 0}
-               className={`absolute left-4 lg:left-8 p-3 lg:p-4 rounded-full bg-white/10 text-white transition-all z-50
-                 ${modalPhotoIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/20 hover:scale-110'}`}
-             >
-               <ChevronLeft className="w-8 h-8 lg:w-10 lg:h-10" strokeWidth={1.5} />
-             </button>
-
-             <div className="relative w-full max-w-7xl h-full max-h-[85vh] flex items-center justify-center px-16 md:px-24">
-               <div className="relative w-full h-full">
-                 <Image
-                   src={photos[modalPhotoIndex]}
-                   alt={`Full Gallery Photo ${modalPhotoIndex + 1}`}
-                   fill
-                   unoptimized={photos[modalPhotoIndex] ? (photos[modalPhotoIndex].includes('127.0.0.1') || photos[modalPhotoIndex].includes('localhost')) : false}
-                   className="object-contain"
-                   quality={100}
-                   priority
-                   onLoad={() => setLoadedModalImages(prev => ({...prev, [modalPhotoIndex]: true}))}
-                 />
-                 {!loadedModalImages[modalPhotoIndex] && (
-                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                     <div className="bg-black/50 px-5 py-4 rounded-xl flex items-center justify-center shadow-lg backdrop-blur-sm">
-                       <Loader2 className="w-8 h-8 text-white animate-spin" />
-                     </div>
-                   </div>
-                 )}
+            <div className="fixed inset-0 z-[9999] bg-black/95 hidden md:flex items-center justify-center backdrop-blur-md">
+               <div className="absolute top-0 inset-x-0 p-6 flex justify-between items-center z-50 pointer-events-none">
+                  <span className="text-white/80 font-medium tracking-widest text-sm bg-black/50 px-4 py-1.5 rounded-full pointer-events-auto select-none">
+                     {modalPhotoIndex + 1} / {photos.length}
+                  </span>
+                  <button
+                     onClick={closeModal}
+                     className="pointer-events-auto p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors group"
+                  >
+                     <X className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                  </button>
                </div>
-             </div>
 
-             <button
-               onClick={handleNext}
-               disabled={modalPhotoIndex === photos.length - 1}
-               className={`absolute right-4 lg:right-8 p-3 lg:p-4 rounded-full bg-white/10 text-white transition-all z-50
+               <button
+                  onClick={handlePrev}
+                  disabled={modalPhotoIndex === 0}
+                  className={`absolute left-4 lg:left-8 p-3 lg:p-4 rounded-full bg-white/10 text-white transition-all z-50
+                 ${modalPhotoIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/20 hover:scale-110'}`}
+               >
+                  <ChevronLeft className="w-8 h-8 lg:w-10 lg:h-10" strokeWidth={1.5} />
+               </button>
+
+               <div className="relative w-full max-w-7xl h-full max-h-[85vh] flex items-center justify-center px-16 md:px-24">
+                  <div className="relative w-full h-full">
+                     <Image
+                        src={photos[modalPhotoIndex]}
+                        alt={`Full Gallery Photo ${modalPhotoIndex + 1}`}
+                        fill
+                        unoptimized={photos[modalPhotoIndex] ? (photos[modalPhotoIndex].includes('127.0.0.1') || photos[modalPhotoIndex].includes('localhost')) : false}
+                        className="object-contain"
+                        quality={100}
+                        priority
+                        onLoad={() => setLoadedModalImages(prev => ({ ...prev, [modalPhotoIndex]: true }))}
+                     />
+                     {!loadedModalImages[modalPhotoIndex] && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                           <div className="bg-black/50 px-5 py-4 rounded-xl flex items-center justify-center shadow-lg backdrop-blur-sm">
+                              <Loader2 className="w-8 h-8 text-white animate-spin" />
+                           </div>
+                        </div>
+                     )}
+                  </div>
+               </div>
+
+               <button
+                  onClick={handleNext}
+                  disabled={modalPhotoIndex === photos.length - 1}
+                  className={`absolute right-4 lg:right-8 p-3 lg:p-4 rounded-full bg-white/10 text-white transition-all z-50
                  ${modalPhotoIndex === photos.length - 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/20 hover:scale-110'}`}
-             >
-               <ChevronRight className="w-8 h-8 lg:w-10 lg:h-10" strokeWidth={1.5} />
-             </button>
-           </div>
+               >
+                  <ChevronRight className="w-8 h-8 lg:w-10 lg:h-10" strokeWidth={1.5} />
+               </button>
+            </div>
          )}
       </div>
    );

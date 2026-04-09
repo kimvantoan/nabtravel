@@ -113,7 +113,7 @@ export function SimilarHotels({ hotels = [] }: { hotels?: SimilarHotelData[] }) 
                 </div>
 
                 <div className="mt-3">
-                  <LiveListPrice hotelName={hotel.name} fallbackPrice={hotel.price} priceUpdatedAt={hotel.price_updated_at} fontSize="16px" />
+                  <LiveListPrice hotelName={hotel.name} fallbackPrice={hotel.price} bulkPrice={hotel.price} priceUpdatedAt={hotel.price_updated_at} fontSize="16px" />
                 </div>
 
                 <div className="mt-auto pt-4">

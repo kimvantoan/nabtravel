@@ -8,7 +8,7 @@ interface ChatMessage {
 // Fetch hotel data from Laravel backend for AI context
 async function fetchHotelContext(): Promise<string> {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     const res = await fetch(`${backendUrl}/api/hotels`, {
       next: { revalidate: 300 } // Cache 5 minutes
     });
@@ -64,7 +64,7 @@ IMPORTANT RULES:
 3. If users ask about places not in the list, still advise normally but note that NabTravel is expanding its database
 4. Use appropriate emojis for a friendly feel
 5. Respond in English`
-  }
+    }
 
 ${hotelContext ? `\nDANH SÁCH KHÁCH SẠN NABTRAVEL:\n${hotelContext}` : '\n(Database khách sạn hiện đang trống. Hãy tư vấn du lịch chung.)'}`;
 }
@@ -166,7 +166,7 @@ export async function POST(request: Request) {
         try {
           while (true) {
             const { done, value } = await reader.read();
-            
+
             if (value) {
               buffer += decoder.decode(value, { stream: true });
             }
@@ -192,7 +192,7 @@ export async function POST(request: Request) {
                 }
               }
             }
-            
+
             if (done) break;
           }
         } catch (e) {

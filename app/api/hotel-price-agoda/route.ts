@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     // Agoda RapidAPI primarily supports City IDs for availability search (e.g. 1_318).
     // We try to use the city ID if available, otherwise fallback to the hotel ID (with prefix 1_ or 0_)
     const searchId = hotel.city?.id ? `1_${hotel.city.id}` : (hotel.typeId === 1 ? hotel.id : `1_${hotel.id}`);
-    
+
     let priceData: any = {};
     const priceRes = await fetch(`https://agoda-com.p.rapidapi.com/hotels/search-overnight?id=${searchId}&checkinDate=${arrival_date}&checkoutDate=${departure_date}&adults=${adults}&rooms=${rooms}&currency=VND`, {
       headers: {
@@ -49,17 +49,17 @@ export async function GET(request: Request) {
     });
 
     if (priceRes.ok) {
-        priceData = await priceRes.json();
+      priceData = await priceRes.json();
     } else {
-        // Fallback: try raw ID if searchId failed
-        const fallbackRes = await fetch(`https://agoda-com.p.rapidapi.com/hotels/search-overnight?id=${hotel.id}&checkinDate=${arrival_date}&checkoutDate=${departure_date}&adults=${adults}&rooms=${rooms}&currency=VND`, {
-            headers: { 'x-rapidapi-key': rapidApiKey, 'x-rapidapi-host': rapidApiHost },
-            next: { revalidate: 60 }
-        });
-        if (fallbackRes.ok) priceData = await fallbackRes.json();
+      // Fallback: try raw ID if searchId failed
+      const fallbackRes = await fetch(`https://agoda-com.p.rapidapi.com/hotels/search-overnight?id=${hotel.id}&checkinDate=${arrival_date}&checkoutDate=${departure_date}&adults=${adults}&rooms=${rooms}&currency=VND`, {
+        headers: { 'x-rapidapi-key': rapidApiKey, 'x-rapidapi-host': rapidApiHost },
+        next: { revalidate: 60 }
+      });
+      if (fallbackRes.ok) priceData = await fallbackRes.json();
     }
 
-    
+
     // Recursive find price (since Agoda JSON structure is complex)
     let bestPrice: number | null = null;
     let currency = 'VND';
@@ -74,11 +74,11 @@ export async function GET(request: Request) {
       } else if (typeof obj.taxInclusive === 'number' && obj.taxInclusive > 0) {
         if (!bestPrice || obj.taxInclusive < bestPrice) bestPrice = obj.taxInclusive;
       } else if (typeof obj.price === 'number' && obj.price > 0) {
-         if (!bestPrice || obj.price < bestPrice) bestPrice = obj.price;
+        if (!bestPrice || obj.price < bestPrice) bestPrice = obj.price;
       } else if (typeof obj.display === 'number' && obj.display > 0) {
-         if (!bestPrice || obj.display < bestPrice) bestPrice = obj.display;
+        if (!bestPrice || obj.display < bestPrice) bestPrice = obj.display;
       }
-      
+
       for (const k in obj) {
         if (k === 'currency' && typeof obj[k] === 'string' && obj[k].length === 3) {
           currency = obj[k];
@@ -91,20 +91,20 @@ export async function GET(request: Request) {
 
     // Agoda API returns data in .data.citySearch.properties or .data.properties
     const allProperties = priceData?.data?.citySearch?.properties || priceData?.data?.properties || [];
-    
+
     // Try to find the exact property first
     let targetProperty = allProperties.find((p: any) => p.propertyId === hotel.id);
-    
+
     // Fallback: If not found, use name similarity
     if (!targetProperty && allProperties.length > 0) {
-        const cleanName = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
-        const targetClean = cleanName(name);
-        
-        targetProperty = allProperties.find((p: any) => {
-            const pName = p.content?.informationSummary?.displayName || p.content?.informationSummary?.defaultName || '';
-            const pClean = cleanName(pName);
-            return pClean.includes(targetClean) || targetClean.includes(pClean);
-        });
+      const cleanName = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const targetClean = cleanName(name);
+
+      targetProperty = allProperties.find((p: any) => {
+        const pName = p.content?.informationSummary?.displayName || p.content?.informationSummary?.defaultName || '';
+        const pClean = cleanName(pName);
+        return pClean.includes(targetClean) || targetClean.includes(pClean);
+      });
     }
 
     // If no matching property is found (due to Agoda's City API pagination), we throw an error 
@@ -113,22 +113,22 @@ export async function GET(request: Request) {
     const agodaDirectUrl = `https://www.agoda.com/partners/partnersearch.aspx?cid=1&hid=${hotel.agoda_id || hotel.id}&checkin=${arrival_date}&checkout=${departure_date}&adults=${adults}&rooms=${rooms}`;
 
     if (!targetProperty) {
-        return NextResponse.json({ 
-          error: 'Price not found for these dates on Agoda',
-          url: agodaDirectUrl
-        }, { status: 404 });
+      return NextResponse.json({
+        error: 'Price not found for these dates on Agoda',
+        url: agodaDirectUrl
+      }, { status: 404 });
     }
 
-    const realPropertyName = targetProperty?.content?.informationSummary?.displayName 
-        || targetProperty?.content?.informationSummary?.defaultName 
-        || name;
+    const realPropertyName = targetProperty?.content?.informationSummary?.displayName
+      || targetProperty?.content?.informationSummary?.defaultName
+      || name;
 
     const propertyToExtract = [targetProperty];
     extractPrice(propertyToExtract);
 
     if (bestPrice) {
       // Fire & Forget DB Sync (Optional)
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       fetch(`${backendUrl}/api/hotels/sync-price`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -139,8 +139,8 @@ export async function GET(request: Request) {
         })
       }).catch(err => console.error("Failed to sync Agoda price to DB:", err));
 
-      return NextResponse.json({ 
-        price_per_night: bestPrice, 
+      return NextResponse.json({
+        price_per_night: bestPrice,
         total_price: bestPrice,
         currency: currency,
         url: agodaDirectUrl,
@@ -153,7 +153,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Agoda Pricing API Error:", error);
     const fallbackUrl = `https://www.agoda.com/search?text=${encodeURIComponent(name || 'Hotel')}`;
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Failed to fetch Agoda price (Quota/API Error)',
       url: fallbackUrl
     }, { status: 404 });

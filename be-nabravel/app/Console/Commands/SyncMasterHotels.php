@@ -115,9 +115,14 @@ class SyncMasterHotels extends Command
                                     $imageData = Storage::disk('public')->get($oldJpgPath);
                                 } else {
                                     // 2. Fetch fresh from web
+                                    $dynamicHeaders = $headers;
+                                    if (str_contains($rawUrl, 'agoda.net') || str_contains($rawUrl, 'agoda.com')) {
+                                        $dynamicHeaders['Referer'] = 'https://www.agoda.com/';
+                                    }
+                                    
                                     $imageData = Http::withOptions(['verify' => false])
-                                        ->withHeaders($headers)
-                                        ->timeout(10)
+                                        ->withHeaders($dynamicHeaders)
+                                        ->timeout(15)
                                         ->get($rawUrl)
                                         ->body();
                                 }
@@ -141,8 +146,8 @@ class SyncMasterHotels extends Command
                             }
                             $localPhotos[] = $publicUrl;
                         } catch (\Exception $e) {
-                            // Fallback to external original image if download times out
-                            $localPhotos[] = $rawUrl;
+                            // Cố tình rớt ảnh (Drop image) thay vì lưu Link gốc hỏng
+                            continue;
                         }
                         $counter++;
                     }

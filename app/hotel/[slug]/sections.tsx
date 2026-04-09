@@ -138,14 +138,14 @@ export async function HotelGallerySection({
     || hotelBasic?.photo?.images?.large?.url
     || "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop";
   const fallbackPhotos = [mainPhoto];
-  
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
-  
+
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
   // Format local storage paths for Next.js to pull from Laravel
-  const formattedDbPhotos = (dbHotel?.photos && Array.isArray(dbHotel.photos)) 
+  const formattedDbPhotos = (dbHotel?.photos && Array.isArray(dbHotel.photos))
     ? dbHotel.photos.map((p: string) => p.startsWith('/') ? `${backendUrl}${p}` : p)
     : [];
-  
+
   // Ưu tiên Tuyệt đối: Ảnh từ Worker (Hotels.com) > Ảnh từ Booking.com > Ảnh TripAdvisor (đã bỏ)
   const photos = (formattedDbPhotos.length > 0) ? formattedDbPhotos : (fetchedBookingPhotos.length > 0 ? fetchedBookingPhotos : fallbackPhotos);
   const isBookingPhotos = (formattedDbPhotos.length > 0) || fetchedBookingPhotos.length > 0;
@@ -184,11 +184,11 @@ export async function HotelAmenitiesSection({
   ]);
 
   const finalDescription = dbOverview ? dbOverview : (shouldUseDB ? dbHotel.description : (bookingDesc || hotelBasic?.description || ""));
-  
+
   const finalAmenities = (dbAmenities && dbAmenities.length > 0)
     ? dbAmenities.map((name: string) => ({ name, type: 'Property' }))
-    : ((dbHotel?.amenities && dbHotel.amenities.length > 0) 
-      ? dbHotel.amenities.map((name: string) => ({ name, type: 'Property' })) 
+    : ((dbHotel?.amenities && dbHotel.amenities.length > 0)
+      ? dbHotel.amenities.map((name: string) => ({ name, type: 'Property' }))
       : (bookingAmenities.length > 0
         ? bookingAmenities
         : (hotelBasic?.amenities ? hotelBasic.amenities.map((a: any) => ({ name: a.name || a.v, type: 'Property' })) : [])));
@@ -234,8 +234,8 @@ export async function HotelReviewsSection({
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({ slug, description: finalDescription, photos, latest_reviews: reviews })
-      }).catch(() => {});
-    } catch {}
+      }).catch(() => { });
+    } catch { }
   }
 
   return <HotelReviews reviews={reviews} slug={slug} />;
@@ -280,7 +280,7 @@ export async function SimilarHotelsSection({
       } else if (h.image && h.image.startsWith('/')) {
         hotelImage = `${backendUrl}${h.image}`;
       }
-      
+
       return {
         id: h.id || h.slug,
         name: h.name,

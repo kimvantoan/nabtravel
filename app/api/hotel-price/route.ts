@@ -28,22 +28,22 @@ export async function GET(request: Request) {
     }
 
     const data = await res.json();
-    
+
     // Extract price from the first item
     if (data && data.length > 0) {
       const hotelData = data[0];
-      const priceVal = hotelData.composite_price_breakdown?.gross_amount_per_night?.value 
+      const priceVal = hotelData.composite_price_breakdown?.gross_amount_per_night?.value
         || hotelData.composite_price_breakdown?.gross_amount?.value
         || hotelData.product_price_breakdowns?.[0]?.gross_amount_per_night?.value;
-        
-      const totalVal = hotelData.composite_price_breakdown?.gross_amount?.value 
+
+      const totalVal = hotelData.composite_price_breakdown?.gross_amount?.value
         || hotelData.product_price_breakdowns?.[0]?.gross_amount?.value;
-        
+
       const currency = hotelData.composite_price_breakdown?.gross_amount_per_night?.currency || 'VND';
 
       if (priceVal) {
         // Fire & Forget DB Sync
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
         fetch(`${backendUrl}/api/hotels/sync-price`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -54,11 +54,11 @@ export async function GET(request: Request) {
           })
         }).catch(err => console.error("Failed to sync price to DB:", err));
 
-        
+
         const block = hotelData.block?.[0] || {};
-        
-        return NextResponse.json({ 
-          price_per_night: priceVal, 
+
+        return NextResponse.json({
+          price_per_night: priceVal,
           total_price: totalVal,
           currency: currency,
           url: hotelData.url || null,
