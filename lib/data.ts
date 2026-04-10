@@ -15,7 +15,7 @@ export const getCachedArticles = cache(async (): Promise<ArticleData[]> => {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     const response = await fetch(`${backendUrl}/api/articles`, {
-      next: { revalidate: 3600 } // Revalidate every 1 hour (ISR)
+      next: { revalidate: 0 }
     });
 
     if (!response.ok) {
@@ -36,7 +36,7 @@ export const getCachedArticleBySlug = cache(async (slug: string): Promise<Articl
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     const response = await fetch(`${backendUrl}/api/articles/${slug}`, {
-      next: { revalidate: 3600 }
+      next: { revalidate: 0 }
     });
 
     if (!response.ok) {
