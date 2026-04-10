@@ -17,7 +17,7 @@ class ContactController extends Controller
             'recaptcha_token' => 'required|string',
         ]);
 
-        $secret = env('RECAPTCHA_SECRET_KEY', '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe');
+        $secret = config('services.recaptcha.secret');
         $requestOptions = \Illuminate\Support\Facades\Http::withOptions(['verify' => true]);
         $response = $requestOptions->asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => $secret,
