@@ -26,6 +26,16 @@ const nextConfig: NextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/storage/:path*',
+        destination: process.env.NEXT_PUBLIC_BACKEND_URL 
+          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/:path*`
+          : 'http://127.0.0.1:8000/storage/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
