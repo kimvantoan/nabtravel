@@ -34,8 +34,11 @@ class ContactController extends Controller
         }
 
         try {
-            $receiverEmail = env('MAIL_USERNAME', 'support@nabtravel.com');
-            Mail::to($receiverEmail)->send(new ContactMessageMail($validated));
+            // Đọc email nhận từ MAIL_FROM_ADDRESS trong file .env
+            $receiverEmail = config('mail.from.address');
+            /** @var \Illuminate\Contracts\Mail\Mailable $mail */
+            $mail = new ContactMessageMail($validated);
+            Mail::to($receiverEmail)->send($mail);
             
             return response()->json([
                 'success' => true,
