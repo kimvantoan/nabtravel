@@ -78,6 +78,15 @@ $AppJsDest = Join-Path $StandalonePath "app.js"
 Copy-Item -Force $AppJsSrc $AppJsDest
 Write-Host "  OK app.js copied" -ForegroundColor Green
 
+$EnvSrc = Join-Path $ProjectRoot ".env.production"
+$EnvDest = Join-Path $StandalonePath ".env.production"
+if (Test-Path $EnvSrc) {
+    Copy-Item -Force $EnvSrc $EnvDest
+    # Rename it to .env in standalone so Next.js standalone reads it natively
+    Rename-Item -Path $EnvDest -NewName ".env" -Force -ErrorAction SilentlyContinue
+    Write-Host "  OK .env.production securely copied to standalone server" -ForegroundColor Green
+}
+
 # --- Step 4: Create ZIP ---
 Write-Host "[4/4] Creating deployment package..." -ForegroundColor Yellow
 if (Test-Path $OutputZip) { Remove-Item -Force $OutputZip }
