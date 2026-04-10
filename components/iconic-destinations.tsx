@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/app/providers";
+import { createSlug } from "@/lib/utils";
 
 export interface IconicDestination {
   id: string;
@@ -33,7 +34,7 @@ export function IconicDestinations({ destinations }: IconicDestinationsProps) {
         {destinations.slice(0, 5).map((dest, index) => {
           // 2 items in first row (span-3), 3 items in second row (span-2)
           const spanClass = index < 2 ? "md:col-span-3" : "md:col-span-2";
-          const searchSlug = encodeURIComponent(dest.name);
+          const searchSlug = createSlug(dest.name);
 
           return (
             <Link
