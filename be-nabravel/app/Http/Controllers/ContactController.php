@@ -17,7 +17,7 @@ class ContactController extends Controller
             'recaptcha_token' => 'required|string',
         ]);
 
-        $secret = env('RECAPTCHA_SECRET_KEY', '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe');
+        $secret = config('services.recaptcha.secret');
         $requestOptions = \Illuminate\Support\Facades\Http::withOptions(['verify' => true]);
         $response = $requestOptions->asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => $secret,
@@ -34,8 +34,11 @@ class ContactController extends Controller
         }
 
         try {
-            $receiverEmail = env('MAIL_USERNAME', 'support@nabtravel.com');
-            Mail::to($receiverEmail)->send(new ContactMessageMail($validated));
+            // Đọc email nhận từ MAIL_FROM_ADDRESS trong file .env
+            $receiverEmail = config('mail.from.address');
+            /** @var \Illuminate\Contracts\Mail\Mailable $mail */
+            $mail = new ContactMessageMail($validated);
+            Mail::to($receiverEmail)->send($mail);
             
             return response()->json([
                 'success' => true,
