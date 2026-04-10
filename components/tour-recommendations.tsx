@@ -123,8 +123,7 @@ export function TourRecommendations({ tours }: TourRecommendationsProps) {
                     </span>
                   </div>
 
-                  <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
-                    <span className="text-[12px] text-gray-500">{dict.tourDetail.from}</span>
+                  <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-end">
                     <span className="text-[16px] font-bold text-[#e56d25]">{formatCurrency(tour.priceVND)}</span>
                   </div>
                 </div>

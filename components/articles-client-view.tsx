@@ -16,9 +16,9 @@ export function ArticlesClientView({ articles }: { articles: ArticleData[] }) {
 
       {/* Featured Article Section */}
       {featuredArticle && (
-        <div className="mb-12 xl:mb-16">
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-6 flex items-center gap-2">
-            <span className="w-1.5 h-6 bg-[#004f32] rounded-full inline-block"></span>
+        <div className="mb-16 xl:mb-24">
+          <h2 className="text-2xl lg:text-3xl font-extrabold text-gray-900 mb-8 flex items-center gap-3">
+            <span className="w-2 h-8 bg-[#004f32] rounded-full inline-block"></span>
             {dict.articlesPage?.featured || "Bài viết nổi bật"}
           </h2>
           <ArticleCard article={featuredArticle} featured={true} dict={dict} />
@@ -27,13 +27,13 @@ export function ArticlesClientView({ articles }: { articles: ArticleData[] }) {
 
       {/* Article Grid Section */}
       <div>
-        <h2 className="text-2xl font-extrabold text-gray-900 mb-6 flex items-center gap-2">
-           <span className="w-1.5 h-6 bg-[#004f32] rounded-full inline-block"></span>
+        <h2 className="text-2xl lg:text-3xl font-extrabold text-gray-900 mb-8 flex items-center gap-3">
+           <span className="w-2 h-8 bg-[#004f32] rounded-full inline-block"></span>
            {dict.articlesPage?.latest || "Mới nhất"}
         </h2>
         
         {gridArticles.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
             {gridArticles.map((article) => (
               <ArticleCard key={article.id} article={article} featured={false} dict={dict} />
             ))}

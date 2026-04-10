@@ -91,15 +91,15 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
       </div>
 
       {/* Hero Image */}
-      <div className="container mx-auto px-4 lg:px-6 mb-16 md:mb-24">
-        <div className="relative w-full aspect-[4/3] md:aspect-video lg:aspect-[21/9] rounded-2xl md:rounded-[32px] overflow-hidden shadow-sm">
+      <div className="container mx-auto px-4 lg:px-6 mb-16 md:mb-24 max-w-5xl">
+        <div className="relative w-full aspect-[4/3] md:aspect-[16/7] rounded-2xl md:rounded-[32px] overflow-hidden shadow-md">
           <Image
             src={article.image}
             alt={article.title}
             fill
             className="object-cover"
             priority
-            sizes="100vw"
+            sizes="(max-width: 1024px) 100vw, 1024px"
           />
         </div>
       </div>
