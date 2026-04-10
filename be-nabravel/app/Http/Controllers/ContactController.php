@@ -29,7 +29,9 @@ class ContactController extends Controller
         if (!$recaptchaData['success']) {
             return response()->json([
                 'success' => false,
-                'message' => 'Xác thực Captcha thất bại. Vui lòng thử lại.'
+                'message' => 'Xác thực Captcha thất bại. Vui lòng thử lại.',
+                'debug' => $recaptchaData,
+                'secret_empty' => empty($secret)
             ], 422);
         }
 
