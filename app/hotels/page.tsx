@@ -50,11 +50,10 @@ export default async function HotelsPage({
   const params = await searchParams;
   let search = (typeof params.search === 'string' ? params.search : undefined) || (typeof params.q === 'string' ? params.q : undefined);
 
-  if (!search || search.trim() === '') {
-    search = 'Hà Nội';
-  }
+  // Remove default search lock to show all locations
+  const finalSearch = search?.trim() || undefined;
 
-  const hotels = await fetchVietnamHotels(search);
+  const hotels = await fetchVietnamHotels(finalSearch);
 
-  return <HotelsClientView initialHotels={hotels} initialSearchQuery={search} />;
+  return <HotelsClientView initialHotels={hotels} initialSearchQuery={finalSearch || ""} />;
 }

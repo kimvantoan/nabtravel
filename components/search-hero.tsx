@@ -23,7 +23,16 @@ export function SearchHero() {
             const formData = new FormData(e.currentTarget);
             const q = formData.get('q') as string;
             if (q && q.trim()) {
-              window.location.href = `/hotels?search=${encodeURIComponent(q.trim())}`;
+              const createSlug = (str: string) => {
+                return str.normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .toLowerCase()
+                  .replace(/đ/g, "d")
+                  .replace(/[^a-z0-9]/g, "-")
+                  .replace(/-+/g, "-")
+                  .replace(/^-|-$/g, "");
+              };
+              window.location.href = `/hotels?search=${createSlug(q.trim())}`;
             } else {
               window.location.href = `/hotels`;
             }

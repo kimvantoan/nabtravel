@@ -63,7 +63,21 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
   // States
   const [sortOption, setSortOption] = useState("recommended");
   const [heroIndex, setHeroIndex] = useState(0);
-  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+  const parsedSearchQuery = useMemo(() => {
+    if (!initialSearchQuery) return "";
+    const createSlug = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/đ/g, "d").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+    
+    // Reverse lookup from existing data
+    const destMatch = VIETNAM_DESTINATIONS.find(d => createSlug(d) === initialSearchQuery);
+    if (destMatch) return destMatch;
+    
+    const hotelMatch = initialHotels.find(h => createSlug(h.name) === initialSearchQuery);
+    if (hotelMatch) return hotelMatch.name;
+
+    return initialSearchQuery.replace(/-/g, " ");
+  }, [initialSearchQuery, initialHotels]);
+
+  const [searchQuery, setSearchQuery] = useState(parsedSearchQuery);
   const [currentPage, setCurrentPage] = useState(1);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -76,7 +90,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
       setCurrentPage(parseInt(saved, 10));
     }
   }, []);
-  const ITEMS_PER_PAGE = 18;
+  const ITEMS_PER_PAGE = 30;
 
   const loaderRef = useRef<HTMLDivElement>(null);
 
@@ -234,23 +248,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
   const totalPages = Math.ceil(sortedHotels.length / ITEMS_PER_PAGE);
   const paginatedHotels = sortedHotels.slice(0, currentPage * ITEMS_PER_PAGE);
 
-  // Intersection Observer for Infinite Scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && currentPage < totalPages) {
-          setCurrentPage((prev) => prev + 1);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [currentPage, totalPages]);
+  // Infinite scroll observer removed in favor of manual Load More button
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-gray-50/50 pb-20">
@@ -260,7 +258,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
         <div className="flex flex-col lg:flex-row gap-8">
 
           {/* Left Sidebar - Filters */}
-          <div className="hidden lg:block w-[300px] xl:w-[320px] shrink-0 sticky top-28 h-fit">
+          <div className="hidden lg:block w-[260px] xl:w-[320px] shrink-0 sticky top-28 h-fit">
             <HotelFilters
               initialHotels={initialHotels}
               selectedPropertyTypes={selectedPropertyTypes}
@@ -284,20 +282,22 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               onSubmit={(e) => {
                 e.preventDefault();
                 if (searchQuery.trim()) {
-                  window.location.href = `/hotels?search=${encodeURIComponent(searchQuery.trim())}`;
+                  const createSlug = (str: string) => {
+                    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/đ/g, "d").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+                  };
+                  window.location.href = `/hotels?search=${createSlug(searchQuery.trim())}`;
                 } else {
                   window.location.href = `/hotels`;
                 }
               }}
-              className="flex flex-col lg:flex-row gap-2.5 mb-8 relative z-50 bg-white p-2 md:p-3 rounded-2xl md:rounded-full shadow-lg border border-gray-200"
+              className="flex flex-col md:flex-row gap-2.5 mb-8 relative z-50 bg-white p-2 md:p-3 rounded-2xl md:rounded-full shadow-lg border border-gray-200"
             >
               {/* Destination Input */}
-              <label className="flex items-center flex-1 lg:w-1/3 bg-transparent rounded-full px-5 py-2 hover:bg-gray-50 focus-within:bg-gray-50 transition-colors cursor-text relative">
-                <Search className="w-5 h-5 text-gray-500 shrink-0 mr-3" strokeWidth={2} />
-                <div className="flex flex-col w-full cursor-text">
-                  <span className="text-[13px] text-gray-600 font-medium">{dict.searchHero?.whereTo || "Vị trí"}</span>
+              <label className="flex items-center flex-1 md:w-1/3 bg-transparent rounded-full px-4 md:px-5 py-2 hover:bg-gray-50 focus-within:bg-gray-50 transition-colors cursor-text relative">
+                <Search className="w-5 h-5 text-gray-500 shrink-0 mr-2 md:mr-3" strokeWidth={2} />
+                <div className="flex flex-col w-full cursor-text min-w-0">
+                  <span className="text-[12px] xl:text-[13px] text-gray-600 font-medium block md:hidden xl:block">{dict.searchHero?.whereTo || "Vị trí"}</span>
                   <input 
-                    required
                     type="text" 
                     value={searchQuery}
                     onFocus={() => setShowSuggestions(true)}
@@ -347,17 +347,17 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               </label>
 
               {/* Vertical Divider */}
-              <div className="hidden lg:block w-px h-10 bg-gray-300 my-auto" />
+              <div className="hidden md:block w-px h-10 bg-gray-300 my-auto" />
 
               {/* Date Pickers */}
               <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                 <PopoverTrigger asChild>
-                  <div className="flex lg:flex-1 cursor-pointer bg-transparent rounded-full hover:bg-gray-50 transition-colors">
+                  <div className="flex md:flex-1 cursor-pointer bg-transparent rounded-full hover:bg-gray-50 transition-colors">
                     <div className="flex-1 flex gap-3 items-center px-5 py-2 relative">
                       <CalendarIcon className="w-5 h-5 text-gray-500 shrink-0" strokeWidth={2} />
-                      <div className="flex flex-col">
-                        <span className="text-[13px] text-gray-600 font-medium">{dict.hotelDetail?.checkIn || "Ngày nhận"} - {dict.hotelDetail?.checkOut || "Ngày trả"}</span>
-                        <span className="text-[15px] font-bold text-black mt-0.5 whitespace-nowrap">
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[12px] xl:text-[13px] text-gray-600 font-medium block md:hidden xl:block">{dict.hotelDetail?.checkIn || "Ngày nhận"} - {dict.hotelDetail?.checkOut || "Ngày trả"}</span>
+                        <span className="text-[14px] xl:text-[15px] font-bold text-black mt-0.5 whitespace-nowrap truncate">
                           {isClient && date?.from ? `${format(date.from, "MMM d", { locale: dateLocale })} - ${date?.to ? format(date.to, "MMM d", { locale: dateLocale }) : ''}` : "Chọn ngày"}
                         </span>
                       </div>
@@ -379,16 +379,16 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               </Popover>
 
               {/* Vertical Divider */}
-              <div className="hidden lg:block w-px h-10 bg-gray-300 my-auto" />
+              <div className="hidden md:block w-px h-10 bg-gray-300 my-auto" />
 
               {/* Guests */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <div className="flex lg:w-[220px] cursor-pointer bg-transparent rounded-full px-5 py-2 hover:bg-gray-50 transition-colors items-center gap-3">
+                  <div className="flex md:w-auto lg:flex-1 xl:w-[220px] cursor-pointer bg-transparent rounded-full px-3 md:px-5 py-2 hover:bg-gray-50 transition-colors items-center gap-2 md:gap-3">
                     <Users className="w-5 h-5 text-gray-500 shrink-0" strokeWidth={2} />
-                    <div className="flex flex-col">
-                      <span className="text-[13px] text-gray-600 font-medium">{dict.hotelDetail?.roomsGuests || "Khách"}</span>
-                      <span className="text-[15px] font-bold text-black mt-0.5 whitespace-nowrap">
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-[12px] xl:text-[13px] text-gray-600 font-medium block md:hidden xl:block">{dict.hotelDetail?.roomsGuests || "Khách"}</span>
+                      <span className="text-[14px] xl:text-[15px] font-bold text-black mt-0.5 whitespace-nowrap truncate">
                         {rooms} {locale === "vi" ? "P" : "Rm"}, {adults} {locale === "vi" ? "Khách" : "Guests"}
                       </span>
                     </div>
@@ -419,7 +419,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               {/* Submit Button */}
               <button 
                 type="submit" 
-                className="bg-[#004f32] text-white font-extrabold text-[16px] px-8 py-3 md:py-4 rounded-full hover:bg-[#003d27] transition-all shadow-md shrink-0 flex items-center justify-center mt-2 lg:mt-0"
+                className="bg-[#004f32] text-white font-extrabold text-[15px] md:text-[16px] px-6 md:px-8 py-3 md:py-4 rounded-full hover:bg-[#003d27] transition-all shadow-md shrink-0 flex items-center justify-center mt-2 md:mt-0"
               >
                 {hp?.searchBtn ?? "Tìm kiếm"}
               </button>
@@ -499,7 +499,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-5">
                 {paginatedHotels.map((hotel) => {
                   return (
                     <HotelGridCard 
@@ -515,14 +515,15 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
               </div>
             )}
 
-            {/* Infinite Scroll Loader */}
+            {/* Load More Button */}
             {currentPage < totalPages && (
-              <div ref={loaderRef} className="mt-8 pt-4 pb-12 w-full">
-                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-                   {[1, 2, 3].map((i) => (
-                     <SkeletonHotelGridCard key={`hotel-skel-${i}`} />
-                   ))}
-                 </div>
+              <div className="mt-10 mb-12 flex justify-center w-full">
+                 <button 
+                   onClick={() => setCurrentPage(prev => prev + 1)}
+                   className="bg-white border-2 border-[#004f32] text-[#004f32] hover:bg-[#004f32] hover:text-white font-bold text-[16px] px-10 py-3.5 rounded-full transition-all shadow-sm"
+                 >
+                   {locale === 'vi' ? 'Xem thêm' : 'View more'}
+                 </button>
               </div>
             )}
 

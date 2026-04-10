@@ -18,7 +18,7 @@ class ContactController extends Controller
         ]);
 
         $secret = config('services.recaptcha.secret');
-        $requestOptions = \Illuminate\Support\Facades\Http::withOptions(['verify' => true]);
+        $requestOptions = \Illuminate\Support\Facades\Http::withOptions(['verify' => false]);
         $response = $requestOptions->asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => $secret,
             'response' => $validated['recaptcha_token']

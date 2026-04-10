@@ -33,7 +33,7 @@ export default function ContactPage() {
     setSubmitStatus(null);
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000";
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const payload = { ...formData, recaptcha_token: token };
       
       const res = await fetch(`${backendUrl}/api/contact`, {

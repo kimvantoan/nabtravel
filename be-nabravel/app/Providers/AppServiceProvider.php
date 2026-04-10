@@ -21,5 +21,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(230);
+        // Fix SSL certificate Error locally on Windows for Mail sending
+        if (file_exists(base_path('../cacert.pem'))) {
+            putenv('SSL_CERT_FILE=' . base_path('../cacert.pem'));
+        }
     }
 }
