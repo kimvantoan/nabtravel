@@ -8,17 +8,7 @@ import { fetchMorePhotosAction } from "@/app/hotel/[slug]/actions";
 import { useParams } from "next/navigation";
 import { useFavorites } from "@/hooks/use-favorites";
 
-function RatingStars() {
-  return (
-    <div className="flex gap-1 mx-1 items-center">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <svg key={star} width="16" height="16" viewBox="0 0 24 24" fill="#FFB800" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-        </svg>
-      ))}
-    </div>
-  );
-}
+import { RatingBadge } from "@/components/ui/rating-badge";
 
 const DEFAULT_PHOTOS = [
   "/images/hotel_main.png",
@@ -173,11 +163,7 @@ export function HotelGallery({
           </h1>
 
           <div className="flex flex-wrap items-center gap-2 text-sm text-gray-700">
-            <span className="font-bold text-base">{rating || "4,9"}</span>
-            <RatingStars />
-            <button onClick={scrollToReviews} className="hover:underline text-gray-700 underline-offset-2">
-              ({reviewsCount || 40} {dict.hotelGallery?.reviews || "đánh giá"})
-            </button>
+            <RatingBadge score={rating || 8.5} reviewsCount={reviewsCount} />
             <span className="text-gray-400 mx-1">•</span>
             <span className="text-gray-700 line-clamp-1 max-w-[300px]" title={address}>
               {address}
@@ -227,14 +213,14 @@ export function HotelGallery({
         onScroll={handleMobileScroll}
       >
         {activePhotos.map((photoUrl, idx) => (
-          <div key={`${photoUrl}-${idx}`} className="relative w-[90vw] shrink-0 h-[280px] snap-center rounded-xl overflow-hidden shadow-sm">
+          <div key={`${photoUrl}-${idx}`} className="relative w-[85vw] shrink-0 h-[280px] snap-center rounded-xl overflow-hidden shadow-sm">
             <Image
               src={photoUrl}
               alt={`Mobile Photo ${idx + 1}`}
               fill
               unoptimized={photoUrl ? (photoUrl.includes('127.0.0.1') || photoUrl.includes('localhost')) : false}
               className="object-cover"
-              sizes="(max-width: 768px) 90vw"
+              sizes="(max-width: 768px) 85vw"
               priority={idx === 0}
             />
             {/* Mobile Photo Counter Overlay */}
@@ -253,7 +239,7 @@ export function HotelGallery({
       </div>
 
       {/* DESKTOP GALLERY: Single Image with Hover Slider (Hidden on Mobile) */}
-      <div className="hidden md:block relative w-full h-[460px] rounded-xl overflow-hidden bg-gray-100 group cursor-pointer" onClick={() => openModal(desktopInlineIndex)}>
+      <div className="hidden md:block relative w-full lg:w-[85%] max-w-6xl mx-auto h-[460px] rounded-xl overflow-hidden bg-gray-100 group cursor-pointer" onClick={() => openModal(desktopInlineIndex)}>
         <Image
           src={displayPhotos[desktopInlineIndex] || DEFAULT_PHOTOS[0]}
           alt={`${name} Main Photo`}

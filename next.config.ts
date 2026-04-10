@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  env: {
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
+  },
   images: {
     unoptimized: true, // Shared hosting không hỗ trợ sharp — serve ảnh gốc
     remotePatterns: [
@@ -30,7 +33,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/storage/:path*',
-        destination: process.env.NEXT_PUBLIC_BACKEND_URL 
+        destination: process.env.NEXT_PUBLIC_BACKEND_URL
           ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/storage/:path*`
           : 'http://127.0.0.1:8000/storage/:path*',
       },

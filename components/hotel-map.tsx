@@ -12,7 +12,7 @@ interface HotelMapProps {
 export function HotelMap({ hotelName, address }: HotelMapProps) {
   const { dict, locale } = useLanguage();
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [showMap, setShowMap] = useState(false);
+  const [showMap, setShowMap] = useState(true);
 
   // Build query string for Google Maps
   const query = [hotelName, address].filter(Boolean).join(", ");

@@ -6,6 +6,7 @@ import { Heart } from "lucide-react";
 import { useLanguage } from "@/app/providers";
 import { LiveListPrice } from "./live-list-price";
 import { useFavorites } from "@/hooks/use-favorites";
+import { RatingBadge } from "@/components/ui/rating-badge";
 
 export interface SimilarHotelData {
   id: string | number;
@@ -16,30 +17,6 @@ export interface SimilarHotelData {
   reviews: number;
   price: number;
   price_updated_at?: string;
-}
-
-function RatingStars({ score }: { score: number }) {
-  return (
-    <div className="flex gap-0.5 items-center">
-      {[1, 2, 3, 4, 5].map((star) => {
-        const isFull = score >= star;
-        const isHalf = score >= star - 0.5 && score < star;
-
-        return (
-          <div key={star} className="relative w-[14px] h-[14px]">
-            <svg viewBox="0 0 24 24" fill="#E5E7EB" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-            </svg>
-            {(isFull || isHalf) && (
-              <svg viewBox="0 0 24 24" fill="#FFB800" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full" style={isHalf ? { clipPath: "inset(0 50% 0 0)" } : undefined}>
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-              </svg>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
 }
 
 export function SimilarHotels({ hotels = [] }: { hotels?: SimilarHotelData[] }) {
@@ -105,13 +82,7 @@ export function SimilarHotels({ hotels = [] }: { hotels?: SimilarHotelData[] }) 
                   {hotel.name}
                 </h3>
 
-                <div className="flex items-center text-sm text-gray-700 mt-1">
-                  <span className="font-medium mr-1.5 text-[13px]">{Number.isInteger(hotel.rating) ? hotel.rating.toFixed(1) : hotel.rating}</span>
-                  <RatingStars score={hotel.rating} />
-                  <span className="text-[12px] underline decoration-gray-400 underline-offset-2 ml-1.5 cursor-pointer hover:text-gray-900">
-                    ({hotel.reviews} {dict.home.reviews})
-                  </span>
-                </div>
+                <RatingBadge score={hotel.rating} reviewsCount={hotel.reviews} className="mt-2" />
 
                 <div className="mt-3">
                   <LiveListPrice hotelName={hotel.name} fallbackPrice={hotel.price} bulkPrice={hotel.price} priceUpdatedAt={hotel.price_updated_at} fontSize="16px" />

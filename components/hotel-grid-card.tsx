@@ -7,6 +7,7 @@ import { useLanguage } from "@/app/providers";
 import { LiveListPrice } from "./live-list-price";
 import { differenceInDays } from "date-fns";
 import { useFavorites } from "@/hooks/use-favorites";
+import { RatingBadge } from "@/components/ui/rating-badge";
 
 export interface HotelGridData {
   id: string;
@@ -102,19 +103,7 @@ export function HotelGridCard({ hotel, checkin, checkout, adults, rooms, bulkPri
         </div>
 
         {/* Reviews */}
-        <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6 mt-auto">
-          <div className="bg-[#004f32] text-white font-extrabold text-[13px] md:text-[15px] px-1.5 py-0.5 md:px-2 md:py-1 rounded-[4px] md:rounded-[6px] shadow-sm">
-            {(hotel?.rating || 0).toFixed(1)}
-          </div>
-          <div className="flex flex-col">
-            <span className="font-bold text-gray-900 text-[12px] md:text-[14px] leading-none mb-1">
-              {dict.hotelsPage?.[hotel?.reviewWord || "good"] || "Tuyệt vời"}
-            </span>
-            <span className="text-[11px] md:text-[13px] text-gray-500 font-medium leading-none">
-              {(hotel?.reviews || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} {dict.hotelsPage?.reviews || "đánh giá"}
-            </span>
-          </div>
-        </div>
+        <RatingBadge score={hotel?.rating} reviewsCount={hotel?.reviews} className="mb-4 md:mb-6 mt-auto" />
 
         <div className="w-full h-px bg-gray-100 mb-3 md:mb-5" />
 

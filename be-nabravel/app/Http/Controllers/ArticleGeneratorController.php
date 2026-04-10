@@ -111,7 +111,7 @@ class ArticleGeneratorController extends Controller
 
         try {
             // Thử model chính trước, fallback sang model nhẹ hơn nếu bị rate limit
-            $models = ['gemini-2.5-pro'];
+            $models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.5-pro'];
             $response = null;
 
             foreach ($models as $model) {
@@ -139,8 +139,8 @@ class ArticleGeneratorController extends Controller
                     break;
                 }
 
-                // Nếu 429 (rate limit) → thử model tiếp
-                if ($res->status() === 429) {
+                // Nếu 429 (rate limit) hoặc 404 (model không tìm thấy) → thử model tiếp
+                if ($res->status() === 429 || $res->status() === 404) {
                     continue;
                 }
 
@@ -256,21 +256,31 @@ class ArticleGeneratorController extends Controller
         $hotelText = implode("\n", $hotelLines);
 
         return <<<PROMPT
-Viết bài blog du lịch chủ đề: "{$topic}"
+Viết bài blog du lịch chuyên sâu chủ đề: "{$topic}"
 
 KHÁCH SẠN (bắt buộc dùng):
 {$hotelText}
 
 YÊU CẦU:
-- Giọng văn: nhẹ nhàng, lịch sự, truyền cảm hứng và mang phong cách review du lịch chuyên nghiệp, khách quan
-- Bố cục HTML: mở bài thư giãn → review chi tiết từng khách sạn (h2/h3) nêu bật ưu điểm → kết bài ấm áp
-- Mỗi KS phải có thẻ <img src='...' alt='...' class='rounded-xl shadow-lg my-6 w-full object-cover aspect-video'/>
-- Tên KS bọc thẻ <a href='...' class='text-[#004f32] font-bold underline'>Tên</a>
-- CHÚ Ý: CHỈ SỬ DỤNG DẤU NHÁY ĐƠN (') TRONG CÁC THẺ HTML, KHÔNG DÙNG DẤU NHÁY KÉP (") ĐỂ TRÁNH LỖI JSON.
-- Độ dài: 500-700 từ
+- Giọng văn: nhẹ nhàng, lịch sự, truyền cảm hứng, viết dưới dạng review du lịch chuyên nghiệp của các Travel Blogger cao cấp. 
+- Bố cục HTML bắt buộc định dạng như sau để kéo dài nội dung: 
+  + Mở bài: 2-3 đoạn văn dài, miêu tả cảm xúc, dẫn dắt người đọc vào không gian của chủ đề.
+  + Review đi sâu vào TỪNG khách sạn (cần sử dụng các heading h2, h3). VỚI MỖI KHÁCH SẠN, YÊU CẦU LƯỢNG TEXT VỪA PHẢI KHOẢNG 300-400 TỪ. 
+  + Hướng dẫn phân tích từng khách sạn:
+    * Miêu tả trải nghiệm không gian, từ lúc đặt chân đến sảnh, mùi hương, ánh sáng.
+    * Đánh giá sâu về phong cách thiết kế kiến trúc, nội thất phòng nghỉ.
+    * Review chi tiết về ẩm thực, các nhà hàng tại chỗ, bữa sáng buffet...
+    * Gợi ý cụ thể các góc sống ảo đẹp thời gian chụp ảnh lý tưởng.
+    * Đánh giá dịch vụ khách hàng, thái độ nhân viên và các tiện ích (spa, hồ bơi).
+  + Thêm chuyên mục: "Kinh nghiệm du lịch & Tips đặt phòng" thiết thực cho người đọc ở cuối bài.
+  + Kết bài ấm áp, tổng hợp lại cảm xúc.
+- Mỗi khách sạn phải có 1 thẻ ảnh bọc HTML đúng chuẩn như sau: <img src='(URL CỦA KHÁCH SẠN ĐÓ)' alt='(Tên khách sạn)' class='rounded-xl shadow-lg my-6 w-full object-cover aspect-video'/>
+- Tên khách sạn khi nhắc đến nên bọc thẻ: <a href='(LINK CỦA KHÁCH SẠN)' class='text-[#004f32] font-bold underline'>Tên Khách Sạn</a>
+- CẤM TIỆT SỬ DỤNG DẤU NHÁY KÉP (") Ở TRONG CÁC THẺ HTML, PHẢI DÙNG DẤU NHÁY ĐƠN ('). Nhớ kỹ để JSON không bị lỗi syntax.
+- ĐỘ DÀI BẮT BUỘC: Khoảng 1800 - 2200 từ. Hãy phân bổ cấu trúc hợp lý để bài viết đạt được khoảng 2000 từ. Tránh lan man lê thê.
 
 TRẢ VỀ JSON DUY NHẤT HỢP LỆ (BẮT BUỘC PHẢI HOÀN THIỆN ĐẦY ĐỦ VÀ ĐÓNG NGOẶC HỢP LỆ):
-{"title":"Tiêu đề giật tít","meta_description":"Mô tả 150 ký tự","content":"<html bài viết>"}
+{"title":"Tiêu đề hấp dẫn, gợi tò mò","meta_description":"Mô tả ngắn gọn khoảng 150 ký tự","content":"<toàn bộ HTML bài viết thật dài và chi tiết>"}
 PROMPT;
     }
 

@@ -4,17 +4,7 @@ import { useState } from "react";
 import { ParkingCircle, Wifi, Utensils, GlassWater, Snowflake, Archive, BoxSelect, MountainSnow, Building2, Ban, Users, Waves, Landmark, ChevronUp, ChevronDown, CheckCircle2 } from "lucide-react";
 import { useLanguage } from "@/app/providers";
 
-function RatingStars() {
-  return (
-    <div className="flex gap-1 items-center">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <svg key={star} width="16" height="16" viewBox="0 0 24 24" fill="#FFB800" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-        </svg>
-      ))}
-    </div>
-  );
-}
+
 
 function RatingBar({ label, score, percent }: { label: string; score: string; percent: string }) {
   return (
@@ -75,16 +65,20 @@ export function HotelDetailsAmenities({ rating, reviewsCount, description, ameni
         <div>
           <h2 className="text-xl font-bold text-black mb-4">{dict.hotelAmenities?.about || "Giới thiệu"}</h2>
 
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-[48px] font-black tracking-tighter leading-none text-black">{rating || "4.9"}</span>
-            <div className="flex flex-col gap-1">
-              <span className="font-bold text-[15px] text-black leading-none">{dict.hotelsPage?.excellent || "Xuất sắc"}</span>
-              <div className="flex items-center gap-1">
-                <RatingStars />
-                <a href="#reviews" className="text-[13px] text-gray-600 hover:text-black hover:underline ml-1">
-                  ({reviewsCount || 40} {dict.hotelGallery?.reviews || "đánh giá"})
-                </a>
-              </div>
+          <div className="flex items-center gap-3 mb-4 mt-2">
+            <div className="bg-[#004f32] text-white font-black text-[32px] px-4 py-2 rounded-xl shadow-md flex items-center justify-center">
+              {Number.isInteger(rating) ? (rating || 8.5).toFixed(1) : (rating || 8.5)}
+            </div>
+            <div className="flex flex-col justify-center">
+              <span className="font-extrabold text-[16px] text-gray-900 leading-none mb-1.5">
+                {(rating || 8.5) >= 9 ? (locale === 'vi' ? 'Tuyệt hảo' : 'Exceptional') : 
+                 (rating || 8.5) >= 8 ? (locale === 'vi' ? 'Rất tốt' : 'Very Good') : 
+                 (rating || 8.5) >= 7 ? (locale === 'vi' ? 'Tốt' : 'Good') : 
+                 (locale === 'vi' ? 'Đáng giá' : 'Review score')}
+              </span>
+              <a href="#reviews" className="text-[13px] text-gray-500 hover:text-[#004f32] hover:underline cursor-pointer">
+                {reviewsCount || 40} {locale === 'vi' ? 'đánh giá' : 'reviews'}
+              </a>
             </div>
           </div>
           <div className="mt-8 flex flex-col gap-4">
