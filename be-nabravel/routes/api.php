@@ -49,3 +49,6 @@ Route::post('/favorites/toggle', [FavoriteController::class, 'toggleFavorite']);
 
 use App\Http\Controllers\TourInquiryController;
 Route::post('/tour-inquiries', [TourInquiryController::class, 'store']);
+
+use App\Http\Controllers\ContactController;
+Route::post('/contact', [ContactController::class, 'sendContactEmail']);
