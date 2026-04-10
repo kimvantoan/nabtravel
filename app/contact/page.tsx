@@ -12,7 +12,7 @@ export default function ContactPage() {
   const [showCaptcha, setShowCaptcha] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  
+
   const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const handleInitialSubmit = (e: React.FormEvent) => {
@@ -21,7 +21,7 @@ export default function ContactPage() {
       setSubmitStatus({ type: "error", text: locale === "vi" ? "Vui lòng điền đầy đủ thông tin." : "Please fill out all fields." });
       return;
     }
-    
+
     setSubmitStatus(null);
     setShowCaptcha(true);
   };
@@ -35,7 +35,7 @@ export default function ContactPage() {
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000";
       const payload = { ...formData, recaptcha_token: token };
-      
+
       const res = await fetch(`${backendUrl}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -129,7 +129,7 @@ export default function ContactPage() {
               </div>
             ) : (
               <form className="space-y-4 w-full" onSubmit={handleInitialSubmit}>
-                
+
                 {submitStatus && submitStatus.type === 'error' && (
                   <div className="p-4 rounded-xl flex gap-3 text-[14px] font-medium bg-red-50 text-red-800 border border-red-200 animate-in fade-in">
                     <AlertCircle className="w-5 h-5 shrink-0" />
@@ -139,44 +139,44 @@ export default function ContactPage() {
 
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">{locale === "vi" ? "Họ tên" : "Name"}</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={formData.name}
                     onChange={(e) => {
                       setFormData({ ...formData, name: e.target.value });
-                      if(showCaptcha) setShowCaptcha(false);
+                      if (showCaptcha) setShowCaptcha(false);
                     }}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#00aa6c] focus:ring-1 focus:ring-[#00aa6c] outline-none transition-all disabled:bg-gray-100" 
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#00aa6c] focus:ring-1 focus:ring-[#00aa6c] outline-none transition-all disabled:bg-gray-100"
                     disabled={isSubmitting}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>
-                  <input 
-                    type="email" 
+                  <input
+                    type="email"
                     value={formData.email}
                     onChange={(e) => {
                       setFormData({ ...formData, email: e.target.value });
-                      if(showCaptcha) setShowCaptcha(false);
+                      if (showCaptcha) setShowCaptcha(false);
                     }}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#00aa6c] focus:ring-1 focus:ring-[#00aa6c] outline-none transition-all disabled:bg-gray-100" 
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#00aa6c] focus:ring-1 focus:ring-[#00aa6c] outline-none transition-all disabled:bg-gray-100"
                     disabled={isSubmitting}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">{locale === "vi" ? "Tin nhắn" : "Message"}</label>
-                  <textarea 
-                    rows={4} 
+                  <textarea
+                    rows={4}
                     value={formData.message}
                     onChange={(e) => {
                       setFormData({ ...formData, message: e.target.value });
-                      if(showCaptcha) setShowCaptcha(false);
+                      if (showCaptcha) setShowCaptcha(false);
                     }}
                     className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#00aa6c] focus:ring-1 focus:ring-[#00aa6c] outline-none transition-all disabled:bg-gray-100 resize-none"
                     disabled={isSubmitting}
                   ></textarea>
                 </div>
-                
+
                 {showCaptcha ? (
                   <div className="flex flex-col items-center justify-center min-h-[78px] mt-4 animate-in fade-in slide-in-from-bottom-2">
                     {isSubmitting ? (
@@ -187,15 +187,15 @@ export default function ContactPage() {
                     ) : (
                       <ReCAPTCHA
                         ref={recaptchaRef}
-                        sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
+                        sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY as string}
                         onChange={onCaptchaChange}
                         hl={locale === 'vi' ? 'vi' : 'en'}
                       />
                     )}
                   </div>
                 ) : (
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="w-full flex items-center justify-center gap-2 bg-[#00aa6c] text-white font-bold py-3 px-4 rounded-xl hover:bg-[#008f5a] focus:ring-4 focus:ring-green-500/20 transition-all mt-6 cursor-pointer"
                   >
                     {locale === "vi" ? "Gửi Lời Nhắn" : "Send Message"}
