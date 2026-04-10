@@ -227,13 +227,13 @@ export async function HotelReviewsSection({
   }
 
   // Fire & Forget: Sync back to DB if we fetched new Data
-  if (!shouldUseDB && photos) {
+  if (!shouldUseDB) {
     const finalDescription = bookingDesc || hotelBasic?.description || "";
     try {
       fetch(`${backendUrl}/api/hotels/sync-details`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ slug, description: finalDescription, photos, latest_reviews: reviews })
+        body: JSON.stringify({ slug, description: finalDescription, latest_reviews: reviews })
       }).catch(() => { });
     } catch { }
   }

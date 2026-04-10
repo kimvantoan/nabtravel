@@ -49,22 +49,40 @@ class ArticleGeneratorController extends Controller
             ], 429);
         }
 
-        // 1. CHỌN CHỦ ĐỀ
-        $topics = [
-            "Khám phá top những khách sạn mang lại trải nghiệm nghỉ dưỡng tuyệt vời",
-            "Gợi ý những điểm dừng chân lý tưởng cho kỳ nghỉ trọn vẹn",
-            "Tận hưởng không gian thư giãn tại các khu nghỉ dưỡng đáng mơ ước",
-            "Cẩm nang chọn phòng: Những góc lưu trú xinh đẹp bạn không nên bỏ lỡ",
-            "Staycation trọn niềm vui: Điểm danh loạt khách sạn với dịch vụ chu đáo",
-            "Lạc bước vào không gian yên bình tại những khách sạn nổi bật",
-            "Review chi tiết: Những địa điểm lưu trú mang đến sự hài lòng tuyệt đối",
-            "Chuyến đi thêm hoàn hảo với những gợi ý khách sạn đánh giá cao"
-        ];
-        $topic = $request->input('topic', $topics[array_rand($topics)]);
-
-        // 2. LẤY DANH SÁCH HOTEL TỪ DATABASE
+        // 1. CHỌN CHỦ ĐỀ VÀ THỂ LOẠI (Luxury hoặc Popular)
+        $theme = rand(0, 1) === 0 ? 'luxury' : 'popular';
         $limit = rand(3, 5);
-        $hotels = Hotel::inRandomOrder()->limit($limit)->get();
+
+        if ($theme === 'luxury') {
+            $topics = [
+                "Top {$limit} khách sạn sang chảnh bậc nhất mang lại trải nghiệm nghỉ dưỡng xa hoa",
+                "Khám phá không gian đỉnh cao tại những resort, khách sạn thượng lưu không thể bỏ lỡ",
+                "Đón đầu xu hướng nghỉ dưỡng: Những khách sạn xa xỉ nhất dành cho giới tinh hoa",
+                "Trải nghiệm đế vương tại {$limit} khu lưu trú đắt đỏ và đẳng cấp nhất",
+            ];
+            $topic = $request->input('topic', $topics[array_rand($topics)]);
+            // Lấy khách sạn có giá cao nhất
+            $hotels = Hotel::where('rating', '>=', 4.0)
+                ->orderBy('price', 'desc')
+                ->take(20)
+                ->get()
+                ->shuffle()
+                ->take($limit);
+        } else {
+            $topics = [
+                "Top {$limit} khách sạn đắt khách và được đánh giá nhiều nhất hiện nay",
+                "Sức hút không thể chối từ: Những khách sạn được lòng du khách nhất",
+                "Giải mã sức nóng của {$limit} khách sạn nhận được 'cơn mưa' lời khen",
+                "Review thực tế {$limit} khách sạn phổ biến nhất: Liệu có xứng đáng?",
+            ];
+            $topic = $request->input('topic', $topics[array_rand($topics)]);
+            // Lấy khách sạn có nhiều lượt đánh giá nhất
+            $hotels = Hotel::orderBy('reviews', 'desc')
+                ->take(20)
+                ->get()
+                ->shuffle()
+                ->take($limit);
+        }
 
         if ($hotels->count() < 3) {
             return response()->json(['error' => 'Kho dữ liệu chưa đủ khách sạn. Chạy /api/hotels/sync trước.'], 400);
@@ -139,8 +157,8 @@ class ArticleGeneratorController extends Controller
                     break;
                 }
 
-                // Nếu 429 (rate limit) hoặc 404 (model không tìm thấy) → thử model tiếp
-                if ($res->status() === 429 || $res->status() === 404) {
+                // Nếu 429 (rate limit), 404 (model không tìm thấy) hoặc 503 (quá tải) → thử model tiếp
+                if ($res->status() === 429 || $res->status() === 404 || $res->status() === 503) {
                     continue;
                 }
 
@@ -258,29 +276,29 @@ class ArticleGeneratorController extends Controller
         return <<<PROMPT
 Viết bài blog du lịch chuyên sâu chủ đề: "{$topic}"
 
-KHÁCH SẠN (bắt buộc dùng):
+KHÁCH SẠN (bắt buộc dùng tuần tự):
 {$hotelText}
 
-YÊU CẦU:
-- Giọng văn: nhẹ nhàng, lịch sự, truyền cảm hứng, viết dưới dạng review du lịch chuyên nghiệp của các Travel Blogger cao cấp. 
-- Bố cục HTML bắt buộc định dạng như sau để kéo dài nội dung: 
-  + Mở bài: 2-3 đoạn văn dài, miêu tả cảm xúc, dẫn dắt người đọc vào không gian của chủ đề.
-  + Review đi sâu vào TỪNG khách sạn (cần sử dụng các heading h2, h3). VỚI MỖI KHÁCH SẠN, YÊU CẦU LƯỢNG TEXT VỪA PHẢI KHOẢNG 300-400 TỪ. 
-  + Hướng dẫn phân tích từng khách sạn:
-    * Miêu tả trải nghiệm không gian, từ lúc đặt chân đến sảnh, mùi hương, ánh sáng.
-    * Đánh giá sâu về phong cách thiết kế kiến trúc, nội thất phòng nghỉ.
-    * Review chi tiết về ẩm thực, các nhà hàng tại chỗ, bữa sáng buffet...
-    * Gợi ý cụ thể các góc sống ảo đẹp thời gian chụp ảnh lý tưởng.
-    * Đánh giá dịch vụ khách hàng, thái độ nhân viên và các tiện ích (spa, hồ bơi).
-  + Thêm chuyên mục: "Kinh nghiệm du lịch & Tips đặt phòng" thiết thực cho người đọc ở cuối bài.
-  + Kết bài ấm áp, tổng hợp lại cảm xúc.
+YÊU CẦU ĐỘ DÀI VÀ MỨC ĐỘ TẬP TRUNG TỪ KHÓA:
+- BÀI VIẾT PHẢI CỰC KỲ CHI TIẾT VÀ DÀI, KHOẢNG 2000 TỪ. Cần phân bổ nội dung thật sâu sắc, kéo dài bằng cách miêu tả tỉ mỉ chi tiết văn phong từ tốn.
+- NỘI DUNG PHẢI BÁM SÁT VÀ TẬP TRUNG HOÀN TOÀN VÀO Ý NGHĨA CỦA TIÊU ĐỀ: "{$topic}". Nếu tiêu đề nhấn mạnh sự sang chảnh, hãy dùng nhiều câu từ miêu tả sự đẳng cấp, xa hoa. Nếu tiêu đề nói về lượt đánh giá cao, hãy phân tích khách quan vì sao du khách lại cực kỳ ưa chuộng.
+
+YÊU CẦU HTML:
+- Giọng văn: nhẹ nhàng, lịch sự, truyền cảm hứng, chuyên nghiệp như một Travel Blogger hàng đầu. 
+- Bố cục HTML phân chia như sau: 
+  + Mở bài: 3-4 đoạn văn sâu sắc, dẫn dắt người đọc vào không gian của bài viết và trực tiếp liên kết đến tiêu đề "{$topic}".
+  + Thân bài review TỪNG khách sạn (cần sử dụng các heading h2, h3 rõ ràng). VỚI MỖI KHÁCH SẠN, VIẾT KHOẢNG 400 - 500 TỪ MIÊU TẢ CỤ THỂ. Bao gồm: 
+    * Cảm giác lúc đặt chân đến sảnh, không gian, mùi hương, thiết kế kiến trúc.
+    * Đánh giá chi tiết nội thất phòng ngủ, view nhìn ra ngoài, tiện nghi phòng tắm.
+    * Nhận xét về ẩm thực, các nhà hàng tại đây, bữa sáng buffet, hồ bơi, dịch vụ spa, thái độ nhân viên.
+  + Thêm chuyên mục: "Kinh nghiệm du lịch & Tips đặt phòng" thiệt thực cho người đọc ở cuối bài (khoảng 300 từ).
+  + Kết bài ấm áp, tổng hợp lại trọn vẹn chủ đề bài viết.
 - Mỗi khách sạn phải có 1 thẻ ảnh bọc HTML đúng chuẩn như sau: <img src='(URL CỦA KHÁCH SẠN ĐÓ)' alt='(Tên khách sạn)' class='rounded-xl shadow-lg my-6 w-full object-cover aspect-video'/>
 - Tên khách sạn khi nhắc đến nên bọc thẻ: <a href='(LINK CỦA KHÁCH SẠN)' class='text-[#004f32] font-bold underline'>Tên Khách Sạn</a>
-- CẤM TIỆT SỬ DỤNG DẤU NHÁY KÉP (") Ở TRONG CÁC THẺ HTML, PHẢI DÙNG DẤU NHÁY ĐƠN ('). Nhớ kỹ để JSON không bị lỗi syntax.
-- ĐỘ DÀI BẮT BUỘC: Khoảng 1800 - 2200 từ. Hãy phân bổ cấu trúc hợp lý để bài viết đạt được khoảng 2000 từ. Tránh lan man lê thê.
+- QUAN TRỌNG: CẤM TIỆT SỬ DỤNG DẤU NHÁY KÉP (") Ở TRONG CÁC THẺ HTML, PHẢI DÙNG DẤU NHÁY ĐƠN ('). Nhớ kỹ để chuỗi JSON trả về không bị lỗi syntax.
 
-TRẢ VỀ JSON DUY NHẤT HỢP LỆ (BẮT BUỘC PHẢI HOÀN THIỆN ĐẦY ĐỦ VÀ ĐÓNG NGOẶC HỢP LỆ):
-{"title":"Tiêu đề hấp dẫn, gợi tò mò","meta_description":"Mô tả ngắn gọn khoảng 150 ký tự","content":"<toàn bộ HTML bài viết thật dài và chi tiết>"}
+TRẢ VỀ JSON DUY NHẤT HỢP LỆ (BẮT BUỘC ĐÓNG NGOẶC HỢP LỆ, KHÔNG CHỨA COMMENTS HAY CÚ PHÁP MARKDOWN NHƯ ```json):
+{"title":"Một tiêu đề gợi tò mò, hấp dẫn có chứa từ khóa của chủ đề","meta_description":"Mô tả ngắn gọn khoảng 150 ký tự","content":"<toàn bộ HTML bài viết thật dài và chi tiết, đảm bảo tổng chừng 2000 từ>"}
 PROMPT;
     }
 

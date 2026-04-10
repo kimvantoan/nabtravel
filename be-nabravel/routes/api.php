@@ -42,6 +42,7 @@ Route::get('/hotels/{slug}', [HotelController::class, 'show']);
 Route::get('/hotels/{slug}/reviews', [App\Http\Controllers\ReviewController::class, 'index']);
 Route::post('/hotels/{slug}/reviews', [App\Http\Controllers\ReviewController::class, 'store']);
 Route::post('/hotels/sync-price', [HotelController::class, 'syncPrice']);
+Route::post('/hotels/sync-details', [HotelController::class, 'syncDetails']);
 
 use App\Http\Controllers\FavoriteController;
 Route::get('/favorites', [FavoriteController::class, 'getFavorites']);

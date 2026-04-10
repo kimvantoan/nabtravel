@@ -154,16 +154,29 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
   const suggestions = useMemo(() => {
     if (!searchQuery.trim() && !isClient) return [];
     
-    // Default popular suggestions if empty string
+    // Extract real city occurrences from DB for accurate smart suggestions
+    const cityCounts: Record<string, number> = {};
+    initialHotels.forEach(h => {
+       if (h.location) {
+          cityCounts[h.location] = (cityCounts[h.location] || 0) + 1;
+       }
+    });
+    // Sort cities by hotel count descending
+    const dbCities = Object.keys(cityCounts).sort((a, b) => cityCounts[b] - cityCounts[a]);
+    
+    // Merge DB cities with predefined list to guarantee all DB cities are searchable
+    const allCities = Array.from(new Set([...dbCities, ...VIETNAM_DESTINATIONS]));
+
+    // Default popular suggestions if empty string (Top 8 cities with most hotels)
     if (!searchQuery.trim()) {
-      return VIETNAM_DESTINATIONS.slice(0, 5).map(city => ({ type: 'city', text: city }));
+      return allCities.slice(0, 8).map(city => ({ type: 'city', text: city }));
     }
     
     const q = searchQuery.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const matches: {type: string, text: string}[] = [];
     
     // 1. Match Native Cities
-    VIETNAM_DESTINATIONS.forEach(city => {
+    allCities.forEach(city => {
       if (city.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q)) {
         matches.push({ type: 'city', text: city });
       }
@@ -316,7 +329,7 @@ export function HotelsClientView({ initialHotels, initialSearchQuery = "" }: { i
 
                 {/* Suggestions Dropdown */}
                 {showSuggestions && suggestions.length > 0 && (
-                   <div className="absolute top-[110%] left-0 right-0 bg-white rounded-2xl shadow-xl border border-gray-100 py-3 z-50 animate-in fade-in slide-in-from-top-2 overflow-hidden">
+                   <div className="absolute top-[110%] left-0 min-w-full md:w-[400px] lg:w-[440px] bg-white rounded-2xl shadow-xl border border-gray-100 py-3 z-50 animate-in fade-in slide-in-from-top-2 overflow-hidden">
                      {suggestions.map((s, i) => (
                         <button
                           key={i}
