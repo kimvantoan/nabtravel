@@ -3,7 +3,7 @@
 import { useLanguage } from "@/app/providers";
 import { TourListCard, TourItemData } from "@/components/tour-list-card";
 import { ChevronDown, SlidersHorizontal, Search, MapPin, Clock, X, ChevronUp } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 
 const destDict: Record<string, string> = {
   "Hanoi": "Hà Nội",
@@ -78,7 +78,29 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
   const [sortOption, setSortOption] = useState("recommended");
   const [tours, setTours] = useState<TourItemData[]>(initialTours);
   const [total, setTotal] = useState(initialTotal);
-  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+  const parsedSearchQuery = useMemo(() => {
+    if (!initialSearchQuery) return "";
+    const createSlug = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/đ/g, "d").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+    
+    const keys = Object.keys(destDict);
+    for (const key of keys) {
+      if (createSlug(destDict[key]) === initialSearchQuery || createSlug(key) === initialSearchQuery) {
+         return locale === 'vi' ? destDict[key] : key;
+      }
+    }
+    
+    const tourMatch = initialTours.find(t => {
+      const tName = typeof t.name === 'object' ? (t.name as any)[locale] || (t.name as any).en : t.name;
+      return createSlug(tName) === initialSearchQuery;
+    });
+    if (tourMatch) {
+      return typeof tourMatch.name === 'object' ? (tourMatch.name as any)[locale] || (tourMatch.name as any).en : tourMatch.name;
+    }
+
+    return initialSearchQuery.replace(/-/g, " ");
+  }, [initialSearchQuery, initialTours, locale]);
+
+  const [searchQuery, setSearchQuery] = useState(parsedSearchQuery);
   const [duration, setDuration] = useState("");
   const [priceRanges, setPriceRanges] = useState<string[]>([]);
   const [selectedDestinations, setSelectedDestinations] = useState<string[]>([]);
@@ -90,27 +112,11 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
     price: { under_5: 0, "5_10": 0, "10_20": 0, "20_40": 0, "40_70": 0, over_70: 0 },
     destinations: [] as string[]
   });
-  const LIMIT = 18;
+  const LIMIT = 30;
 
   const loaderRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
-          // If intersecting and not already loading, fetch the next set of tours
-          fetchTours(tours.length, false);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasMore, loading, tours.length]);
+  // Infinite scroll observer removed in favor of Load More button
 
   const fetchTours = async (skip: number, reset: boolean = false, currentSort: string = sortOption) => {
     try {
@@ -156,6 +162,12 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (searchQuery.trim()) {
+      const createSlug = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/đ/g, "d").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+      window.history.pushState({}, '', `/tours?search=${createSlug(searchQuery.trim())}`);
+    } else {
+      window.history.pushState({}, '', `/tours`);
+    }
     fetchTours(0, true, sortOption);
   };
 
@@ -178,7 +190,7 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
         <div className="flex flex-col lg:flex-row gap-8">
 
           {/* Static Mock Sidebar */}
-          <div className="hidden lg:block w-[300px] xl:w-[320px] shrink-0 sticky top-28 h-fit">
+          <div className="hidden lg:block w-[260px] xl:w-[320px] shrink-0 sticky top-28 h-fit">
             <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
               <h3 className="font-extrabold text-[18px] mb-6 flex items-center gap-2">
                 <SlidersHorizontal className="w-5 h-5" />
@@ -257,13 +269,13 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
             <div className="bg-white rounded-[40px] shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-gray-100 py-2.5 pl-6 pr-2.5 w-full z-40 relative mb-8">
               <form
                 onSubmit={handleSearchSubmit}
-                className="flex flex-col lg:flex-row items-center w-full"
+                className="flex flex-col md:flex-row items-center w-full"
               >
                 {/* Destination */}
-                <div className="flex items-center w-full lg:flex-1 lg:pr-6 py-1 border-b lg:border-b-0 lg:border-r border-gray-200">
-                  <Search className="text-gray-400 w-[18px] h-[18px] mr-3 shrink-0" strokeWidth={2} />
-                  <div className="flex flex-col flex-1">
-                    <span className="text-[12px] font-medium text-gray-500 mb-0.5">{locale === 'vi' ? 'Bạn muốn đi đâu?' : 'Where to?'}</span>
+                <div className="flex items-center w-full md:flex-1 md:pr-6 py-1 border-b md:border-b-0 md:border-r border-gray-200">
+                  <Search className="text-gray-400 w-[18px] h-[18px] mr-2 md:mr-3 shrink-0" strokeWidth={2} />
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span className="text-[11px] xl:text-[12px] font-medium text-gray-500 mb-0.5 block md:hidden xl:block">{locale === 'vi' ? 'Bạn muốn đi đâu?' : 'Where to?'}</span>
                     <input
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -280,13 +292,13 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
 
                 {/* Duration */}
                 <div
-                  className="relative flex items-center w-full lg:w-[220px] xl:w-[250px] lg:px-6 py-1 border-b lg:border-b-0 border-gray-200 cursor-pointer"
+                  className="relative flex items-center w-full md:w-[160px] lg:w-[180px] xl:w-[250px] md:px-4 lg:px-6 py-1 border-b md:border-b-0 border-gray-200 cursor-pointer"
                   onClick={() => setDurationOpen(!durationOpen)}
                 >
-                  <Clock className="text-gray-400 w-[18px] h-[18px] mr-3 shrink-0" strokeWidth={2} />
-                  <div className="flex flex-col flex-1">
-                    <span className="text-[12px] font-medium text-gray-500 mb-0.5">{locale === 'vi' ? 'Thời lượng' : 'Duration'}</span>
-                    <div className="flex items-center gap-1.5 text-[14px] font-bold text-gray-900 leading-tight">
+                  <Clock className="text-gray-400 w-[18px] h-[18px] mr-2 md:mr-3 shrink-0" strokeWidth={2} />
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span className="text-[11px] xl:text-[12px] font-medium text-gray-500 mb-0.5 block md:hidden xl:block">{locale === 'vi' ? 'Thời lượng' : 'Duration'}</span>
+                    <div className="flex items-center gap-1.5 text-[14px] font-bold text-gray-900 leading-tight truncate">
                       <span>
                         {duration === "1-3" ? (locale === 'vi' ? '1 - 3 Ngày' : '1 - 3 Days') :
                           duration === "4-7" ? (locale === 'vi' ? '4 - 7 Ngày' : '4 - 7 Days') :
@@ -321,8 +333,8 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
                 </div>
 
                 {/* Search Button */}
-                <div className="w-full lg:w-auto shrink-0 flex lg:justify-end lg:ml-2">
-                  <button type="submit" className="w-full lg:w-auto px-7 py-2.5 bg-[#106244] text-white rounded-full font-bold text-[14px] hover:bg-[#0c4e35] transition-colors flex items-center justify-center whitespace-nowrap shadow-sm min-h-[44px]">
+                <div className="w-full md:w-auto shrink-0 flex md:justify-end md:ml-3">
+                  <button type="submit" className="w-full md:w-auto px-6 lg:px-7 py-2.5 bg-[#106244] text-white rounded-full font-bold text-[14px] hover:bg-[#0c4e35] transition-colors flex items-center justify-center whitespace-nowrap shadow-sm min-h-[44px]">
                     {locale === 'vi' ? "Tìm kiếm" : "Search"}
                   </button>
                 </div>
@@ -396,18 +408,25 @@ export function ToursClientView({ initialTours, initialTotal = 0, initialSearchQ
               </div>
             )}
 
-            {/* Pagination Infinite Loader */}
-            {hasMore ? (
-              <div ref={loaderRef} className="mt-8 pb-20 w-full relative">
-                {loading && (
+            {/* Load More Button */}
+            {hasMore && (
+              <div className="mt-10 mb-12 flex justify-center w-full">
+                {loading ? (
                   <div className="grid grid-cols-2 md:grid-cols-1 gap-3 md:gap-6 w-full">
                     {[1, 2, 3].map((i) => (
                       <SkeletonTourCard key={`skeleton-more-${i}`} />
                     ))}
                   </div>
+                ) : (
+                  <button 
+                    onClick={() => fetchTours(tours.length, false)}
+                    className="bg-white border-2 border-[#004f32] text-[#004f32] hover:bg-[#004f32] hover:text-white font-bold text-[16px] px-10 py-3.5 rounded-full transition-all shadow-sm"
+                  >
+                    {locale === 'vi' ? 'Xem thêm' : 'View more'}
+                  </button>
                 )}
               </div>
-            ) : null}
+            )}
           </div>
         </div>
       </div>

@@ -11,12 +11,25 @@ import { Logo } from "./logo";
 import { AiPlannerModal } from "./ai-planner-modal";
 import { LoginModal } from "./login-modal";
 
+const VIETNAM_DESTINATIONS = [
+  "Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Đà Lạt", "Nha Trang", 
+  "Phú Quốc", "Vũng Tàu", "Hội An", "Sapa", "Quy Nhơn", 
+  "Phan Thiết", "Cần Thơ", "Huế", "Hạ Long", "Ninh Bình",
+  "Đồng Hới", "Tuy Hòa", "Thanh Hóa", "Vinh", "Buôn Ma Thuột"
+];
+
 export function SiteHeader() {
   const router = useRouter();
   const { dict, locale } = useLanguage();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const query = searchParams?.get("q") || searchParams?.get("search") || "";
+  const rawQuery = searchParams?.get("q") || searchParams?.get("search") || "";
+  const query = (() => {
+    if (!rawQuery) return "";
+    const createSlug = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/đ/g, "d").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+    const destMatch = VIETNAM_DESTINATIONS.find(d => createSlug(d) === rawQuery);
+    return destMatch || rawQuery.replace(/-/g, " ");
+  })();
   const isHotelPage = pathname?.startsWith("/hotel");
   const isDestinationPage = pathname?.startsWith("/destination");
   const isArticlePage = pathname?.startsWith("/article");
@@ -82,7 +95,17 @@ export function SiteHeader() {
           {/* Center: Search Bar OR absolute centered Full Logo */}
           {showSearch ? (
             <div className="flex-1 px-3">
-              <form action="/hotels" method="GET" className="relative w-full">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const q = formData.get('q') as string;
+                if (q && q.trim()) {
+                  const createSlug = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/đ/g, "d").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+                  window.location.href = `/hotels?search=${createSlug(q.trim())}`;
+                } else {
+                  window.location.href = `/hotels`;
+                }
+              }} className="relative w-full">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search className="h-[18px] w-[18px] text-gray-600" strokeWidth={2} />
                 </div>
@@ -131,7 +154,7 @@ export function SiteHeader() {
         </div>
 
         {/* --- DESKTOP HEADER (hidden md:flex) --- */}
-        <div className="hidden md:flex container mx-auto px-4 lg:px-6 h-20 items-center justify-between gap-4">
+        <div className="hidden md:flex container mx-auto px-4 lg:px-6 h-20 items-center justify-between gap-3 lg:gap-4">
           <div className="flex items-center gap-6 shrink-0">
             <Link href="/">
               <Logo />
@@ -145,59 +168,70 @@ export function SiteHeader() {
               : "opacity-0 -translate-y-2 invisible"
               } hidden md:flex`}
           >
-            <form action="/hotels" method="GET" className="relative w-full">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-500" strokeWidth={2} />
+            <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const q = formData.get('q') as string;
+                if (q && q.trim()) {
+                  const createSlug = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/đ/g, "d").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+                  window.location.href = `/hotels?search=${createSlug(q.trim())}`;
+                } else {
+                  window.location.href = `/hotels`;
+                }
+            }} className="relative w-full">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 md:h-5 md:w-5 text-gray-500" strokeWidth={2} />
               </div>
               <input
                 type="text"
                 name="q"
                 defaultValue={query}
                 placeholder={dict.header.searchPlaceholder2}
-                className="w-full pl-11 pr-4 py-3 bg-white border border-gray-300 rounded-full text-[15px] font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition-all shadow-sm"
+                className="w-full pl-10 md:pl-12 pr-[60px] lg:pr-[110px] py-2.5 md:py-3 bg-white border border-gray-300 rounded-full text-[13px] md:text-[15px] font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent transition-all shadow-sm"
               />
-              <button type="submit" className="absolute inset-y-1 right-1 bg-[#34e065] text-black font-semibold text-[15px] px-6 rounded-full hover:bg-[#2fc458] transition-colors">
-                {dict.header.searchButton}
+              <button type="submit" className="absolute inset-y-1 right-1 bg-[#34e065] text-black font-semibold text-[13px] md:text-[15px] px-3 lg:px-6 rounded-full hover:bg-[#2fc458] transition-colors flex items-center justify-center">
+                <span className="hidden lg:inline">{dict.header.searchButton}</span>
+                <Search className="h-4 w-4 lg:hidden" strokeWidth={2.5} />
               </button>
             </form>
           </div>
 
           {/* Right Section for Desktop */}
-          <div className="flex items-center gap-4 shrink-0 selection:bg-transparent">
-            <nav className="flex items-center gap-6 pr-2">
+          <div className="flex items-center gap-2 lg:gap-4 shrink-0 selection:bg-transparent">
+            <nav className="flex items-center gap-3 lg:gap-6 pr-2">
               <button
                 onClick={() => setIsAiModalOpen(true)}
-                className="flex items-center gap-2 text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 text-[13px] lg:text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors cursor-pointer"
               >
-                <Sparkles className="w-4 h-4" />
-                {dict.header.planWithAi}
+                <Sparkles className="w-4 h-4 text-green-700" />
+                <span className="hidden xl:inline">{dict.header.planWithAi}</span>
               </button>
               <Link
                 href="/hotels"
-                className="text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors"
+                className="text-[13px] lg:text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors"
               >
                 {dict.header.hotels}
               </Link>
               <Link
                 href="/tours"
-                className="text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors"
+                className="text-[13px] lg:text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors"
               >
                 {lang === 'VI' ? 'Tour' : 'Tours'}
               </Link>
               <Link
                 href="/articles"
-                className="text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors"
+                className="text-[13px] lg:text-[15px] font-bold text-gray-900 hover:text-green-800 transition-colors"
               >
                 {dict.header.articles}
               </Link>
             </nav>
 
             <div className="relative group">
-              <button className="flex items-center gap-1.5 text-[15px] font-bold text-gray-900 transition-colors px-3 py-2 rounded-full hover:bg-gray-100">
-                <Globe className="w-5 h-5" />
-                <span>{lang}</span>
-                <span className="text-gray-300 ml-0.5">|</span>
-                <span className="ml-0.5">VND</span>
+              <button className="flex items-center gap-1.5 text-[13px] lg:text-[15px] font-bold text-gray-900 transition-colors px-2 py-2 rounded-full hover:bg-gray-100">
+                <Globe className="w-4 h-4 lg:w-5 lg:h-5" />
+                <span className="hidden lg:inline">{lang}</span>
+                <span className="text-gray-300 ml-0.5 hidden lg:inline">|</span>
+                <span className="ml-0.5 hidden lg:inline">VND</span>
               </button>
               <div className="absolute right-0 top-[90%] mt-1 w-36 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-2">
                 <button
@@ -241,7 +275,7 @@ export function SiteHeader() {
             ) : (
               <Button
                 onClick={() => setIsLoginModalOpen(true)}
-                className="rounded-full bg-green-950 text-white hover:bg-green-900 px-6 py-5 font-bold text-[15px] cursor-pointer"
+                className="rounded-full bg-green-950 text-white hover:bg-green-900 px-4 lg:px-6 py-4 lg:py-5 font-bold text-[13px] lg:text-[15px] cursor-pointer"
               >
                 {dict.header.signIn}
               </Button>

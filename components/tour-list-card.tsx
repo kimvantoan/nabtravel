@@ -71,7 +71,7 @@ export function TourListCard({ tour }: { tour: TourItemData }) {
     <div className="flex flex-col md:flex-row bg-white rounded-xl md:rounded-[18px] lg:rounded-[20px] shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all group duration-300 h-full flex-1">
       
       {/* Photo Section */}
-      <Link href={detailUrl} className="relative block w-full md:w-[260px] lg:w-[280px] shrink-0 aspect-[4/3] md:aspect-[4/3] overflow-hidden md:self-start">
+      <Link href={detailUrl} className="relative block w-full md:w-[240px] xl:w-[280px] shrink-0 aspect-[4/3] overflow-hidden md:self-start">
         {tour.photoUrl ? (
           <Image
             src={tour.photoUrl}
@@ -107,11 +107,11 @@ export function TourListCard({ tour }: { tour: TourItemData }) {
       </Link>
 
       {/* Content Section */}
-      <div className="flex flex-col flex-1 p-3 md:p-5 lg:p-6 relative h-full">
+      <div className="flex flex-col flex-1 p-3 md:p-4 xl:p-6 relative h-full min-w-0">
 
-        <div className="flex flex-col md:flex-row md:justify-between flex-1 md:mb-4 md:gap-6 lg:gap-8 gap-1.5">
+        <div className="flex flex-col md:flex-row md:justify-between flex-1 md:mb-4 md:gap-4 xl:gap-8 gap-1.5 min-w-0">
           {/* Left Info */}
-          <div className="flex-1 pr-0 lg:pr-4">
+          <div className="flex-1 pr-0 lg:pr-4 min-w-0">
             <Link href={detailUrl} className="block group/link">
               <h2 className="text-[14px] leading-snug md:leading-tight md:text-[20px] lg:text-[22px] font-bold text-gray-900 group-hover/link:text-[#004f32] transition-colors line-clamp-2">
                 {name}
@@ -141,7 +141,7 @@ export function TourListCard({ tour }: { tour: TourItemData }) {
           </div>
 
           {/* Right Price (Desktop & Mobile) */}
-          <div className="md:min-w-[170px] lg:min-w-[190px] shrink-0 flex flex-col md:items-end justify-start mt-2 md:mt-0 lg:-mt-2">
+          <div className="md:w-[150px] xl:w-[190px] shrink-0 flex flex-col md:items-end justify-start mt-2 md:mt-0 lg:-mt-2">
             {hasDeal && (
                <span className="text-gray-400 font-medium line-through text-[11px] md:text-[14px]">{formatCurrency(originalPrice)}</span>
             )}
@@ -156,9 +156,9 @@ export function TourListCard({ tour }: { tour: TourItemData }) {
         </div>
 
         {/* Description & Action */}
-        <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col md:flex-row md:justify-between items-start md:items-end gap-3 md:gap-6 flex-none">
+        <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col md:flex-row md:justify-between items-start md:items-end gap-3 flex-none min-w-0">
           {/* Left side: Highlights Collapsible */}
-          <div className="hidden md:flex flex-col flex-1 w-full">
+          <div className="hidden md:flex flex-col flex-1 w-full min-w-0 pr-4">
              <button 
                 onClick={() => setShowHighlights(!showHighlights)}
                 className="flex items-center gap-1.5 text-[13px] font-medium text-gray-500 hover:text-[#004f32] transition-colors w-fit focus:outline-none"
