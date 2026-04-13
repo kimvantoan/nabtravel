@@ -5,7 +5,7 @@ import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/app/providers";
-import { Globe, Search, Sparkles, Menu, UserCircle, LogOut, Heart } from "lucide-react";
+import { Globe, Search, Sparkles, Menu, UserCircle, LogOut, Heart, Settings } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { Logo } from "./logo";
 import { AiPlannerModal } from "./ai-planner-modal";
@@ -60,6 +60,8 @@ export function SiteHeader() {
 
   const showSearch = isHotelPage || isDestinationPage || isArticlePage || isScrolled;
 
+  if (pathname?.startsWith("/admin")) return null;
+
   return (
     <>
       {isPending && (
@@ -86,9 +88,9 @@ export function SiteHeader() {
               <Menu className="w-6 h-6" />
             </button>
             {showSearch && (
-              <Link href="/" className="shrink-0 scale-90 origin-left">
+              <a href="/" className="shrink-0 scale-90 origin-left">
                 <Logo iconOnly />
-              </Link>
+              </a>
             )}
           </div>
 
@@ -119,9 +121,9 @@ export function SiteHeader() {
               </form>
             </div>
           ) : (
-            <Link href="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 scale-90">
+            <a href="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 scale-90">
               <Logo />
-            </Link>
+            </a>
           )}
 
           {/* Right Side: Profile & AI AI Button */}
@@ -156,9 +158,9 @@ export function SiteHeader() {
         {/* --- DESKTOP HEADER (hidden md:flex) --- */}
         <div className="hidden md:flex container mx-auto px-4 lg:px-6 h-20 items-center justify-between gap-3 lg:gap-4">
           <div className="flex items-center gap-6 shrink-0">
-            <Link href="/">
+            <a href="/">
               <Logo />
-            </Link>
+            </a>
           </div>
 
           {/* Center Search Bar for Desktop */}
@@ -252,7 +254,11 @@ export function SiteHeader() {
             {status === "authenticated" && session?.user ? (
               <div className="relative group cursor-pointer">
                 <div className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-50 transition-colors">
-                  <img src={session.user.image || ""} alt="" className="w-10 h-10 rounded-full border border-gray-200" />
+                  {session.user.image ? (
+                    <img src={session.user.image} alt="" className="w-10 h-10 rounded-full border border-gray-200" />
+                  ) : (
+                    <UserCircle className="w-9 h-9 text-gray-400 stroke-[1.5]" />
+                  )}
                   <span className="text-[15px] font-bold text-gray-900 hidden lg:block max-w-[120px] truncate">{session.user.name}</span>
                 </div>
                 <div className="absolute right-0 top-[90%] mt-1 w-48 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.1)] border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-2">
@@ -263,6 +269,15 @@ export function SiteHeader() {
                     <Heart className="w-4 h-4 text-red-500" />
                     {lang === 'VI' ? 'Yêu thích' : 'Favorites'}
                   </Link>
+                  {(session.user as any)?.role === 'admin' && (
+                    <Link
+                      href="/admin"
+                      className="w-full flex items-center gap-2 text-left px-4 py-2 hover:bg-blue-50 text-[14px] font-bold text-gray-800 transition-colors border-t border-gray-100"
+                    >
+                      <Settings className="w-4 h-4 text-blue-600" />
+                      Admin
+                    </Link>
+                  )}
                   <button
                     onClick={() => signOut()}
                     className="w-full flex items-center gap-2 text-left px-4 py-2 hover:bg-red-50 text-[14px] font-bold text-red-600 transition-colors"
@@ -289,9 +304,9 @@ export function SiteHeader() {
         {isMobileMenuOpen && (
           <div className="fixed inset-0 z-[100] bg-white flex flex-col md:hidden animate-in slide-in-from-left-4 duration-200">
             <div className="flex items-center justify-between h-16 px-4 border-b border-gray-100">
-              <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
+              <a href="/" onClick={() => setIsMobileMenuOpen(false)}>
                 <Logo />
-              </Link>
+              </a>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-2 -mr-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
@@ -338,7 +353,11 @@ export function SiteHeader() {
                 {status === "authenticated" && session?.user ? (
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-3">
-                      <img src={session.user.image || ""} alt="" className="w-10 h-10 rounded-full" />
+                      {session.user.image ? (
+                        <img src={session.user.image} alt="" className="w-10 h-10 rounded-full" />
+                      ) : (
+                        <UserCircle className="w-10 h-10 text-gray-400 stroke-[1.5]" />
+                      )}
                       <span className="text-[17px] font-bold text-gray-900">{session.user.name}</span>
                     </div>
                     <Link
@@ -349,6 +368,16 @@ export function SiteHeader() {
                       <Heart className="w-5 h-5 text-red-500" />
                       {lang === 'VI' ? 'Yêu thích' : 'Favorites'}
                     </Link>
+                    {(session.user as any)?.role === 'admin' && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="w-full text-left text-[17px] font-bold text-gray-900 flex items-center gap-2 border-t border-gray-100 pt-3 mt-1"
+                      >
+                        <Settings className="w-5 h-5 text-blue-600" />
+                        Admin
+                      </Link>
+                    )}
                     <button
                       onClick={() => {
                         setIsMobileMenuOpen(false);

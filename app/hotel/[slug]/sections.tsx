@@ -87,6 +87,42 @@ async function fetchGoogleReviews(hotelName: string, lang: string) {
   } catch { return []; }
 }
 
+async function fetchTripAdvisorReviews(locationId: string, lang: string) {
+  if (!locationId) return [];
+  try {
+    const apiLang = lang === 'vi_VN' || lang === 'vi' ? 'vi' : 'en_US';
+    const res = await fetch(`${BASE_URL}/reviews/list?location_id=${locationId}&limit=20&lang=${apiLang}`, {
+      headers: { "X-RapidAPI-Key": RAPID_API_KEY, "X-RapidAPI-Host": RAPID_API_HOST },
+      next: { revalidate: 2592000 } // Cache 1 tháng
+    });
+    if (!res.ok) return [];
+    const { data } = await res.json();
+    if (!data || !Array.isArray(data)) return [];
+
+    return data.map((r: any) => ({
+      id: r.id || Math.random().toString(),
+      user: {
+        name: r.user?.username || (lang.startsWith('vi') ? "Khách lưu trú" : "Verified Guest"),
+        avatar: r.user?.avatar?.thumbnail || "/images/tourist.png",
+        location: r.user?.user_location?.name || (lang.startsWith('vi') ? "Đã xác thực" : "Verified Traveler"),
+        contributions: r.user?.contributions || 1,
+        helpfulVotes: r.user?.helpful_votes || 0,
+      },
+      dateWritten: r.published_date
+        ? new Date(r.published_date).toLocaleDateString(lang.startsWith('vi') ? 'vi-VN' : 'en-US', { month: 'short', year: 'numeric' })
+        : (lang.startsWith('vi') ? "Gần đây" : "Recent"),
+      timestamp: r.published_date ? new Date(r.published_date).getTime() : 0,
+      rating: r.rating || 5,
+      title: r.title || (lang.startsWith('vi') ? "Đánh giá nổi bật" : "Featured Review"),
+      text: r.text || "",
+      dateOfStay: r.travel_date || (lang.startsWith('vi') ? "Gần đây" : "Recent"),
+      tripType: r.trip_type || "TripAdvisor",
+      helpfulCount: r.helpful_votes || 0,
+      source: 'tripadvisor'
+    }));
+  } catch { return []; }
+}
+
 async function fetchBookingDescription(destId: string | null, langQuery: string) {
   if (!destId) return null;
   const lang = langQuery === 'vi_VN' ? 'vi' : 'en-us';
@@ -224,6 +260,15 @@ export async function HotelReviewsSection({
     reviews = dbHotel.latest_reviews;
   } else {
     reviews = googleReviews.slice(0, 20);
+    // FALLBACK 1: If Google didn't return reviews, call TripAdvisor API
+    if (reviews.length === 0 && locationId) {
+      try {
+        const taReviews = await fetchTripAdvisorReviews(locationId, langQuery);
+        reviews = taReviews.slice(0, 20);
+      } catch (err) {
+        console.error("TripAdvisor Review Fallback failed", err);
+      }
+    }
   }
 
   // Fire & Forget: Sync back to DB if we fetched new Data
@@ -238,7 +283,8 @@ export async function HotelReviewsSection({
     } catch { }
   }
 
-  return <HotelReviews reviews={reviews} slug={slug} />;
+  const totalReviewsCount = hotelBasic?.num_reviews ? Number(hotelBasic.num_reviews) : undefined;
+  return <HotelReviews reviews={reviews} slug={slug} totalReviews={totalReviewsCount} />;
 }
 
 // ── Section: Similar Hotels (priority 5) ─────────────────────

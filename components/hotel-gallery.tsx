@@ -58,6 +58,7 @@ export function HotelGallery({
   const scrollToReviews = (e: React.MouseEvent) => {
     e.preventDefault();
     document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' });
+    window.dispatchEvent(new CustomEvent('open-review-form'));
   };
 
   const loadMorePhotos = useCallback(async () => {

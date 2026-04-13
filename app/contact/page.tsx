@@ -81,7 +81,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="font-bold">{locale === "vi" ? "Địa chỉ" : "Address"}</div>
-                  <div>Số 12-BT 11 Khu đô thị Mới Vân Canh, Xã Sơn Đồng, TP Hà Nội</div>
+                  <div>Số 12 - BT11, KĐT Vân Canh, Sơn Đồng, Hà Nội</div>
                 </div>
               </div>
               <div className="flex items-center gap-4 text-gray-700">
@@ -99,7 +99,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="font-bold">{locale === "vi" ? "Điện thoại" : "Phone"}</div>
-                  <div>098 2838 383</div>
+                  <div>0988 999 395</div>
                 </div>
               </div>
             </div>

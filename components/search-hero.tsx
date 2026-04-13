@@ -1,23 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { Home, Bed, BookOpen, Search } from "lucide-react";
+import { Search } from "lucide-react";
 
 
 import { useLanguage } from "@/app/providers";
 
 export function SearchHero() {
-  const { dict } = useLanguage();
+  const { dict, locale } = useLanguage();
 
 
   return (
     <section className="w-full flex justify-center pt-10 md:pt-16 pb-10 md:pb-20 px-4">
       <div className="w-full max-w-4xl flex flex-col items-center">
-        <h1 className="text-[2.25rem] sm:text-[3rem] md:text-[4rem] whitespace-nowrap font-extrabold text-[#004f32] tracking-tight mb-8">
+        <h1 className="text-[2.25rem] sm:text-[3rem] md:text-[4rem] whitespace-nowrap font-extrabold text-[#004f32] tracking-tight mb-2">
           {dict.searchHero.whereTo}
         </h1>
+        <h2 className="text-[1.1rem] sm:text-[1.25rem] md:text-[1.4rem] text-gray-700 font-medium tracking-wide mb-8 text-center max-w-2xl px-4 drop-shadow-sm">
+          {locale === 'vi' ? 'Kết nối đam mê, dẫn lối hành trình.' : 'Connecting passion, guiding journeys.'}
+        </h2>
 
-        <form 
+        <form
           onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);

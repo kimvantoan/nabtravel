@@ -93,22 +93,37 @@
     "sections": [
       {
         "title": "About NabTravel",
-        "links": ["About us", "Press", "Resources and policies", "Trust & Safety", "Contact us"]
+        "links": [
+          "About us",
+          "Contact us"
+        ]
       },
       {
         "title": "Explore",
-        "links": ["Write a review", "Add a place", "Join", "Travellers' Choice", "Help center"]
+        "links": [
+          "Write a review",
+          "Add a place",
+          "Join"
+        ]
       },
       {
         "title": "Do business with us",
-        "links": ["Owners", "Business advantage", "Sponsored placements", "Advertise with us", "Access our content API"]
+        "links": [
+          "Owners",
+          "Sponsored placements",
+          "Advertise with us",
+          "Access our content API"
+        ]
       },
       {
         "title": "Get the app",
-        "links": ["iPhone app", "Android app"]
+        "links": [
+          "iPhone app",
+          "Android app"
+        ]
       }
     ],
-    "copyright": "© 2026 NabTravel LLC All rights reserved",
+    "copyright": "© 2026 NabTravel All rights reserved",
     "terms": "Terms of Use",
     "privacy": "Privacy and cookie statement",
     "cookieConsent": "Cookie consent",
@@ -317,5 +332,74 @@
     "spamNotice": "If you don't receive our confirmation email after 1 working day, please check your spam mailbox.",
     "questionsNotice": "If you have any questions, please kindly contact us at: ",
     "backHome": "Back to Home page"
+  },
+  "admin": {
+    "loginTitle": "Admin Login",
+    "loginDesc": "Enter your administrator credentials to proceed.",
+    "invalidCreds": "Invalid account or password.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "admin@nabtravel.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "signInBtn": "Sign In",
+    "processingBtn": "Processing...",
+    "panelTitle": "Admin Panel",
+    "dashboardMenu": "Dashboard",
+    "articlesMenu": "Articles",
+    "inquiriesMenu": "Inquiries",
+    "logoutMenu": "Sign Out",
+    "loading": "Loading admin...",
+    "dashboardTitle": "Dashboard",
+    "dashboardDesc": "Overview of activities on the NabTravel platform.",
+    "totalArticles": "Total Articles",
+    "managedAtArticles": "Managed in the Articles section",
+    "totalInquiries": "Total Inquiries",
+    "managedAtInquiries": "Managed in the Inquiries section",
+    "articlesTitle": "Manage Articles",
+    "articlesDesc": "View, add, edit, and delete articles on the system.",
+    "addArticleBtn": "Add Article",
+    "colTitle": "Title",
+    "colCategory": "Category",
+    "colDate": "Published Date",
+    "colActions": "Actions",
+    "loadingData": "Loading...",
+    "noArticles": "No articles yet.",
+    "deleteArticleConfirm": "Are you sure you want to delete this article?",
+    "inquiriesTitle": "Manage Tour Inquiries",
+    "inquiriesDesc": "Manage customer quote requests from the website.",
+    "colCustomer": "Customer",
+    "colContact": "Contact",
+    "colTour": "Desired Tour",
+    "colArrivalDate": "Arrival Date",
+    "colPax": "Pax",
+    "noInquiries": "No inquiries yet.",
+    "deleteInquiryConfirm": "Are you sure you want to delete this inquiry?",
+    "adults": "Adults",
+    "children": "Children",
+    "addArticleModalTitle": "Add New Article",
+    "editArticleModalTitle": "Edit Article",
+    "articleTitleLabel": "Title",
+    "articleTitlePlaceholder": "Enter article title",
+    "articleThumbnailLabel": "Thumbnail",
+    "articleThumbnailUpload": "Upload Image (Preferred)",
+    "articleThumbnailUrl": "Thumbnail URL (if not uploading)",
+    "articleContentLabel": "Article Content",
+    "articleContentPlaceholder": "Enter article content...",
+    "saveBtn": "Save",
+    "savingBtn": "Saving...",
+    "cancelBtn": "Cancel",
+    "uploadBtn": "Upload Image",
+    "fillRequired": "Please fill in title and content",
+    "saveFailed": "Save failed!",
+    "inquiryDetailTitle": "Inquiry Details",
+    "tourRef": "Tour Reference",
+    "arrivalDateLabel": "Departure Date",
+    "paxCount": "Number of Guests",
+    "adultsLabel": "Adults:",
+    "childrenLabel": "Children:",
+    "infantsLabel": "Infants:",
+    "accommodationLabel": "Accommodation Type",
+    "specialReqLabel": "Special Requirements",
+    "noSpecialReq": "No special requirements."
   }
 }

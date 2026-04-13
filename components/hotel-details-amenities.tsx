@@ -58,7 +58,7 @@ export function HotelDetailsAmenities({ rating, reviewsCount, description, ameni
   }
 
   return (
-    <div className="w-full flex flex-col md:flex-row gap-12 py-10 border-t border-gray-200" id="reviews">
+    <div className="w-full flex flex-col md:flex-row gap-12 py-10 border-t border-gray-200" id="amenities">
 
       {/* LEFT COLUMN: Overview & Ratings */}
       <div className="w-full md:w-1/3 flex flex-col gap-6">

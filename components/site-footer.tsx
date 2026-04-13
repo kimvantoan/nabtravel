@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
 import { Logo } from "./logo";
 import { useLanguage } from "@/app/providers";
+import { usePathname } from "next/navigation";
 
 export function SiteFooter() {
   const { dict } = useLanguage();
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/admin")) return null;
+
   return (
     <footer className="bg-[#faf1ed] py-12 px-4 md:px-6 lg:px-8 text-sm text-gray-700">
       <div className="container mx-auto">
@@ -43,7 +47,7 @@ export function SiteFooter() {
           <div className="flex flex-col items-start gap-4">
             {/* Logo */}
             <Logo />
-            
+
             <div className="text-xs space-y-2 max-w-2xl">
               <p>{dict.footer.copyright}</p>
               <div className="flex flex-wrap gap-x-4 gap-y-2 font-medium text-gray-900">
@@ -56,7 +60,6 @@ export function SiteFooter() {
               </div>
               <p className="text-gray-500 mt-4 leading-relaxed">
                 {dict.footer.regionalDisclaimer}
-                <button className="font-semibold text-black ml-1 hover:underline">{dict.footer.readMore} <ChevronDown className="inline w-3 h-3" /></button>
               </p>
             </div>
           </div>

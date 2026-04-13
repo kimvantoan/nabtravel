@@ -17,6 +17,7 @@ class Article extends Model
         'thumbnail_url',
         'hotel_ids',
         'status',
+        'is_ai_generated',
     ];
 
     /**

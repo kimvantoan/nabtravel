@@ -38,4 +38,24 @@ class TourInquiryController extends Controller
             'data' => $inquiry
         ], 201);
     }
+
+    public function index()
+    {
+        $inquiries = TourInquiry::orderBy('created_at', 'desc')->get();
+        return response()->json($inquiries);
+    }
+
+    public function update(Request $request, $id)
+    {
+        // status is implicit or explicit
+        $inquiry = TourInquiry::findOrFail($id);
+        $inquiry->update($request->only('status')); // Assuming status column exists or we just manage basic fields
+        return response()->json($inquiry);
+    }
+
+    public function destroy($id)
+    {
+        TourInquiry::destroy($id);
+        return response()->json(['message' => 'Deleted successfully']);
+    }
 }

@@ -7,13 +7,11 @@ import {
   GallerySkeleton,
   AmenitiesSkeleton,
   ReviewsSkeleton,
-  SimilarHotelsSkeleton,
 } from "@/components/hotel-detail-skeletons";
 import {
   HotelGallerySection,
   HotelAmenitiesSection,
   HotelReviewsSection,
-  SimilarHotelsSection,
 } from "./sections";
 import { HotelMap } from "@/components/hotel-map";
 
@@ -54,22 +52,62 @@ async function fetchBookingDestId(name: string) {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const locale = await getLocale();
-  const safeSlug = decodeURIComponent(slug);
-  const parts = safeSlug.split('-');
-  const lastPart = parts.length > 1 ? parts[parts.length - 1] : "";
-  let hotelNameStr = safeSlug;
-  if (/^\d+$/.test(lastPart)) {
-    parts.pop();
-    hotelNameStr = parts.join(' ');
+
+  let hotelName = "";
+  let hotelImage = "";
+
+  try {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (backendUrl) {
+      const dbRes = await fetch(`${backendUrl}/api/hotels/${slug}`, { next: { revalidate: 3600 } });
+      if (dbRes.ok) {
+        const h = await dbRes.json();
+        if (h?.name) {
+          hotelName = h.name;
+          hotelImage = h.image || "";
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching SEO metadata", error);
   }
-  const hotelName = hotelNameStr.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+
+  // Fallback to slug parsing if DB fails
+  if (!hotelName) {
+    const safeSlug = decodeURIComponent(slug);
+    const parts = safeSlug.split('-');
+    const lastPart = parts.length > 1 ? parts[parts.length - 1] : "";
+
+    const isIdPart = (p: string) => /^\d+$/.test(p) || /^[A-Z0-9]+_[a-zA-Z0-9]+$/i.test(p) || /^BKG_/i.test(p) || /^AGD_/i.test(p);
+    if (isIdPart(lastPart)) {
+      parts.pop();
+    }
+
+    hotelName = parts.join(' ').replace(/(^\w)|(\s+\w)/g, letter => letter.toUpperCase());
+  }
+
+  const siteTitle = locale === 'vi' 
+    ? `${hotelName} | Đặt phòng giá tốt tại NabTravel` 
+    : `${hotelName} | Best Price Hotel Booking at NabTravel`;
+
   const desc = locale === 'vi'
-    ? `Khám phá đánh giá khách quan, hình ảnh chi tiết và cơ sở vật chất của ${hotelName}. Liên hệ đặt phòng giá tốt tại NabTravel.`
-    : `Discover objective reviews, detailed photos, and facilities of ${hotelName}. Book at best rates on NabTravel.`;
+    ? `Khám phá đánh giá khách quan, hình ảnh chi tiết và phòng trống của ${hotelName}. Đặt phòng ngay hôm nay với giá cực sốc trên NabTravel.`
+    : `Discover objective reviews, detailed photos, and room availability for ${hotelName}. Book your stay today at the best rates with NabTravel.`;
+
   return {
-    title: hotelName,
+    title: siteTitle,
     description: desc,
-    openGraph: { title: `${hotelName} | NabTravel`, description: desc, }
+    openGraph: {
+      title: siteTitle,
+      description: desc,
+      ...(hotelImage ? { images: [{ url: hotelImage, width: 1200, height: 630, alt: hotelName }] } : {})
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: siteTitle,
+      description: desc,
+      ...(hotelImage ? { images: [hotelImage] } : {})
+    }
   };
 }
 
@@ -81,6 +119,8 @@ export default async function HotelReviewPage({ params }: { params: Promise<{ sl
   const safeSlug = decodeURIComponent(slug);
   const parts = safeSlug.split('-');
   const lastPart = parts.length > 1 ? parts[parts.length - 1] : "";
+
+  const isIdPart = (p: string) => /^\d+$/.test(p) || /^[A-Z0-9]+_[a-zA-Z0-9]+$/i.test(p) || /^BKG_/i.test(p) || /^AGD_/i.test(p);
 
   let extractedLocationId = "";
   let hotelNameQuery = safeSlug;
@@ -102,9 +142,14 @@ export default async function HotelReviewPage({ params }: { params: Promise<{ sl
   } catch { }
 
   // ── Slow path: fetch from APIs with streaming ──
-  if (/^\d+$/.test(lastPart)) {
+  if (isIdPart(lastPart)) {
     extractedLocationId = parts.pop() || "";
     hotelNameQuery = parts.join(' ');
+  }
+
+  // Use the exact database name for Google Reviews / searching if we found it in the DB!
+  if (dbHotel?.name) {
+    hotelNameQuery = dbHotel.name;
   }
 
   // Fetch basic hotel info — needed for slug/identity before streaming sections

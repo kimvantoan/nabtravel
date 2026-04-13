@@ -13,8 +13,10 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        // Lấy tất cả bài viết mới nhất (có thể thêm phân trang sau này)
-        $articles = Article::orderBy('created_at', 'desc')->get();
+        // Lấy bài viết AI tự động tạo
+        $articles = Article::where('is_ai_generated', true)
+                           ->orderBy('created_at', 'desc')
+                           ->get();
 
         $formattedArticles = $articles->map(function ($article) {
             // Loại bỏ thẻ HTML khỏi nội dung để làm excerpt ngang ngửa UI
@@ -41,6 +43,17 @@ class ArticleController extends Controller
     }
 
     /**
+     * Lấy danh sách bài viết do Admin tự đăng
+     */
+    public function adminIndex()
+    {
+        $articles = Article::where('is_ai_generated', false)
+                           ->orderBy('created_at', 'desc')
+                           ->get();
+        return response()->json($articles);
+    }
+
+    /**
      * Xem chi tiết một bài viết
      */
     public function show($slug)
@@ -60,5 +73,62 @@ class ArticleController extends Controller
             'publishedAt' => $article->created_at->toIso8601String(),
             'readTime' => $readTime,
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string',
+            'content' => 'required|string',
+        ]);
+
+        $slug = \Illuminate\Support\Str::slug($request->title);
+        $originalSlug = $slug;
+        $counter = 1;
+
+        while (Article::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $thumbnailUrl = $request->input('thumbnail_url');
+        if ($request->hasFile('thumbnail_file')) {
+            $path = $request->file('thumbnail_file')->store('images/articles', 'public');
+            $thumbnailUrl = '/storage/' . $path;
+        }
+
+        $article = Article::create([
+            'title' => $request->title,
+            'slug' => $slug,
+            'content' => $request->input('content'),
+            'thumbnail_url' => $thumbnailUrl,
+            'source_url' => $request->source_url ?? '',
+            'is_ai_generated' => false,
+        ]);
+
+        return response()->json($article, 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $article = Article::findOrFail($id);
+        $thumbnailUrl = $request->input('thumbnail_url');
+        if ($request->hasFile('thumbnail_file')) {
+            $path = $request->file('thumbnail_file')->store('images/articles', 'public');
+            $thumbnailUrl = '/storage/' . $path;
+        }
+
+        $article->update([
+            'title' => $request->title,
+            'content' => $request->input('content'),
+            'thumbnail_url' => $thumbnailUrl,
+        ]);
+        return response()->json($article);
+    }
+
+    public function destroy($id)
+    {
+        Article::destroy($id);
+        return response()->json(['message' => 'Deleted successfully']);
     }
 }

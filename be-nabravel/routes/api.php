@@ -53,3 +53,23 @@ Route::post('/tour-inquiries', [TourInquiryController::class, 'store']);
 
 use App\Http\Controllers\ContactController;
 Route::post('/contact', [ContactController::class, 'sendContactEmail']);
+
+use App\Http\Controllers\Api\AuthController;
+Route::post('/auth/login', [AuthController::class, 'login']);
+
+// Admin routes
+Route::prefix('admin')->group(function () {
+    Route::get('/dashboard/stats', function() {
+        return response()->json([
+            'articles' => \App\Models\Article::count(),
+            'inquiries' => \App\Models\TourInquiry::count(),
+        ]);
+    });
+    Route::get('/inquiries', [TourInquiryController::class, 'index']);
+    Route::patch('/inquiries/{id}', [TourInquiryController::class, 'update']);
+    Route::get('/articles', [ArticleController::class, 'adminIndex']);
+    Route::post('/articles', [ArticleController::class, 'store']);
+    Route::patch('/articles/{id}', [ArticleController::class, 'update']);
+    Route::delete('/articles/{id}', [ArticleController::class, 'destroy']);
+    Route::delete('/inquiries/{id}', [TourInquiryController::class, 'destroy']);
+});
