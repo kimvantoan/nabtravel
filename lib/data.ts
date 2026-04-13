@@ -31,6 +31,27 @@ export const getCachedArticles = cache(async (): Promise<ArticleData[]> => {
   }
 });
 
+// 1.5 Cached Admin Articles Fetcher
+export const getCachedAdminArticles = cache(async (): Promise<ArticleData[]> => {
+  try {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const response = await fetch(`${backendUrl}/api/admin/articles`, {
+      next: { revalidate: 0 }
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch admin articles from backend');
+      return [];
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching admin articles:', error);
+    return [];
+  }
+});
+
 // 2. Cached Article Detail Fetcher
 export const getCachedArticleBySlug = cache(async (slug: string): Promise<ArticleData | null> => {
   try {

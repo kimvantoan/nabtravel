@@ -16,6 +16,7 @@ export interface ArticleData {
   content?: string;
   publishedAt: string;
   readTime: number;
+  is_ai_generated?: boolean;
 }
 
 interface ArticleCardProps {
@@ -74,7 +75,7 @@ export function ArticleCard({ article, featured = false, dict }: ArticleCardProp
 
   if (featured) {
     return (
-      <Link href={`/article/${article.slug}`} className="group relative block w-full h-[400px] md:h-[500px] lg:h-[550px] rounded-2xl overflow-hidden shadow-md">
+      <Link href={`/articles/${article.slug}`} className="group relative block w-full h-[400px] md:h-[500px] lg:h-[550px] rounded-2xl overflow-hidden shadow-md">
         <Image
           src={article.image}
           alt={article.title}
@@ -108,7 +109,7 @@ export function ArticleCard({ article, featured = false, dict }: ArticleCardProp
 
   return (
     <div className="group flex flex-col h-full cursor-pointer relative">
-      <Link href={`/article/${article.slug}`} className="relative bg-gray-100 rounded-2xl overflow-hidden aspect-[4/3] lg:aspect-[3/2] mb-4 xl:mb-5 block shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+      <Link href={`/articles/${article.slug}`} className="relative bg-gray-100 rounded-2xl overflow-hidden aspect-[4/3] lg:aspect-[3/2] mb-4 xl:mb-5 block shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
         <Image
           src={article.image}
           alt={article.title}
@@ -128,7 +129,7 @@ export function ArticleCard({ article, featured = false, dict }: ArticleCardProp
           </span>
         </div>
         
-        <Link href={`/article/${article.slug}`} className="block">
+        <Link href={`/articles/${article.slug}`} className="block">
           <h3 className="text-[19px] xl:text-[21px] font-extrabold text-gray-900 leading-snug mb-2 group-hover:text-[#004f32] transition-colors line-clamp-2">
             {article.title}
           </h3>
@@ -139,7 +140,7 @@ export function ArticleCard({ article, featured = false, dict }: ArticleCardProp
         </p>
         
         <div className="flex items-center justify-end mt-auto">
-          <Link href={`/article/${article.slug}`} className="text-[#004f32] font-bold text-[14px] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+          <Link href={`/articles/${article.slug}`} className="text-[#004f32] font-bold text-[14px] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
             {dict?.articlesPage?.readMore || "Đọc tiếp"}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </Link>

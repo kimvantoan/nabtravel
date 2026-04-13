@@ -56,9 +56,11 @@ class ArticleController extends Controller
     /**
      * Xem chi tiết một bài viết
      */
-    public function show($slug)
+    public function show($identifier)
     {
-        $article = Article::where('slug', $slug)->firstOrFail();
+        $article = Article::where('id', $identifier)
+                          ->orWhere('slug', $identifier)
+                          ->firstOrFail();
 
         $wordCount = str_word_count(strip_tags($article->content));
         $readTime = ceil($wordCount / 200) ?: 1;
@@ -72,6 +74,7 @@ class ArticleController extends Controller
             'categoryKey' => 'travel',
             'publishedAt' => $article->created_at->toIso8601String(),
             'readTime' => $readTime,
+            'is_ai_generated' => (bool)$article->is_ai_generated,
         ]);
     }
 
