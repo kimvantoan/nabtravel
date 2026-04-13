@@ -2,18 +2,30 @@ import { SearchHero } from "@/components/search-hero";
 import { IconicDestinations, IconicDestination } from "@/components/iconic-destinations";
 import { HotelRecommendations } from "@/components/hotel-recommendations";
 import { TourRecommendations } from "@/components/tour-recommendations";
-import { getDictionary } from "@/lib/i18n";
 import { Metadata } from "next";
 import { TourItemData } from "@/components/tour-list-card";
+import { ArticleRecommendations } from "@/components/article-recommendations";
+import { getDictionary, getLocale } from "@/lib/i18n";
+import { getCachedArticles } from "@/lib/data";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const dict = await getDictionary();
+  const locale = await getLocale();
+  
+  const titleVi = "Chuyên Cung Cấp Tour Trọn Gói & Phòng Khách Sạn Giá Tốt - NabTravel";
+  const titleEn = "Premium Tour Packages & Best Hotel Deals - NabTravel";
+  
+  const descVi = "Bạn đang tìm kiếm tour du lịch độc đáo hay phòng khách sạn sang trọng với giá ưu đãi? Truy cập NAB Travel để nhận ngay các deal du lịch tốt nhất. Đặt dịch vụ nhanh chóng, thanh toán an toàn, khởi hành mỗi ngày.";
+  const descEn = "Looking for unique travel tours or luxury hotels at great prices? Visit NAB Travel for the best travel deals. Fast booking, secure payment, daily departures.";
+
+  const title = locale === 'vi' ? titleVi : titleEn;
+  const desc = locale === 'vi' ? descVi : descEn;
+
   return {
-    title: dict.seo?.homeTitle || "NabTravel",
-    description: dict.seo?.defaultDescription,
+    title: title,
+    description: desc,
     openGraph: {
-      title: `${dict.seo?.homeTitle || "NabTravel"} | NabTravel`,
-      description: dict.seo?.defaultDescription,
+      title: title,
+      description: desc,
       url: "https://nabtravel.com",
       type: "website"
     }
@@ -98,11 +110,14 @@ async function fetchHomeTours(): Promise<TourItemData[]> {
 }
 
 export default async function Home() {
-  const [destinations, hotels, tours] = await Promise.all([
+  const [destinations, hotels, tours, allArticles] = await Promise.all([
     searchAttractions(),
     fetchTopHotels(),
-    fetchHomeTours()
+    fetchHomeTours(),
+    getCachedArticles()
   ]);
+
+  const recentArticles = allArticles.slice(0, 3);
 
   return (
     <div className="flex flex-col flex-1 items-center justify-start bg-white w-full">
@@ -110,6 +125,7 @@ export default async function Home() {
       <IconicDestinations destinations={destinations} />
       <HotelRecommendations hotels={hotels} />
       <TourRecommendations tours={tours} />
+      <ArticleRecommendations articles={recentArticles} />
     </div>
   );
 }

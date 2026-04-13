@@ -334,7 +334,11 @@ export function TourInquireClient({ tourId }: { tourId: string }) {
                         <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 md:w-1/2">
                            <label className="md:w-28 text-[13px] font-semibold text-gray-800 shrink-0">{dict.tourInquire.phoneNumber} <span className="text-red-500">*</span></label>
                            <div className="w-full md:flex-1">
-                              <Input type="tel" value={phoneNumber} onChange={e => { setPhoneNumber(e.target.value); if (errors.phoneNumber) setErrors({ ...errors, phoneNumber: false }) }} placeholder={dict.tourInquire.enterPhone} className={cn("h-[42px] bg-white text-[14px]", errors.phoneNumber ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-red-500" : "border-gray-300 focus-visible:ring-[#10a36e]")} />
+                              <Input type="tel" value={phoneNumber} onChange={e => { 
+                                 const val = e.target.value.replace(/[^0-9+]/g, '');
+                                 setPhoneNumber(val); 
+                                 if (errors.phoneNumber) setErrors({ ...errors, phoneNumber: false }) 
+                              }} placeholder={dict.tourInquire.enterPhone} className={cn("h-[42px] bg-white text-[14px]", errors.phoneNumber ? "border-red-500 focus-visible:ring-red-500 focus-visible:border-red-500" : "border-gray-300 focus-visible:ring-[#10a36e]")} />
                            </div>
                         </div>
                      </div>

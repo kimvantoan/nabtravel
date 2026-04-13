@@ -64,7 +64,7 @@ export interface ReviewData {
   timestamp?: number;
 }
 
-export function HotelReviews({ reviews, slug }: { reviews?: ReviewData[], slug?: string }) {
+export function HotelReviews({ reviews, slug, totalReviews }: { reviews?: ReviewData[], slug?: string, totalReviews?: number }) {
   const { dict, locale } = useLanguage();
   const { data: session } = useSession();
   const [visibleCount, setVisibleCount] = useState(5);
@@ -83,6 +83,18 @@ export function HotelReviews({ reviews, slug }: { reviews?: ReviewData[], slug?:
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const handleOpenForm = () => {
+      if (!session) {
+        signIn("google");
+      } else {
+        setIsWriting(true);
+      }
+    };
+    window.addEventListener("open-review-form", handleOpenForm);
+    return () => window.removeEventListener("open-review-form", handleOpenForm);
+  }, [session]);
 
   useEffect(() => {
     if (slug) {
@@ -139,7 +151,7 @@ export function HotelReviews({ reviews, slug }: { reviews?: ReviewData[], slug?:
       {/* Header section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <h2 className="text-[24px] font-extrabold text-black tracking-tight">
-          {dict.hotelDetail.allReviews} ({sortedReviews.length})
+          {dict.hotelDetail.allReviews} ({totalReviews && totalReviews > sortedReviews.length ? totalReviews : sortedReviews.length})
         </h2>
         <button
           onClick={() => {
@@ -159,7 +171,7 @@ export function HotelReviews({ reviews, slug }: { reviews?: ReviewData[], slug?:
       {isWriting && session && (
         <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 mb-8 mt-4">
           <div className="flex items-center gap-4 mb-4">
-            <img src={session.user?.image || ""} alt="" className="w-12 h-12 rounded-full border border-gray-300" />
+            <img src={session.user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(session.user?.name || 'User')}&background=random`} alt="" className="w-12 h-12 rounded-full border border-gray-300 object-cover" />
             <div>
               <div className="font-bold text-[16px]">{session.user?.name}</div>
               <div className="text-[14px] text-gray-500">{session.user?.email}</div>

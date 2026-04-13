@@ -93,22 +93,37 @@
     "sections": [
       {
         "title": "Giới thiệu về NabTravel",
-        "links": ["Về chúng tôi", "Báo chí", "Tài nguyên và chính sách", "Tin cậy & An toàn", "Liên hệ với chúng tôi"]
+        "links": [
+          "Về chúng tôi",
+          "Liên hệ với chúng tôi"
+        ]
       },
       {
         "title": "Khám phá",
-        "links": ["Viết đánh giá", "Thêm địa điểm", "Tham gia", "Travellers' Choice", "Trung tâm trợ giúp"]
+        "links": [
+          "Viết đánh giá",
+          "Thêm địa điểm",
+          "Tham gia"
+        ]
       },
       {
         "title": "Hợp tác với chúng tôi",
-        "links": ["Chủ sở hữu", "Chiến lược doanh nghiệp", "Vị trí tài trợ", "Quảng cáo với chúng tôi", "Truy cập API nội dung của chúng tôi"]
+        "links": [
+          "Chủ sở hữu",
+          "Vị trí tài trợ",
+          "Quảng cáo với chúng tôi",
+          "Truy cập API nội dung của chúng tôi"
+        ]
       },
       {
         "title": "Tải ứng dụng",
-        "links": ["Ứng dụng iPhone", "Ứng dụng Android"]
+        "links": [
+          "Ứng dụng iPhone",
+          "Ứng dụng Android"
+        ]
       }
     ],
-    "copyright": "© 2026 NabTravel LLC Bảo lưu mọi quyền",
+    "copyright": "© 2026 NabTravel Bảo lưu mọi quyền",
     "terms": "Điều khoản sử dụng",
     "privacy": "Tuyên bố về quyền riêng tư và cookie",
     "cookieConsent": "Chấp thuận cookie",
@@ -317,5 +332,74 @@
     "spamNotice": "Nếu bạn không nhận được thư xác nhận sau 1 ngày làm việc, vui lòng kiểm tra hộp thư rác (spam).",
     "questionsNotice": "Nếu có bất kỳ câu hỏi nào, vui lòng liên hệ chúng tôi theo địa chỉ:",
     "backHome": "Về trang chủ"
+  },
+  "admin": {
+    "loginTitle": "Đăng Nhập Admin",
+    "loginDesc": "Nhập thông tin quản trị viên của bạn để tiếp tục.",
+    "invalidCreds": "Tài khoản hoặc mật khẩu không chính xác.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "admin@nabtravel.com",
+    "passwordLabel": "Mật khẩu",
+    "passwordPlaceholder": "••••••••",
+    "signInBtn": "Đăng Nhập",
+    "processingBtn": "Đang xử lý...",
+    "panelTitle": "Admin Panel",
+    "dashboardMenu": "Dashboard",
+    "articlesMenu": "Bài viết",
+    "inquiriesMenu": "Yêu cầu báo giá",
+    "logoutMenu": "Đăng xuất",
+    "loading": "Đang tải trang admin...",
+    "dashboardTitle": "Dashboard",
+    "dashboardDesc": "Tổng quan hoạt động trên nền tảng NabTravel.",
+    "totalArticles": "Tổng số bài viết",
+    "managedAtArticles": "Quản lý tại mục Bài viết",
+    "totalInquiries": "Yêu cầu báo giá",
+    "managedAtInquiries": "Quản lý tại mục Yêu cầu báo giá",
+    "articlesTitle": "Quản lý Bài viết",
+    "articlesDesc": "Xem, thêm, sửa, xóa các bài viết trên hệ thống.",
+    "addArticleBtn": "Thêm Bài Viết",
+    "colTitle": "Tiêu đề",
+    "colCategory": "Chuyên mục",
+    "colDate": "Ngày đăng",
+    "colActions": "Hành động",
+    "loadingData": "Đang tải...",
+    "noArticles": "Chưa có bài viết nào",
+    "deleteArticleConfirm": "Bạn có chắc chắn muốn xóa bài viết này?",
+    "inquiriesTitle": "Yêu cầu báo giá",
+    "inquiriesDesc": "Quản lý nhận báo giá của khách hàng từ website.",
+    "colCustomer": "Khách hàng",
+    "colContact": "Liên hệ",
+    "colTour": "Tour mong muốn",
+    "colArrivalDate": "Ngày khởi hành",
+    "colPax": "Người đi",
+    "noInquiries": "Chưa có yêu cầu báo giá nào",
+    "deleteInquiryConfirm": "Bạn có chắc chắn muốn xóa yêu cầu báo giá này?",
+    "adults": "NL",
+    "children": "TE",
+    "addArticleModalTitle": "Thêm Bài Viết Mới",
+    "editArticleModalTitle": "Sửa Bài Viết",
+    "articleTitleLabel": "Tiêu đề",
+    "articleTitlePlaceholder": "Nhập tiêu đề bài viết",
+    "articleThumbnailLabel": "Ảnh đại diện (Thumbnail)",
+    "articleThumbnailUpload": "Tải Ảnh (Ưu tiên)",
+    "articleThumbnailUrl": "Link Ảnh đại diện (nếu không tải lên)",
+    "articleContentLabel": "Nội dung bài viết",
+    "articleContentPlaceholder": "Nhập nội dung bài viết...",
+    "saveBtn": "Lưu lại",
+    "savingBtn": "Đang lưu...",
+    "cancelBtn": "Hủy",
+    "uploadBtn": "Upload Ảnh",
+    "fillRequired": "Vui lòng điền tiêu đề và nội dung",
+    "saveFailed": "Lưu thất bại!",
+    "inquiryDetailTitle": "Chi tiết Yêu cầu Báo giá",
+    "tourRef": "Mã Tour (Reference)",
+    "arrivalDateLabel": "Ngày khởi hành",
+    "paxCount": "Số lượng khách",
+    "adultsLabel": "Người lớn:",
+    "childrenLabel": "Trẻ em:",
+    "infantsLabel": "Sơ sinh:",
+    "accommodationLabel": "Loại chỗ ở (Accommodation)",
+    "specialReqLabel": "Các yêu cầu đặc biệt (Special Requirements)",
+    "noSpecialReq": "Không có yêu cầu đặc biệt nào."
   }
 }
