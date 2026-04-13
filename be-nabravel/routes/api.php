@@ -61,7 +61,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 Route::prefix('admin')->group(function () {
     Route::get('/dashboard/stats', function() {
         return response()->json([
-            'articles' => \App\Models\Article::count(),
+            'articles' => \App\Models\Article::where('is_ai_generated', false)->count(),
             'inquiries' => \App\Models\TourInquiry::count(),
         ]);
     });

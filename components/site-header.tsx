@@ -12,8 +12,8 @@ import { AiPlannerModal } from "./ai-planner-modal";
 import { LoginModal } from "./login-modal";
 
 const VIETNAM_DESTINATIONS = [
-  "Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Đà Lạt", "Nha Trang", 
-  "Phú Quốc", "Vũng Tàu", "Hội An", "Sapa", "Quy Nhơn", 
+  "Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Đà Lạt", "Nha Trang",
+  "Phú Quốc", "Vũng Tàu", "Hội An", "Sapa", "Quy Nhơn",
   "Phan Thiết", "Cần Thơ", "Huế", "Hạ Long", "Ninh Bình",
   "Đồng Hới", "Tuy Hòa", "Thanh Hóa", "Vinh", "Buôn Ma Thuột"
 ];
@@ -171,15 +171,15 @@ export function SiteHeader() {
               } hidden md:flex`}
           >
             <form onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const q = formData.get('q') as string;
-                if (q && q.trim()) {
-                  const createSlug = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/đ/g, "d").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
-                  window.location.href = `/hotels?search=${createSlug(q.trim())}`;
-                } else {
-                  window.location.href = `/hotels`;
-                }
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const q = formData.get('q') as string;
+              if (q && q.trim()) {
+                const createSlug = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/đ/g, "d").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+                window.location.href = `/hotels?search=${createSlug(q.trim())}`;
+              } else {
+                window.location.href = `/hotels`;
+              }
             }} className="relative w-full">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 md:h-5 md:w-5 text-gray-500" strokeWidth={2} />
@@ -250,7 +250,7 @@ export function SiteHeader() {
                 </button>
               </div>
             </div>
-            
+
             {status === "authenticated" && session?.user ? (
               <div className="relative group cursor-pointer">
                 <div className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-50 transition-colors">
