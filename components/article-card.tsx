@@ -11,6 +11,7 @@ export interface ArticleData {
   slug: string;
   title: string;
   excerpt: string;
+  meta_description?: string;
   image: string;
   categoryKey: string;
   content?: string;

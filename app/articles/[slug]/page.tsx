@@ -14,15 +14,15 @@ export const revalidate = 3600;
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const article = await getCachedArticleBySlug(slug);
-  
+
   if (!article) return { title: "Không tìm thấy bài viết" };
 
   return {
     title: article.title,
-    description: article.excerpt,
+    description: article.meta_description || article.excerpt,
     openGraph: {
       title: `${article.title} | NabTravel`,
-      description: article.excerpt,
+      description: article.meta_description || article.excerpt,
       images: [
         {
           url: article.image,
@@ -46,7 +46,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
   // Related articles logic isolated by author type
   const allAiArticles = await getCachedArticles();
   const allAdminArticles = await getCachedAdminArticles();
-  
+
   const sourceArticles = article.is_ai_generated ? allAiArticles : allAdminArticles;
   const relatedArticles = sourceArticles.filter(a => String(a.id) !== String(article.id));
 
@@ -58,14 +58,14 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
   try {
     const d = new Date(article.publishedAt);
     if (!isNaN(d.getTime())) {
-       formattedDate = d.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", { month: 'long', day: 'numeric', year: 'numeric' });
+      formattedDate = d.toLocaleDateString(locale === "vi" ? "vi-VN" : "en-US", { month: 'long', day: 'numeric', year: 'numeric' });
     }
-  } catch(e) {}
+  } catch (e) { }
 
   if (article.is_ai_generated) {
     return (
       <div className="bg-white min-h-screen pb-0">
-        
+
         {/* Breadcrumb */}
         <div className="container mx-auto px-4 lg:px-6 pt-5 pb-6">
           <nav className="flex items-center gap-2 text-[13px] font-medium text-gray-500">
@@ -134,13 +134,13 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                 Xem tất cả <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-               {relatedArticles.slice(0, 3).map((relArticle) => (
-                  <ArticleCard key={relArticle.id} article={relArticle} dict={dict} />
-               ))}
+              {relatedArticles.slice(0, 3).map((relArticle) => (
+                <ArticleCard key={relArticle.id} article={relArticle} dict={dict} />
+              ))}
             </div>
-            
+
             <div className="mt-10 text-center md:hidden">
               <Link href="/articles" className="inline-block bg-white border border-gray-300 text-gray-900 font-bold px-8 py-3.5 rounded-full text-[15px] shadow-sm hover:bg-gray-50 transition-colors cursor-pointer">
                 Xem tất cả bài viết
@@ -155,7 +155,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="bg-white min-h-screen pb-12">
-      
+
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 lg:px-8 xl:px-12 pt-6 pb-2">
         <nav className="flex items-center gap-2 text-[12px] font-medium text-gray-500 uppercase tracking-widest">
@@ -196,7 +196,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
                 sizes="(max-width: 1024px) 100vw, 1024px"
               />
             </div>
-            
+
             {/* Typography Content */}
             <article className="prose prose-lg md:prose-xl max-w-none text-gray-800
               [&_h2]:text-2xl [&_h2]:md:text-[32px] [&_h2]:mt-12 [&_h2]:mb-6 [&_h2]:font-extrabold [&_h2]:text-gray-900 [&_h2]:tracking-tight [&_h2]:leading-tight
