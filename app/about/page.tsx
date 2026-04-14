@@ -160,7 +160,7 @@ function AboutEn() {
           About NabTravel
         </h1>
         <p className="mb-4">
-          <strong>NabTravel</strong> is an online travel platform developed by <strong>Kolsup Limited JOINT STOCK COMPANY</strong>, with the goal of helping users easily search, compare, and book travel services quickly, transparently, and cost-effectively.
+          <strong>NabTravel</strong> is an online travel platform developed by <strong>Kolsup Limited</strong>, with the goal of helping users easily search, compare, and book travel services quickly, transparently, and cost-effectively.
         </p>
         <p>
           We focus on building a smart travel ecosystem where you can plan your entire trip in just a few minutes — from booking hotels and choosing tours to exploring detailed itineraries.
