@@ -101,7 +101,7 @@ export default function AdminArticles() {
     if (!formData.title || !formData.content) return alert(dict.admin.fillRequired);
     setIsSaving(true);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
       const url = modalMode === "create"
         ? `${backendUrl}/api/admin/articles`
         : `${backendUrl}/api/admin/articles/${currentId}`;
