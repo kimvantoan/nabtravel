@@ -25,8 +25,11 @@ class Article extends Model
     {
         static::creating(function ($article) {
             if (empty($article->author_name)) {
-                $faker = \Faker\Factory::create('vi_VN');
-                $article->author_name = $faker->lastName . ' ' . $faker->firstName;
+                $ho = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh', 'Phan', 'Vũ', 'Võ', 'Đặng', 'Bùi', 'Đỗ', 'Hồ', 'Ngô', 'Dương', 'Lý'];
+                $dem = ['Thị', 'Văn', 'Hữu', 'Ngọc', 'Thanh', 'Minh', 'Đức', 'Xuân', 'Thu', 'Hoài', 'Gia', 'Bảo', 'Quốc', 'Tuấn', 'Hồng'];
+                $ten = ['Anh', 'Bình', 'Châu', 'Cường', 'Dương', 'Dung', 'Hà', 'Hải', 'Hiếu', 'Hòa', 'Lan', 'Linh', 'Mai', 'Nam', 'Nga', 'Phong', 'Phương', 'Quang', 'Sơn', 'Trang', 'Tùng', 'Tuấn', 'Yến', 'Vy', 'My', 'Lộc', 'Phát', 'Tài'];
+                
+                $article->author_name = $ho[array_rand($ho)] . ' ' . $dem[array_rand($dem)] . ' ' . $ten[array_rand($ten)];
             }
         });
     }
