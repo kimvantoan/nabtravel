@@ -150,10 +150,10 @@ export default function AdminArticles() {
     }
   };
 
-  const handleCopyLink = (slug: string) => {
-    const fullUrl = `${window.location.origin}/article/${slug}`;
+  const handleCopyLink = (id: string) => {
+    const fullUrl = `${window.location.origin}/articles/${id}`;
     navigator.clipboard.writeText(fullUrl);
-    setCopiedLink(slug);
+    setCopiedLink(id);
     setTimeout(() => setCopiedLink(null), 2000);
   };
 
@@ -215,21 +215,21 @@ export default function AdminArticles() {
                   <TableCell className="max-w-[200px] truncate">
                     <div className="flex items-center gap-2">
                       <a
-                        href={`/article/${article.slug}`}
+                        href={`/articles/${article.id}`}
                         target="_blank"
                         rel="noreferrer"
                         className="text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 text-sm font-medium truncate"
                       >
-                        /article/{article.slug} <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                        /articles/{article.id} <ExternalLink className="w-3 h-3 flex-shrink-0" />
                       </a>
                       <Button
                         variant="ghost"
                         size="icon"
                         className="h-6 w-6 flex-shrink-0 text-gray-500 hover:text-gray-900 shadow-none border border-gray-200"
                         title="Sao chép link"
-                        onClick={() => handleCopyLink(article.slug)}
+                        onClick={() => handleCopyLink(article.id)}
                       >
-                        {copiedLink === article.slug ? <Check className="w-3 h-3 text-green-600" /> : <Copy className="w-3 h-3" />}
+                        {copiedLink === article.id ? <Check className="w-3 h-3 text-green-600" /> : <Copy className="w-3 h-3" />}
                       </Button>
                     </div>
                   </TableCell>

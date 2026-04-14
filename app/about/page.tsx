@@ -22,7 +22,7 @@ function AboutVi() {
           Giới thiệu về NabTravel
         </h1>
         <p className="mb-4">
-          <strong>NabTravel</strong> là nền tảng du lịch trực tuyến được phát triển bởi <strong>CÔNG TY CỔ PHẦN ASFY TECH</strong>, với mục tiêu giúp người dùng dễ dàng tìm kiếm, so sánh và đặt các dịch vụ du lịch một cách nhanh chóng, minh bạch và tối ưu chi phí.
+          <strong>NabTravel</strong> là nền tảng du lịch trực tuyến được phát triển bởi <strong>CÔNG TY CỔ PHẦN Kolsup Limited</strong>, với mục tiêu giúp người dùng dễ dàng tìm kiếm, so sánh và đặt các dịch vụ du lịch một cách nhanh chóng, minh bạch và tối ưu chi phí.
         </p>
         <p>
           Chúng tôi tập trung xây dựng một hệ sinh thái du lịch thông minh, nơi bạn có thể lên kế hoạch cho toàn bộ hành trình chỉ trong vài phút – từ đặt khách sạn, lựa chọn tour cho đến tham khảo lịch trình chi tiết.
@@ -52,7 +52,7 @@ function AboutVi() {
         <h2 className="text-2xl font-bold text-[#004f32] mb-6 flex items-center gap-2">
           🚀 NabTravel mang đến điều gì?
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-[#f0f8f5] p-6 rounded-2xl">
             <h3 className="text-xl font-bold text-[#004f32] mb-3">
@@ -80,7 +80,7 @@ function AboutVi() {
 
           <div className="bg-[#f0f8f5] p-6 rounded-2xl">
             <h3 className="text-xl font-bold text-[#004f32] mb-3">
-              💰 Tối ưu chi phí 
+              💰 Tối ưu chi phí
             </h3>
             <p className="mb-2 text-base">NabTravel hướng tới:</p>
             <ul className="list-disc pl-5 space-y-1 text-base">
@@ -116,10 +116,9 @@ function AboutVi() {
             🏢 Thông tin công ty
           </h2>
           <ul className="space-y-3 text-base">
-            <li><span className="font-semibold text-gray-900">Tên pháp lý:</span> CÔNG TY CỔ PHẦN ASFY TECH</li>
+            <li><span className="font-semibold text-gray-900">Tên pháp lý:</span> CÔNG TY CỔ PHẦN Kolsup Limited</li>
             <li><span className="font-semibold text-gray-900">Mã số thuế:</span> 0110704552 (cấp ngày 04/05/2024)</li>
-            <li><span className="font-semibold text-gray-900">Đăng ký kinh doanh:</span><br/> Số nhà 19, ngách 1B/39, Đan Phượng, Hà Nội</li>
-            <li><span className="font-semibold text-gray-900">Văn phòng làm việc:</span><br/> Số 12 - BT11, KĐT Vân Canh, Sơn Đồng, Hà Nội</li>
+            <li><span className="font-semibold text-gray-900">Địa chỉ:</span><br /> 398 Kwun Tong Road, Kwun Tong, Hong Kong</li>
           </ul>
         </section>
 
@@ -129,7 +128,7 @@ function AboutVi() {
           </h2>
           <p className="mb-2">Nếu bạn cần hỗ trợ hoặc tư vấn hành trình:</p>
           <div className="inline-block bg-[#eef8f3] text-[#004f32] font-bold text-xl py-3 px-6 rounded-xl border border-green-100">
-            Hotline: 0988 999 395
+            Hotline: (+852) 5170 7620
           </div>
         </section>
       </div>
@@ -161,7 +160,7 @@ function AboutEn() {
           About NabTravel
         </h1>
         <p className="mb-4">
-          <strong>NabTravel</strong> is an online travel platform developed by <strong>ASFY TECH JOINT STOCK COMPANY</strong>, with the goal of helping users easily search, compare, and book travel services quickly, transparently, and cost-effectively.
+          <strong>NabTravel</strong> is an online travel platform developed by <strong>Kolsup Limited JOINT STOCK COMPANY</strong>, with the goal of helping users easily search, compare, and book travel services quickly, transparently, and cost-effectively.
         </p>
         <p>
           We focus on building a smart travel ecosystem where you can plan your entire trip in just a few minutes — from booking hotels and choosing tours to exploring detailed itineraries.
@@ -191,7 +190,7 @@ function AboutEn() {
         <h2 className="text-2xl font-bold text-[#004f32] mb-6 flex items-center gap-2">
           🚀 What NabTravel Offers
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-[#f0f8f5] p-6 rounded-2xl">
             <h3 className="text-xl font-bold text-[#004f32] mb-3">
@@ -255,10 +254,9 @@ function AboutEn() {
             🏢 Company Information
           </h2>
           <ul className="space-y-3 text-base">
-            <li><span className="font-semibold text-gray-900">Legal Name:</span> ASFY TECH JOINT STOCK COMPANY</li>
+            <li><span className="font-semibold text-gray-900">Legal Name:</span> Kolsup Limited</li>
             <li><span className="font-semibold text-gray-900">Tax Code:</span> 0110704552 (May 4, 2024)</li>
-            <li><span className="font-semibold text-gray-900">Registered Address:</span><br/> No. 19, Alley 1B/39, Dan Phuong, Hanoi, Vietnam</li>
-            <li><span className="font-semibold text-gray-900">Office Address:</span><br/> No. 12 - BT11, Van Canh Urban Area, Son Dong, Hanoi</li>
+            <li><span className="font-semibold text-gray-900">Address:</span><br /> 398 Kwun Tong Road, Kwun Tong, Hong Kong</li>
           </ul>
         </section>
 
@@ -268,7 +266,7 @@ function AboutEn() {
           </h2>
           <p className="mb-2">If you need support or travel consultation:</p>
           <div className="inline-block bg-[#eef8f3] text-[#004f32] font-bold text-xl py-3 px-6 rounded-xl border border-green-100">
-            Hotline: 0988 999 395
+            Hotline: (+852) 5170 7620
           </div>
         </section>
       </div>

@@ -81,7 +81,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="font-bold">{locale === "vi" ? "Địa chỉ" : "Address"}</div>
-                  <div>Số 12 - BT11, KĐT Vân Canh, Sơn Đồng, Hà Nội</div>
+                  <div>398 Kwun Tong Road, Kwun Tong, Hong Kong</div>
                 </div>
               </div>
               <div className="flex items-center gap-4 text-gray-700">
@@ -99,7 +99,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="font-bold">{locale === "vi" ? "Điện thoại" : "Phone"}</div>
-                  <div>0988 999 395</div>
+                  <div>(+852) 5170 7620</div>
                 </div>
               </div>
             </div>

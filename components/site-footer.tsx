@@ -22,8 +22,16 @@ export function SiteFooter() {
                 {section.links.map((linkStr: string, linkIdx: number) => {
                   let href = "#";
                   const lower = linkStr.toLowerCase();
-                  if (lower.includes("về chúng tôi") || lower.includes("about")) href = "/about";
-                  else if (lower.includes("liên hệ") || lower.includes("contact")) href = "/contact";
+                  if (lower.includes("về chúng tôi") || lower.includes("about") || lower.includes("chủ sở hữu") || lower.includes("owner")) href = "/about";
+                  else if (
+                    lower.includes("liên hệ") || lower.includes("contact") || 
+                    lower.includes("quảng cáo") || lower.includes("advertise") || 
+                    lower.includes("tài trợ") || lower.includes("sponsor") || 
+                    lower.includes("api") ||
+                    lower.includes("write") || lower.includes("viết") || lower.includes("review") || lower.includes("đánh giá") ||
+                    lower.includes("add") || lower.includes("thêm") || lower.includes("place") || lower.includes("địa điểm") ||
+                    lower.includes("join") || lower.includes("tham gia")
+                  ) href = "/contact";
                   else if (lower.includes("chính sách") || lower.includes("policy")) href = "/policy";
                   else if (lower.includes("điều khoản") || lower.includes("terms")) href = "/terms";
 

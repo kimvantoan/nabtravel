@@ -69,7 +69,7 @@ export function InspirationSection({ articles }: { articles?: ArticleData[] }) {
           >
             {INSPIRATIONS.map((item) => (
               <Link
-                href={`/article/${item.slug}`}
+                href={`/articles/${item.slug}`}
                 key={item.id}
                 className="relative w-[280px] md:w-[360px] flex flex-col gap-4 flex-shrink-0 snap-center cursor-pointer group/card block"
               >

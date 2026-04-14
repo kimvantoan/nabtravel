@@ -19,9 +19,9 @@ class ArticleController extends Controller
                            ->get();
 
         $formattedArticles = $articles->map(function ($article) {
-            // Loại bỏ thẻ HTML khỏi nội dung để làm excerpt ngang ngửa UI
+            // Ưu tiên dùng meta_description, nếu không có thì lấy plainText content
             $plainText = strip_tags($article->content);
-            $excerpt = mb_substr($plainText, 0, 150) . '...';
+            $excerpt = $article->meta_description ?: mb_substr($plainText, 0, 150) . '...';
             
             // Ước tính số phút đọc (tốc độ trung bình 200 từ/phút)
             $wordCount = str_word_count(strip_tags($article->content));
@@ -36,6 +36,7 @@ class ArticleController extends Controller
                 'categoryKey' => 'travel',
                 'publishedAt' => $article->created_at->toIso8601String(),
                 'readTime' => $readTime,
+                'author_name' => $article->author_name,
             ];
         });
 
@@ -50,15 +51,39 @@ class ArticleController extends Controller
         $articles = Article::where('is_ai_generated', false)
                            ->orderBy('created_at', 'desc')
                            ->get();
-        return response()->json($articles);
+
+        $formattedArticles = $articles->map(function ($article) {
+            $plainText = strip_tags($article->content);
+            $excerpt = $article->meta_description ?: mb_substr($plainText, 0, 150) . '...';
+            
+            $wordCount = str_word_count(strip_tags($article->content));
+            $readTime = ceil($wordCount / 200) ?: 1;
+
+            return [
+                'id' => (string) $article->id,
+                'slug' => $article->slug,
+                'title' => $article->title,
+                'excerpt' => $excerpt,
+                'meta_description' => $article->meta_description,
+                'image' => $article->thumbnail_url ?? '/images/default-hotel.jpg',
+                'categoryKey' => 'travel',
+                'publishedAt' => $article->created_at->toIso8601String(),
+                'readTime' => $readTime,
+                'author_name' => $article->author_name,
+            ];
+        });
+
+        return response()->json($formattedArticles);
     }
 
     /**
      * Xem chi tiết một bài viết
      */
-    public function show($slug)
+    public function show($identifier)
     {
-        $article = Article::where('slug', $slug)->firstOrFail();
+        $article = Article::where('id', $identifier)
+                          ->orWhere('slug', $identifier)
+                          ->firstOrFail();
 
         $wordCount = str_word_count(strip_tags($article->content));
         $readTime = ceil($wordCount / 200) ?: 1;
@@ -68,10 +93,14 @@ class ArticleController extends Controller
             'slug' => $article->slug,
             'title' => $article->title,
             'content' => $article->content, // Nội dung raw HTML
+            'meta_description' => $article->meta_description,
+            'excerpt' => $article->meta_description ?: mb_substr(strip_tags($article->content), 0, 150) . '...',
             'image' => $article->thumbnail_url ?? '/images/default-hotel.jpg',
             'categoryKey' => 'travel',
             'publishedAt' => $article->created_at->toIso8601String(),
             'readTime' => $readTime,
+            'is_ai_generated' => (bool)$article->is_ai_generated,
+            'author_name' => $article->author_name,
         ]);
     }
 
@@ -97,10 +126,18 @@ class ArticleController extends Controller
             $thumbnailUrl = '/storage/' . $path;
         }
 
+        $metaDescription = $request->input('meta_description');
+        if (empty($metaDescription) && $request->input('content')) {
+            $plainText = strip_tags(html_entity_decode($request->input('content')));
+            $plainText = trim(preg_replace('/\s+/', ' ', $plainText));
+            $metaDescription = mb_substr($plainText, 0, 157) . '...';
+        }
+
         $article = Article::create([
             'title' => $request->title,
             'slug' => $slug,
             'content' => $request->input('content'),
+            'meta_description' => $metaDescription,
             'thumbnail_url' => $thumbnailUrl,
             'source_url' => $request->source_url ?? '',
             'is_ai_generated' => false,
@@ -118,9 +155,17 @@ class ArticleController extends Controller
             $thumbnailUrl = '/storage/' . $path;
         }
 
+        $metaDescription = $request->input('meta_description', $article->meta_description);
+        if (empty($metaDescription)) {
+            $plainText = strip_tags(html_entity_decode($request->input('content') ?? $article->content));
+            $plainText = trim(preg_replace('/\s+/', ' ', $plainText));
+            $metaDescription = mb_substr($plainText, 0, 157) . '...';
+        }
+
         $article->update([
             'title' => $request->title,
             'content' => $request->input('content'),
+            'meta_description' => $metaDescription,
             'thumbnail_url' => $thumbnailUrl,
         ]);
         return response()->json($article);
