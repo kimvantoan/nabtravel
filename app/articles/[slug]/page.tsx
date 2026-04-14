@@ -41,7 +41,10 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
     notFound();
   }
 
-  const contentHTML = article.content || '<p>No content available.</p>';
+  let contentHTML = article.content || '<p>No content available.</p>';
+  // Fix AI/Scraper text that uses non-breaking spaces natively, causing it to render as one massive word that forces mid-word breaking or overflow.
+  contentHTML = contentHTML.replace(/&nbsp;/g, ' ').replace(/\u00A0/g, ' ');
+
   const locale = await getLocale();
   const dict = await getDictionary();
 
@@ -75,7 +78,7 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
           
           {/* Header */}
           <header className="mb-10 md:mb-12">
-            <h1 className="text-[36px] md:text-[48px] lg:text-[54px] font-extrabold text-[#1a1a1a] leading-[1.05] tracking-tight mb-5">
+            <h1 className="text-[32px] md:text-[40px] lg:text-[44px] font-extrabold text-[#1a1a1a] leading-[1.3] tracking-tight mb-5">
               {article.title}
             </h1>
             <div className="flex items-center gap-1.5 text-[14px] text-gray-400 font-sans flex-wrap">
@@ -91,11 +94,11 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
           {/* Typography Content */}
           <article className="prose prose-lg md:prose-xl max-w-none w-full text-[#333]
             [&_h2]:text-2xl [&_h2]:md:text-[32px] [&_h2]:mt-12 [&_h2]:mb-6 [&_h2]:font-extrabold [&_h2]:text-gray-900 [&_h2]:tracking-tight [&_h2]:leading-tight
-            [&_p]:text-[18px] [&_p]:md:text-[20px] [&_p]:leading-[1.65] [&_p]:text-[#333] [&_p]:mb-7 [&_p]:font-sans [&_p]:break-words
-            [&_blockquote]:border-l-4 [&_blockquote]:border-red-600 [&_blockquote]:pl-6 [&_blockquote]:md:pl-8 [&_blockquote]:italic [&_blockquote]:text-[22px] [&_blockquote]:md:text-[26px] [&_blockquote]:text-gray-900 [&_blockquote]:bg-gray-50 [&_blockquote]:py-6 [&_blockquote]:pr-6 [&_blockquote]:rounded-r-xl [&_blockquote]:my-10 [&_blockquote]:leading-relaxed [&_blockquote]:break-words
+            [&_p]:text-[18px] [&_p]:md:text-[20px] [&_p]:leading-[1.65] [&_p]:text-[#333] [&_p]:mb-7 [&_p]:font-sans [&_p]:whitespace-normal [&_p]:break-words [&_p]:text-justify
+            [&_blockquote]:border-l-4 [&_blockquote]:border-red-600 [&_blockquote]:pl-6 [&_blockquote]:md:pl-8 [&_blockquote]:italic [&_blockquote]:text-[22px] [&_blockquote]:md:text-[26px] [&_blockquote]:text-gray-900 [&_blockquote]:bg-gray-50 [&_blockquote]:py-6 [&_blockquote]:pr-6 [&_blockquote]:rounded-r-xl [&_blockquote]:my-10 [&_blockquote]:leading-relaxed [&_blockquote]:text-justify
             [&_img]:rounded-none [&_img]:w-full [&_img]:my-10 [&_img]:shadow-md
             [&_figcaption]:text-center [&_figcaption]:text-[13px] [&_figcaption]:text-gray-500 [&_figcaption]:mt-3
-            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-8 [&_ul]:space-y-2 [&_li]:text-[18px] [&_li]:md:text-[20px] [&_li]:font-sans [&_li]:text-[#333] [&_li]:break-words
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-8 [&_ul]:space-y-2 [&_li]:text-[18px] [&_li]:md:text-[20px] [&_li]:font-sans [&_li]:text-[#333] [&_li]:whitespace-normal [&_li]:break-words [&_li]:text-justify
           ">
             <div dangerouslySetInnerHTML={{ __html: contentHTML }} />
           </article>
