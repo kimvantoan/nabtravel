@@ -18,6 +18,7 @@ export interface ArticleData {
   publishedAt: string;
   readTime: number;
   is_ai_generated?: boolean;
+  author_name?: string;
 }
 
 interface ArticleCardProps {

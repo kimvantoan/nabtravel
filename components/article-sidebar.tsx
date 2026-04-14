@@ -1,43 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
 export function ArticleSidebar({ articles }: { articles: any[] }) {
-  const [activeTab, setActiveTab] = useState<"trending" | "latest">("trending");
-
-  // Just randomly split or shuffle articles for the two tabs to simulate varied content
-  const trendingArticles = articles.slice(0, 5);
-  const latestArticles = [...articles].reverse().slice(0, 5);
-
-  const displayList = activeTab === "trending" ? trendingArticles : latestArticles;
+  const displayList = articles.slice(0, 5);
 
   return (
     <div className="sticky top-24 w-full">
-      <div className="flex items-center border-b border-gray-200 mb-6">
-        <button
-          onClick={() => setActiveTab("trending")}
-          className={`pb-3 px-1 text-[13px] font-bold tracking-wider uppercase transition-colors relative ${
-            activeTab === "trending" ? "text-red-600" : "text-gray-500 hover:text-gray-800"
-          }`}
-        >
-          Trending
-          {activeTab === "trending" && (
-            <span className="absolute bottom-0 left-0 w-full h-[2px] bg-red-600" />
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab("latest")}
-          className={`pb-3 px-4 ml-2 text-[13px] font-bold tracking-wider uppercase transition-colors relative ${
-            activeTab === "latest" ? "text-red-600" : "text-gray-500 hover:text-gray-800"
-          }`}
-        >
-          Latest
-          {activeTab === "latest" && (
-            <span className="absolute bottom-0 left-0 w-full h-[2px] bg-red-600" />
-          )}
-        </button>
+      <div className="mb-6 border-b border-gray-200 pb-3">
+        <h3 className="text-[14px] font-bold tracking-wider uppercase text-gray-900">
+          Bài viết liên quan
+        </h3>
       </div>
 
       <div className="flex flex-col gap-6">

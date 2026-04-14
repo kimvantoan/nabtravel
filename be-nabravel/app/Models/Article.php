@@ -18,7 +18,18 @@ class Article extends Model
         'hotel_ids',
         'status',
         'is_ai_generated',
+        'author_name',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($article) {
+            if (empty($article->author_name)) {
+                $faker = \Faker\Factory::create('vi_VN');
+                $article->author_name = $faker->lastName . ' ' . $faker->firstName;
+            }
+        });
+    }
 
     /**
      * Get the attributes that should be cast.

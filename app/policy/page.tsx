@@ -149,7 +149,7 @@ function PolicyVi() {
         <h2 className="text-2xl font-bold text-[#004f32] mb-4">9. Liên hệ</h2>
         <p className="mb-4">Nếu bạn có câu hỏi về Chính Sách Bảo Mật, vui lòng liên hệ:</p>
         <div className="inline-block bg-[#eef8f3] text-[#004f32] font-bold text-xl py-3 px-6 rounded-xl border border-green-100">
-          Hotline: 0988 999 395
+          Hotline: (+852) 5170 7620
         </div>
       </section>
 
@@ -295,7 +295,7 @@ function PolicyEn() {
         <h2 className="text-2xl font-bold text-[#004f32] mb-4">9. Contact</h2>
         <p className="mb-4">If you have any questions regarding this Privacy Policy, please contact us:</p>
         <div className="inline-block bg-[#eef8f3] text-[#004f32] font-bold text-xl py-3 px-6 rounded-xl border border-green-100">
-          Hotline: 0988 999 395
+          Hotline: (+852) 5170 7620
         </div>
       </section>
 

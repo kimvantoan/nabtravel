@@ -36,6 +36,7 @@ class ArticleController extends Controller
                 'categoryKey' => 'travel',
                 'publishedAt' => $article->created_at->toIso8601String(),
                 'readTime' => $readTime,
+                'author_name' => $article->author_name,
             ];
         });
 
@@ -68,6 +69,7 @@ class ArticleController extends Controller
                 'categoryKey' => 'travel',
                 'publishedAt' => $article->created_at->toIso8601String(),
                 'readTime' => $readTime,
+                'author_name' => $article->author_name,
             ];
         });
 
@@ -98,6 +100,7 @@ class ArticleController extends Controller
             'publishedAt' => $article->created_at->toIso8601String(),
             'readTime' => $readTime,
             'is_ai_generated' => (bool)$article->is_ai_generated,
+            'author_name' => $article->author_name,
         ]);
     }
 
