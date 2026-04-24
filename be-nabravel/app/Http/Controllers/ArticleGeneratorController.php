@@ -51,7 +51,7 @@ class ArticleGeneratorController extends Controller
 
         // 1. CHỌN CHỦ ĐỀ VÀ THỂ LOẠI (Luxury hoặc Popular)
         $theme = rand(0, 1) === 0 ? 'luxury' : 'popular';
-        $limit = rand(3, 5);
+        $limit = rand(5, 7);
 
         if ($theme === 'luxury') {
             $topics = [
@@ -137,6 +137,11 @@ class ArticleGeneratorController extends Controller
                     ->timeout(90)
                     ->withHeaders(['Content-Type' => 'application/json'])
                     ->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}", [
+                        'systemInstruction' => [
+                            'parts' => [
+                                ['text' => 'Bạn là một nhà báo, một biên tập viên du lịch chuyên nghiệp. Bạn BẮT BUỘC phải trả về đúng định dạng text với các block ---TITLE---, ---META---, ---CONTENT--- mà không có markdown code blocks bao quanh.']
+                            ]
+                        ],
                         'contents' => [
                             [
                                 'role' => 'user',
@@ -148,7 +153,7 @@ class ArticleGeneratorController extends Controller
                         'generationConfig' => [
                             'temperature' => 0.85,
                             'maxOutputTokens' => 8192,
-                            'responseMimeType' => 'application/json',
+                            'responseMimeType' => 'text/plain',
                         ]
                     ]);
 
@@ -269,48 +274,57 @@ class ArticleGeneratorController extends Controller
         $hotelLines = [];
         foreach ($hotels as $h) {
             $am = implode(', ', $h['amenities']);
-            $hotelLines[] = "• {$h['name']} | Điểm: {$h['score']}/5 | Tiện ích: {$am} | Link: {$frontendUrl}/hotel/{$h['slug']} | Ảnh: {$h['image']}";
+            $hotelLines[] = "• {$h['name']} | Điểm: {$h['score']}/10 | Tiện ích: {$am} | Link: {$frontendUrl}/hotel/{$h['slug']} | Ảnh: {$h['image']}";
         }
         $hotelText = implode("\n", $hotelLines);
 
         return <<<PROMPT
-Viết bài blog du lịch chuyên sâu chủ đề: "{$topic}"
+Viết một bài báo, bài phân tích du lịch chuyên sâu chủ đề: "{$topic}"
 
 KHÁCH SẠN (bắt buộc dùng tuần tự):
 {$hotelText}
 
 YÊU CẦU ĐỘ DÀI VÀ MỨC ĐỘ TẬP TRUNG TỪ KHÓA:
-- BÀI VIẾT PHẢI CỰC KỲ CHI TIẾT VÀ DÀI, KHOẢNG 2000 TỪ. Cần phân bổ nội dung thật sâu sắc, kéo dài bằng cách miêu tả tỉ mỉ chi tiết văn phong từ tốn.
+- BÀI VIẾT CẦN CỰC KỲ CHI TIẾT, ĐẠT KHOẢNG 2000 TỪ. Cần phân bổ nội dung thật sâu sắc, phong phú và dài.
 - NỘI DUNG PHẢI BÁM SÁT VÀ TẬP TRUNG HOÀN TOÀN VÀO Ý NGHĨA CỦA TIÊU ĐỀ: "{$topic}". Nếu tiêu đề nhấn mạnh sự sang chảnh, hãy dùng nhiều câu từ miêu tả sự đẳng cấp, xa hoa. Nếu tiêu đề nói về lượt đánh giá cao, hãy phân tích khách quan vì sao du khách lại cực kỳ ưa chuộng.
 
 YÊU CẦU HTML:
-- Giọng văn: nhẹ nhàng, lịch sự, truyền cảm hứng, chuyên nghiệp như một Travel Blogger hàng đầu. 
+- Giọng văn: khách quan, chuyên nghiệp, thông tin chính xác, mang đậm phong cách báo chí và tạp chí du lịch. 
 - Bố cục HTML phân chia như sau: 
-  + Mở bài: 3-4 đoạn văn sâu sắc, dẫn dắt người đọc vào không gian của bài viết và trực tiếp liên kết đến tiêu đề "{$topic}".
-  + Thân bài review TỪNG khách sạn (cần sử dụng các heading h2, h3 rõ ràng). VỚI MỖI KHÁCH SẠN, VIẾT KHOẢNG 400 - 500 TỪ MIÊU TẢ CỤ THỂ. Bao gồm: 
+  + Mở bài: 2-3 đoạn văn sâu sắc, dẫn dắt người đọc vào không gian của bài viết và trực tiếp liên kết đến tiêu đề "{$topic}".
+  + Thân bài review TỪNG khách sạn (cần sử dụng các heading h2, h3 rõ ràng). VỚI MỖI KHÁCH SẠN, VIẾT KHOẢNG 300 - 400 TỪ MIÊU TẢ CỰC KỲ CHI TIẾT VÀ SỐNG ĐỘNG. Bao gồm: 
     * Cảm giác lúc đặt chân đến sảnh, không gian, mùi hương, thiết kế kiến trúc.
     * Đánh giá chi tiết nội thất phòng ngủ, view nhìn ra ngoài, tiện nghi phòng tắm.
     * Nhận xét về ẩm thực, các nhà hàng tại đây, bữa sáng buffet, hồ bơi, dịch vụ spa, thái độ nhân viên.
-  + Thêm chuyên mục: "Kinh nghiệm du lịch & Tips đặt phòng" thiệt thực cho người đọc ở cuối bài (khoảng 300 từ).
-  + Kết bài ấm áp, tổng hợp lại trọn vẹn chủ đề bài viết.
-- Mỗi khách sạn phải có 1 thẻ ảnh bọc HTML đúng chuẩn như sau: <img src='(URL CỦA KHÁCH SẠN ĐÓ)' alt='(Tên khách sạn)' class='rounded-xl shadow-lg my-6 w-full object-cover aspect-video'/>
-- Tên khách sạn khi nhắc đến nên bọc thẻ: <a href='(LINK CỦA KHÁCH SẠN)' class='text-[#004f32] font-bold underline'>Tên Khách Sạn</a>
-- QUAN TRỌNG: CẤM TIỆT SỬ DỤNG DẤU NHÁY KÉP (") Ở TRONG CÁC THẺ HTML, PHẢI DÙNG DẤU NHÁY ĐƠN ('). Nhớ kỹ để chuỗi JSON trả về không bị lỗi syntax.
+  + Thêm chuyên mục: "Góc nhìn chuyên gia & Đánh giá tổng quan" mang tính phân tích chuyên sâu cho người đọc ở cuối bài (khoảng 300 từ).
+  + Kết bài khách quan, tổng hợp lại trọn vẹn chủ đề bài báo.
+- Mỗi khách sạn phải có 1 thẻ ảnh bọc HTML đúng chuẩn như sau: <img src="(URL CỦA KHÁCH SẠN ĐÓ)" alt="(Tên khách sạn)" class="rounded-xl shadow-lg my-6 w-full object-cover aspect-video"/>
+- Tên khách sạn khi nhắc đến nên bọc thẻ: <a href="(LINK CỦA KHÁCH SẠN)" class="text-[#004f32] font-bold underline">Tên Khách Sạn</a>
 
-TRẢ VỀ JSON DUY NHẤT HỢP LỆ (BẮT BUỘC ĐÓNG NGOẶC HỢP LỆ, KHÔNG CHỨA COMMENTS HAY CÚ PHÁP MARKDOWN NHƯ ```json):
-{"title":"Một tiêu đề gợi tò mò, hấp dẫn có chứa từ khóa của chủ đề","meta_description":"Mô tả ngắn gọn khoảng 150 ký tự","content":"<toàn bộ HTML bài viết thật dài và chi tiết, đảm bảo tổng chừng 2000 từ>"}
+BẠN BẮT BUỘC PHẢI TRẢ VỀ ĐÚNG ĐỊNH DẠNG SAU (KHÔNG DÙNG JSON, KHÔNG BỌC TRONG MARKDOWN):
+---TITLE---
+Một tiêu đề gợi tò mò, hấp dẫn có chứa từ khóa của chủ đề
+---META---
+Mô tả ngắn gọn khoảng 150 ký tự
+---CONTENT---
+<toàn bộ HTML bài viết chi tiết, đảm bảo khoảng 2000 từ>
 PROMPT;
     }
 
     private function parseAiResponse(string $rawText): ?array
     {
         file_put_contents(storage_path('logs/ai_raw.log'), $rawText);
-        $start = strpos($rawText, '{');
-        $end = strrpos($rawText, '}');
         
-        if ($start !== false && $end !== false) {
-            $jsonString = substr($rawText, $start, $end - $start + 1);
-            return json_decode($jsonString, true);
+        preg_match('/---TITLE---\s*([\s\S]*?)\s*---META---/', $rawText, $titleMatch);
+        preg_match('/---META---\s*([\s\S]*?)\s*---CONTENT---/', $rawText, $metaMatch);
+        preg_match('/---CONTENT---\s*([\s\S]*)$/', $rawText, $contentMatch);
+
+        if ($titleMatch && $contentMatch) {
+            return [
+                'title' => trim($titleMatch[1]),
+                'meta_description' => $metaMatch ? trim($metaMatch[1]) : null,
+                'content' => trim($contentMatch[1])
+            ];
         }
         
         return null;

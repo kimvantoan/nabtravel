@@ -14,12 +14,18 @@ use App\Http\Controllers\ArticleGeneratorController;
 |
 */
 
-// Tạo bài viết AI (CHỈ POST — không cho GET để tránh crawler/trình duyệt tự trigger)
-Route::post('/generate-article', [ArticleGeneratorController::class, 'generate']);
+// Tạo bài viết AI (Cho phép cả GET để gọi thẳng từ trình duyệt Google Chrome)
+Route::match(['get', 'post'], '/generate-article', [ArticleGeneratorController::class, 'generate']);
 // Batch generate: tạo nhiều bài 1 lúc (tối đa 3/batch)
-Route::post('/generate-article/batch', [ArticleGeneratorController::class, 'batchGenerate']);
+Route::match(['get', 'post'], '/generate-article/batch', [ArticleGeneratorController::class, 'batchGenerate']);
 // Kiểm tra quota còn lại hôm nay
 Route::get('/generate-article/quota', [ArticleGeneratorController::class, 'quota']);
+
+// Xóa cache hệ thống (Rất hữu ích cho hosting cPanel không có terminal)
+Route::get('/clear-cache', function () {
+    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    return response()->json(['message' => 'Cache cleared successfully (Config, Route, View, Event)']);
+});
 
 // --- ROUTES MỚI CHO FRONTEND NEXT.JS ---
 use App\Http\Controllers\ArticleController;
