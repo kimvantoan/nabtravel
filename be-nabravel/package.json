@@ -16,6 +16,11 @@
     },
     "dependencies": {
         "@vitalets/google-translate-api": "^9.2.1",
-        "bing-translate-api": "^4.2.0"
+        "bing-translate-api": "^4.2.0",
+        "mysql2": "^3.22.2",
+        "p-limit": "^7.3.0",
+        "puppeteer": "^24.42.0",
+        "puppeteer-extra": "^3.3.6",
+        "puppeteer-extra-plugin-stealth": "^2.11.2"
     }
 }
