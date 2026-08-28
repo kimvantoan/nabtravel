@@ -11,17 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('articles', function (Blueprint $table) {
-            $table->string('author_name')->nullable();
-        });
+        if (!Schema::hasColumn('articles', 'author_name')) {
+            Schema::table('articles', function (Blueprint $table) {
+                $table->string('author_name')->nullable();
+            });
+        }
 
-        // Fake data
-        $faker = \Faker\Factory::create('vi_VN');
-        $articles = \Illuminate\Support\Facades\DB::table('articles')->get();
-        foreach ($articles as $article) {
-            \Illuminate\Support\Facades\DB::table('articles')
-                ->where('id', $article->id)
-                ->update(['author_name' => $faker->name()]);
+        // Fake data (only if Faker is available in dev environment)
+        if (class_exists(\Faker\Factory::class)) {
+            $faker = \Faker\Factory::create('vi_VN');
+            $articles = \Illuminate\Support\Facades\DB::table('articles')->get();
+            foreach ($articles as $article) {
+                \Illuminate\Support\Facades\DB::table('articles')
+                    ->where('id', $article->id)
+                    ->update(['author_name' => $faker->name()]);
+            }
         }
     }
 
