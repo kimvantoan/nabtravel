@@ -39,4 +39,12 @@ return [
         'secret' => env('RECAPTCHA_SECRET_KEY'),
     ],
 
+    'rapidapi' => [
+        'key' => env('RAPID_API_KEY'),
+    ],
+
+    'openai' => [
+        'key' => env('OPENAI_API_KEY'),
+    ],
+
 ];

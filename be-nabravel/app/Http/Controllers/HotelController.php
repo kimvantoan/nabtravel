@@ -95,7 +95,7 @@ class HotelController extends Controller
      */
     public function sync(Request $request)
     {
-        $apiKey = env('RAPID_API_KEY');
+        $apiKey = config('services.rapidapi.key');
         if (!$apiKey) {
             return response()->json(['error' => 'Thiếu RAPID_API_KEY'], 500);
         }

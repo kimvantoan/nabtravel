@@ -15,7 +15,7 @@ export const getCachedArticles = cache(async (): Promise<ArticleData[]> => {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     const response = await fetch(`${backendUrl}/api/articles`, {
-      next: { revalidate: 0 }
+      next: { revalidate: 3600 } // Cache 1 hour — consistent with ISR strategy
     });
 
     if (!response.ok) {

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reviews', function (Blueprint $table) {
+        if (!Schema::hasTable('reviews')) Schema::create('reviews', function (Blueprint $table) {
             $table->id();
             $table->string('hotel_slug');
             $table->string('user_name');

@@ -7,13 +7,13 @@ import { LanguageProvider } from "./providers";
 import { getDictionary, getLocale } from "@/lib/i18n";
 
 const outfit = Outfit({
-  variable: "--font-sans-custom",
+  variable: "--font-sans-en",
   subsets: ["latin"],
   display: "swap",
 });
 
 const beVietnamPro = Be_Vietnam_Pro({
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-sans-custom",
   subsets: ["latin", "vietnamese"],
   display: "swap",
@@ -53,7 +53,7 @@ export default async function RootLayout({
 }>) {
   const dict = await getDictionary();
   const locale = await getLocale();
-  const fontClass = locale === 'vi' ? beVietnamPro.variable : outfit.variable;
+  const fontClass = locale === "vi" ? beVietnamPro.variable : outfit.variable;
 
   return (
     <html
